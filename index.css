@@ -1,0 +1,58 @@
+body {
+    background: linear-gradient(to bottom, #33ccff 0%, #ff99cc 100%);
+    font-family: 'PT Serif', serif;
+}
+
+h1 {
+    text-decoration: underline;
+}
+
+canvas {
+    border: 1px solid black;
+    background-color: #FFFFFF;
+}
+
+#title {
+    text-align: center;
+    border: 1px groove;
+    border-color: black;
+    padding: 10px;
+    box-shadow: 10px 5px grey;
+}
+
+.arrow_box {
+	position: relative;
+	background: #88b7d5;
+	border: 4px solid #c2e1f5;
+}
+
+.button button {
+    background-color: rgb(0, 200, 220);
+    border: 2px solid black;
+    color: #494949;
+    padding: 15px 35px 15px 30px;
+    font-weight: bold;
+    cursor: pointer;
+    float: left;
+    font-family: 'PT Serif';
+}
+
+.button button:hover {
+    background-color: rgb(30, 234, 255);
+}
+
+.button button:disabled {
+    background-color: #5e6577;
+}
+
+.centerText {
+    text-align: center;
+}
+
+#name {
+    font-family: Ravie, 'PT Serif', arial, serif;
+}
+
+#videoHeading {
+    margin-top: 80px;
+}
