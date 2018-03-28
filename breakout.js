@@ -25,9 +25,11 @@ var brickWidth = detectMob() ? 30 : 75;
 var brickHeight = 20;
 var brickPadding = 10;
 var brickOffsetTop = 30;
-var brickOffsetLeft = 30;
+var brickOffsetLeft = 40;
 var score = 0;
 var lives = 1;
+var rightPressed = false;
+var leftPressed = false;
 
 if (detectMob()) {
     canvas.width = screen.width - 20;
@@ -78,6 +80,9 @@ function drawBricks() {
                 var brickY = (r * (brickHeight + brickPadding)) + brickOffsetTop;
                 bricks[c][r].x = brickX;
                 bricks[c][r].y = brickY;
+                if (detectMob()) {
+                    brickX += 15;
+                }
                 ctx.beginPath();
                 ctx.rect(brickX, brickY, brickWidth, brickHeight);
                 ctx.fillStyle = "#0095DD";
@@ -122,6 +127,12 @@ function draw() {
             }
         }
     }
+    if (rightPressed && paddleX < canvas.width-paddleWidth) {
+        paddleX += 7;
+    }
+    else if (leftPressed && paddleX > 0) {
+        paddleX -= 7;
+    }
     
     x += dx;
     y += dy;
@@ -162,7 +173,25 @@ function drawLives() {
 function mouseMoved(mouse) {
     var relativeX = mouse.clientX - canvas.offsetLeft;
     if (relativeX > 0 && relativeX < canvas.width) {
-        paddleX = relativeX - paddleWidth/2;
+        paddleX = relativeX - paddleWidth / 2;
+    }
+}
+
+function keyDownHandler(e) {
+    if (e.keyCode == 39) {
+        rightPressed = true;
+    }
+    else if (e.keyCode == 37) {
+        leftPressed = true;
+    }
+}
+
+function keyUpHandler(e) {
+    if (e.keyCode == 39) {
+        rightPressed = false;
+    }
+    else if (e.keyCode == 37) {
+        leftPressed = false;
     }
 }
 
@@ -171,9 +200,17 @@ $(document).ready(function() {
     $("#startButton").click(function() {
         renderBricks();
         if (typeof interval == "undefined" || interval === null) {
-            if (lives == 0) lives = 1, x = canvas.width / 2, y = canvas.height - 30, dx = 2, dy = -2;
+            if (lives == 0) lives = 1, x = canvas.width / 2, y = canvas.height - 30, dx = 2, dy = -2, score = 0;
             interval = setInterval(draw, 15);
-            document.addEventListener("mousemove", mouseMoved, false);
+            if (!detectMob()) {
+                document.addEventListener("keydown", keyDownHandler, false);
+                document.addEventListener("keyup", keyUpHandler, false);
+                document.addEventListener("click", mouseMoved, false);
+                document.addEventListener("mousemove", mouseMoved, false);
+            } else {
+                document.addEventListener("click", mouseMoved, false);
+                document.addEventListener("mousemove", mouseMoved, false);
+            }
         }
     });
 });
