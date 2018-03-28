@@ -110,7 +110,7 @@ function draw() {
             lives--;
             if (lives <= 0) {
                 ctx.font = "30px Arial";
-                ctx.fillText("GAME OVER", 160, 180);
+                ctx.fillText("GAME OVER", detectMob() ? 100 : 160, 180);
                 clearInterval(interval);
                 interval = null;
             } else {
