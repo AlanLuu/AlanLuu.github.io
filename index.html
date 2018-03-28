@@ -7,12 +7,13 @@
         <meta name="theme-color" content="#33ccff">
         <title>Alan Luu</title>
         <link href="https://fonts.googleapis.com/css?family=PT+Serif" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Rancho" rel="stylesheet"> 
         <link href="index.css" rel="stylesheet" type="text/css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     </head>
     <body>
         <div id="title">
-            <h1 id="name">Alan Luu</h1>
+            <p id="name">Alan Luu</p>
         </div>
         <div id="aboutme">
             <h1>All about me</h1>
@@ -20,38 +21,41 @@
         </div>    
         <div id="interests">
             <h1>Interests</h1>
-            <p>Coding, playing video games, learning new things, and teaching others how to code.</p>
+            <ul style="font-size: 19px;">
+                <li>Coding</li>
+                <li>Playing video games</li>
+                <li>Learning new things</li>
+                <li>Teaching others how to code</li>
+            </ul>
         </div>  
         <div id="programmingLanguages">
             <h1>Programming languages I know</h1>
-            <p>HTML, CSS, JavaScript, and a bit of Python and Java.</p>
+            <ul style="font-size: 19px;">
+                <li>HTML</li>
+                <li>CSS</li>
+                <li>JavaScript</li>
+                <li>A little bit of Python and Java</li>
+            </ul>
         </div>
-        <div class="arrow_box">
+        <div id="theCanvas">
             <h1>Projects I've made</h1>
             <p>A calculator app for Android. Source code is <a href="https://github.com/luualan9545/android-calculator" target="_blank">here</a>.</p>
             <p>A website with a circle that follows the user's mouse cursor. Source code is <a href="https://github.com/luualan9545/Ajar.io" 
             target="_blank">here</a>. Website is <a href="https://luualan9545.github.io/circle-canvas/"
             target="_blank">here</a>.</p>
-        </div>
-        <div id="theCanvas">
-            <h1>Check this out!</h1>
-            <p>It's an HTML5 canvas that draws six randomly colored circles on random locations!</p>
-            <p>Originally introduced by Apple for the WebKit rendering engine for its Safari browser, the HTML5 
+            <p>A breakout game written in pure JavaScript which you can play on my website right here.</p>
+            <!--<p>Originally introduced by Apple for the WebKit rendering engine for its Safari browser, the HTML5 
             <em>canvas</em> element allows us to draw graphics in a web page without having to rely on a plugin such as Java or Adobe Flash.</p>
-            <p id="canvasDim"></p>
-            <canvas id="canvas" width="300px" height="250px">
+            <p id="canvasDim"></p>-->
+            <canvas id="canvas" width="480px" height="250px">
                 Sorry, your browser doesn't support the HTML5 canvas element.
             </canvas>
-            <p id="buttonClicks"></p>
-            <span class="button">
-                <button id="redrawCircles">Redraw the circles!</button>
-            </span>
         </div> 
-        <div class="centerText" style="margin-top: 100px;">
-            <p>The font used in this website is called PT Serif. You can find it <a href="https://fonts.google.com/specimen/PT+Serif" target="_blank">here</a>.</p>
+        <button id="startButton">Start game!</button>
+        <!--<div class="centerText" style="margin-top: 100px;">
             <p>This website was made using <img src="https://www.w3.org/html/logo/downloads/HTML5_Logo.svg" alt="HTML5 Logo" width="50px" 
                  height="50px" style="vertical-align: middle;"> technology.</p>
-        </div>
-        <script src="canvas.js" type="text/javascript"></script>
+        </div>-->
+        <script src="breakout.js" type="text/javascript"></script>
     </body>
 </html>
