@@ -64,7 +64,7 @@ function drawBall() {
 
 function drawPaddle() {
     ctx.beginPath();
-    ctx.rect(paddleX, canvas.height-paddleHeight, paddleWidth, paddleHeight);
+    ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
     ctx.fillStyle = "#0095DD";
     ctx.fill();
     ctx.closePath();
@@ -110,7 +110,7 @@ function draw() {
             lives--;
             if (lives <= 0) {
                 ctx.font = "30px Arial";
-                ctx.fillText("GAME OVER", detectMob() ? 100 : 160, 180);
+                ctx.fillText("GAME OVER", detectMob() ? 80 : 160, 180);
                 clearInterval(interval);
                 interval = null;
             } else {
@@ -138,7 +138,7 @@ function collisionDetection() {
                     score++;
                     if (score == brickRowCount * brickColumnCount) {
                         ctx.font = "30px Arial";
-                        ctx.fillText("YOU WIN", 160, 180);
+                        ctx.fillText("YOU WIN", detectMob() ? 80 : 160, 180);
                         clearInterval(interval);
                     }
                 }
