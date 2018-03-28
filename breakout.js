@@ -151,6 +151,7 @@ function collisionDetection() {
                         ctx.font = "30px Arial";
                         ctx.fillText("YOU WIN", detectMob() ? 80 : 160, 180);
                         clearInterval(interval);
+                        interval = null;
                     }
                 }
             }
