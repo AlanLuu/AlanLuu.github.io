@@ -93,7 +93,6 @@ function drawBricks() {
     }
 }
 
-//This function gets called first!
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBricks();
@@ -115,7 +114,7 @@ function draw() {
             lives--;
             if (lives <= 0) {
                 ctx.font = "30px Arial";
-                ctx.fillText("GAME OVER", detectMob() ? 80 : 160, 180);
+                ctx.fillText("GAME OVER", detectMob() ? 50 : 160, 180);
                 clearInterval(interval);
                 interval = null;
             } else {
@@ -127,10 +126,9 @@ function draw() {
             }
         }
     }
-    if (rightPressed && paddleX < canvas.width-paddleWidth) {
+    if (rightPressed && paddleX < canvas.width - paddleWidth) {
         paddleX += 7;
-    }
-    else if (leftPressed && paddleX > 0) {
+    } else if (leftPressed && paddleX > 0) {
         paddleX -= 7;
     }
     
@@ -149,7 +147,7 @@ function collisionDetection() {
                     score++;
                     if (score == brickRowCount * brickColumnCount) {
                         ctx.font = "30px Arial";
-                        ctx.fillText("YOU WIN", detectMob() ? 80 : 160, 180);
+                        ctx.fillText("YOU WIN", detectMob() ? 50 : 160, 180);
                         clearInterval(interval);
                         interval = null;
                     }
@@ -181,8 +179,7 @@ function mouseMoved(mouse) {
 function keyDownHandler(e) {
     if (e.keyCode == 39) {
         rightPressed = true;
-    }
-    else if (e.keyCode == 37) {
+    } else if (e.keyCode == 37) {
         leftPressed = true;
     }
 }
@@ -190,28 +187,23 @@ function keyDownHandler(e) {
 function keyUpHandler(e) {
     if (e.keyCode == 39) {
         rightPressed = false;
-    }
-    else if (e.keyCode == 37) {
+    } else if (e.keyCode == 37) {
         leftPressed = false;
     }
 }
 
 $(document).ready(function() {
-    $("#canvasDim").html("The canvas width is " + canvas.width + " px, and the canvas height is " + canvas.height + " px.");
     $("#startButton").click(function() {
         renderBricks();
         if (typeof interval == "undefined" || interval === null) {
             if (lives == 0) lives = 1, x = canvas.width / 2, y = canvas.height - 30, dx = 2, dy = -2, score = 0;
-            interval = setInterval(draw, 15);
             if (!detectMob()) {
                 document.addEventListener("keydown", keyDownHandler, false);
                 document.addEventListener("keyup", keyUpHandler, false);
-                document.addEventListener("click", mouseMoved, false);
-                document.addEventListener("mousemove", mouseMoved, false);
-            } else {
-                document.addEventListener("click", mouseMoved, false);
-                document.addEventListener("mousemove", mouseMoved, false);
-            }
+            } 
+            interval = setInterval(draw, 15);
+            document.addEventListener("click", mouseMoved, false);
+            document.addEventListener("mousemove", mouseMoved, false);
         }
     });
 });
