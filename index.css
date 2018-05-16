@@ -1,7 +1,8 @@
 body {
     background: linear-gradient(to bottom, #33ccff 0%, #ff99cc 100%);
     font-family: 'PT Serif', serif;
-    margin-bottom: 10%;
+    margin: 2;
+    margin-top: 70px;
 }
 
 h1 {
@@ -55,4 +56,32 @@ button:disabled {
     border-color: black;
     padding: 10px;
     box-shadow: 10px 5px grey;
+}
+
+#navbar {
+    list-style-type: none;
+    margin: 0;
+    background-color: #085fd1;
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 14px 16px;
+}
+
+.navli {
+    display: inline;
+}
+
+.navli a {
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    padding: 14px 16px;
+}
+
+.navli a:hover {
+    background-color: #60d2ff;
+    color: black;
 }
