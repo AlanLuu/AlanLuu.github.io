@@ -10,8 +10,13 @@
         <link href="https://fonts.googleapis.com/css?family=PT+Serif" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css?family=Rancho" rel="stylesheet"> 
         <style>
-            /* Just some inline CSS to make the colors look nice on this page */
+            /* Just some internal CSS to make the colors look nice when using a computer on this page */
             html {height: 100%;}
+            
+            /* And this is to make the colors look nice on a mobile browser */
+            @media only screen and (max-width: 480px) {
+                html {height: 170%;}
+            }
         </style>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     </head>
@@ -26,7 +31,12 @@
         </ul>
         <h1>Breakout game</h1>
         <p>
-            Use the arrow keys or the mouse to move the paddle, or if you're on a mobile device, tap on where you want the paddle to move to!
+            Use the arrow keys or the mouse to move the paddle, or if you're on a mobile device, 
+            tap on where you want the paddle to move to!
+        </p>
+        <p>
+            Please be sure to enable JavaScript on your browser in order to play this game! If you see the bricks 
+            on the canvas, then you're all set!
         </p>
         <div id="game">
             <canvas id="canvas" width="480px" height="250px">
@@ -34,6 +44,11 @@
             </canvas>
         </div>
         <button id="startButton">Start game!</button>
+        <div class="centerText" style="margin-top: 50px;">
+            <p>
+                Created with <a href="http://vanilla-js.com/" target="_blank">Vanilla JS</a>.
+            </p>
+        </div>
         <script src="breakout.js"></script>
     </body>
 </html>

@@ -20,6 +20,10 @@ canvas {
     background-color: #FFFFFF;
 }
 
+#canvas {
+    cursor: none;
+}
+
 button {
     background-color: rgb(0, 200, 220);
     border: 2px solid black;
@@ -83,5 +87,5 @@ button:disabled {
 
 .navli a:hover {
     background-color: #60d2ff;
-    color: black;
+    color: #000;
 }

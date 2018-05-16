@@ -1,7 +1,3 @@
-/**
- * This is a simple breakout game made using JavaScript WITHOUT using ANY external frameworks, such as Phaser.js.
-*/ 
-
 /* global $ */
 /* global navigator */
 
@@ -210,6 +206,7 @@ $(document).ready(function() {
 });
 
 (function() {
+    //if (detectMob()) document.documentElement.style.height = '170%';
     renderBricks();
     drawBricks();
 })();
