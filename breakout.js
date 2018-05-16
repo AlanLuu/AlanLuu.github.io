@@ -195,8 +195,9 @@ function keyUpHandler(e) {
 $(document).ready(function() {
     $("#startButton").click(function() {
         renderBricks();
+        score = 0;
         if (typeof interval == "undefined" || interval === null) {
-            if (lives == 0) lives = 1, x = canvas.width / 2, y = canvas.height - 30, dx = 2, dy = -2, score = 0;
+            if (lives == 0) lives = 1, x = canvas.width / 2, y = canvas.height - 30, dx = 2, dy = -2;
             if (!detectMob()) {
                 document.addEventListener("keydown", keyDownHandler, false);
                 document.addEventListener("keyup", keyUpHandler, false);
