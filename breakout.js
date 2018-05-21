@@ -1,8 +1,5 @@
-/* global navigator */ //
+/* global navigator */ 
 
-/**
- * Wrap the code in an IIFE to prevent polluting the global name space
-*/ 
 (function() {
     "use strict";
     

@@ -5,20 +5,21 @@
         <meta name="viewport" content="width=device-width, initial-scale=1"> 
         <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
         <meta name="theme-color" content="#33ccff">
-        <title>Alan Luu</title>
+        <title>Alan Luu - Home</title>
+        <link href="index.css" rel="stylesheet" type="text/css">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
+        type="text/css">
         <link href="https://fonts.googleapis.com/css?family=PT+Serif" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css?family=Rancho" rel="stylesheet"> 
-        <link href="index.css" rel="stylesheet" type="text/css">
     </head>
     <body>
-        <ul id="navbar">
-            <li class="navli">
-                <a href="index.html">Home</a>
-            </li>
-            <li class="navli">
-                <a href="breakout.html">Breakout game</a>
-            </li>
-        </ul>
+        <div class="topnav" id="myTopnav">
+            <a href="index.html" class="active">Home</a>
+            <a href="breakout.html">Breakout game</a>
+            <a href="javascript:void(0);" class="icon" id="navicon">
+                <i class="fa fa-bars"></i>
+            </a>
+        </div>
         <div id="title">
             <p id="name">Alan Luu</p>
         </div>
@@ -72,18 +73,10 @@
                 You can play it on this website; just click the link on the top that says "Breakout game!"
             </p>
             
-            <p>This website. All of this site's HTML and CSS was created by me, with the exception of Google Fonts.</p>
+            <p>This website. Most of this site's HTML and CSS was created by me, with the exception of Google Fonts and the mobile
+            responsive navbar at the top.</p>
             
         </div> 
-        <!--
-        <div class="centerText" style="margin-top: 100px;">
-            <p>
-                This website was made using <img src="https://www.w3.org/html/logo/downloads/HTML5_Logo.svg" alt="HTML5 logo" width="50px" 
-                 height="50px" style="vertical-align: middle;"> and  
-                 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/CSS.3.svg/2000px-CSS.3.svg.png"
-                 alt="CSS logo" width="45px" height="50px" style="vertical-align: middle; margin-left: 5px;">
-            </p>
-        </div>
-        -->
+        <script>document.getElementById("navicon").addEventListener("click",function(){var x=document.getElementById("myTopnav");if(x.className==="topnav"){x.className+=" responsive";}else{x.className="topnav";}});</script>
     </body>
 </html>
