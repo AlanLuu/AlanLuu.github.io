@@ -1,0 +1,6 @@
+plugins:
+  - jekyll-gist
+  - jekyll-coffeescript
+  - jekyll-assets
+  - another-jekyll-plugin
+  - jekyll-seo-tag
