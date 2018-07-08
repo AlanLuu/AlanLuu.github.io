@@ -22,6 +22,7 @@
         </div>
         <canvas id="canvas"></canvas>
         <button id="colorChangeButton">Change canvas color</button>
+        <button id="randomColorButton">Random color</button>
         <script>
             (function() {
                 "use strict";
@@ -102,24 +103,28 @@
                     ballArr.push(new Circle(randomX, randomY, randomSize, randomColor, randomXVel, randomYVel));
                 }
                 
-                var randColor = Circle.getRandomColor();
+                var color = "#FFFFFF";
                 
                 document.getElementById("colorChangeButton").addEventListener("click", function(e) {
-                    var x = prompt("Enter a HEX code.");
-                    if (x === null) return;
                     var validColors = ["red", "orange", "yellow", "green", "blue", "purple", "brown", "black", "white", "cyan", "magenta"];
+                    var x = prompt("Enter a color name or a HEX code. Valid color names include: " + validColors.join(", "));
+                    if (x === null) return;
                     for (let i = 0; i < validColors.length; i++) {
                         if (x.toLowerCase() === validColors[i].toLowerCase()) {
-                            randColor = validColors[i];
+                            color = validColors[i];
                             return;
                         }
                     }
                     if (x.length !== 6) return;
-                    randColor = "#" + x;
+                    color = "#" + x;
+                });
+                
+                document.getElementById("randomColorButton").addEventListener("click", function(e) {
+                    color = Circle.getRandomColor();
                 });
                 
                 (function main() {
-                    eraseCanvas(randColor);
+                    eraseCanvas(color);
                     
                     for (let i = 0; i < ballArr.length; i++) {
                         ballArr[i].drawCircle();
