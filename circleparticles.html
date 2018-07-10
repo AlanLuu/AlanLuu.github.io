@@ -17,7 +17,7 @@
             <a href="projects.html">Projects</a>
             <a href="circleparticles.html" class="active">Circle particles</a>
             <a href="javascript:void(0);" class="icon" id="navicon">
-                <i class="fa fa-bars"></i>
+                <em class="fa fa-bars"></em>
             </a>
         </div>
         <canvas id="canvas"></canvas>
@@ -43,13 +43,6 @@
                 */
                 String.prototype.insertAt = function(index, string) {
                     return this.substring(0, index) + string + this.substring(index);
-                };
-                
-                /*
-                   Thanks AP Computer Science...
-                */
-                String.prototype.equals = function(str) {
-                    return this === str;
                 };
                 
                 function Circle(x, y, radius, color, xVelocity, yVelocity) {
@@ -126,16 +119,15 @@
                 
                 document.getElementById("colorChangeButton").addEventListener("click", function(e) {
                     var validColors = ["red", "orange", "yellow", "green", "blue", "purple", "brown", "black", "white", "cyan", "magenta",
-                    "azure", "chocolate"];
+                    "azure", "lime", "chocolate"];
                     
                     var colorsAsStr = validColors.join(", ") + ".";
-                    var index = colorsAsStr.indexOf(validColors[validColors.length - 1]);
-                    colorsAsStr = colorsAsStr.insertAt(index, "and ");
+                    colorsAsStr = colorsAsStr.insertAt(colorsAsStr.indexOf(validColors[validColors.length - 1]), "and ");
                     
                     var userInput = prompt("Enter a color name or a HEX code. Valid color names include: " + colorsAsStr, "");
-                    if (userInput === null) return;
+                    if (userInput === null || userInput.length === 0) return;
                     for (let i = 0; i < validColors.length; i++) {
-                        if (userInput.toLowerCase().equals(validColors[i].toLowerCase())) {
+                        if (userInput.toLowerCase() === validColors[i].toLowerCase()) {
                             color = validColors[i];
                             return;
                         }
