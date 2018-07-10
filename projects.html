@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1"> 
+        <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+        <meta name="theme-color" content="#33ccff">
+        <title>Projects</title>
+        <link href="index.css" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=PT+Serif" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Rancho" rel="stylesheet"> 
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    </head>
+    <body>
+        <div class="topnav" id="myTopnav">
+            <a href="index.html">Home</a>
+            <a href="projects.html" class="active">Projects</a>
+            <a href="circleparticles.html">Circle particles</a>
+            <a href="javascript:void(0);" class="icon" id="navicon">
+                <i class="fa fa-bars"></i>
+            </a>
+        </div>
+        <div class="main">
+            <div id="projects">
+                <h1>Projects I've made</h1>
+                <div class="projectswithpics">
+                    <div class="image">
+                        <img src="images/calculator.png" width="25%" height="auto">
+                        <p>
+                            A calculator app for Android. Source code is <a href="https://github.com/alanluu/android-calculator" target="_blank">here</a>.
+                            Download it for free <a href="https://github.com/AlanLuu/android-calculator/releases" target="_blank">here</a>.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="projectswithpics">
+                    <div class="image">
+                        <img src="images/circle-canvas-day.png" width="50%" height="auto">
+                        <img src="images/circle-canvas-night.png" width="50%" height="auto" style="float: right;">
+                        <p>
+                            An HTML canvas with a circle that follows the user's mouse cursor. The background colors are 
+                            different depending on the time of day the user visits this website. The circle also changes to 
+                            a random color every four seconds. 
+                        </p>
+                        <p>
+                            These things are all accomplished using JavaScript, jQuery, and CSS keyframes, 
+                            which are being used to switch between two slightly different background colors. 
+                        </p>
+                        <p>
+                            Source code is <a href="https://github.com/alanluu/circle-canvas" 
+                            target="_blank">here</a>. Try it out <a href="https://alanluu.github.io/circle-canvas/" target="_blank">here</a>.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="projectswithpics">
+                    <div class="image">
+                        <img src="images/patrioticpirates-student.png"width="50%" height="auto">
+                        <p>
+                            <img src="images/piratelogo.png" alt="(Pirate logo)" width="30px" height="30px">
+                            Patriotic Pirates: An educational web app where teachers can create multiplayer math competitions. 
+                            Similar to Kahoot and Quizlet Live, students use their computer in order to participate 
+                            in a game session. However, rather than consisting of a series of multiple choice questions, 
+                            it provides free response questions where students must show their work in order to 
+                            support their answer. Teachers can evaluate the responses based on their explanation and answer, 
+                            allowing them to better assess their students’ progress in the classroom. After the game is 
+                            over, a leaderboard displays the top students’ name and score, promoting healthy competition 
+                            among students. 
+                        </p>
+                        <p>
+                            For the frontend, the <a href="https://www.desmos.com/api/v1.1/docs/index.html" target="_blank">Desmos API</a> is 
+                            utilized in this app in order to allow students to submit graphs, along with <a href="https://www.mathjax.org/" target="_blank">MathJax</a>
+                            to render beautiful math symbols in HTML, and <a href="https://www.latex-project.org/" target="_blank">LaTex</a>
+                            for student and teacher input. <a href="https://nodejs.org/en/" target="_blank">NodeJS</a> was used as the backend, along with 
+                            <a href="https://expressjs.com/" target="_blank">Express JS</a> handling the routing of the app’s webpage, 
+                            and <a href="https://socket.io/" target="_blank">Socket.IO</a> to enable participation from multiple students 
+                            in a single game session.
+                        </p>
+                        <p>
+                            Source code is <a href="https://github.com/KyleMondina/LosAltosHacksIII" target="_blank">here</a>. Web app is 
+                            <a href="https://patrioticpirates.herokuapp.com/" target="_blank">here</a>.
+                        </p>
+                    </div>
+                </div>
+                
+                <p>
+                    This website. Repo can be found <a href="https://github.com/alanluu/alanluu.github.io" target="_blank">here</a>.
+                </p>
+            </div>
+        </div>
+        <div id="socialmedia" class="centerText">
+            <a href="mailto:alanluu4@gmail.com" class="fa fa-envelope"></a>
+            <a href="https://github.com/alanluu" target="_blank" class="fa fa-github"></a>
+            <!--<a href="#" class="fa fa-linkedin"></a>-->
+        </div>
+    </body>
+</html>

@@ -12,10 +12,7 @@ h1 {
     text-decoration: underline;
     text-shadow: 0 0 0.1em #fff, 0 0 0.2em #fff, 0 0 0.3em #fff, 0 0 0.4em #f7f,0 0 0.6em #f0f, 0 0 0.8em #f0f, 0 0 1.0em #f0f, 0 0 1.2em #f0f;
     color: #000000;
-}
-
-a:hover {
-    opacity: 0.7;
+    font-size: 30px;
 }
 
 p, ul {
@@ -65,17 +62,22 @@ button:disabled {
     box-shadow: 10px 5px gray;
 }
 
-#myTopnav a {
-    opacity: 1;
+.main a:link, .main a:visited {
+    color: #000;
+    background-color: #C0C0C0;
+    padding: 1px;
+    text-align: center;
+    text-decoration: underline;
+    display: inline-block;
 }
 
-#projects a:link, #projects a:visited {
-    color: white;
-    background-color: #2f71e2;
-    padding: 1px 15px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
+.main a:hover, #socialmedia a:hover {
+    opacity: 0.7;
+}
+
+.main a:active {
+    background-color: #2F4F4F;
+    color: #fff;
 }
 
 #socialmedia .fa {
@@ -87,12 +89,30 @@ button:disabled {
     margin: 5px 2px;
 }
 
+.projectswithpics {
+    border: 1px solid black;
+}
+
+.image {
+    margin-left: 2px;
+    margin-top: 2px;
+}
+
+.innerdiv {
+    margin-left: 10px;
+}
+
+.fa-envelope {
+    color: white;
+    background: #a4c639;
+}
+
 .fa-github {
     background: #FFFFFF;
     color: black;
 }
 
-.fa-linkedln {
+.fa-linkedin {
     background: #007bb5;
     color: white;
 }

@@ -14,7 +14,8 @@
     <body>
         <div class="topnav" id="myTopnav">
             <a href="index.html">Home</a>
-            <a href="circleParticles.html" class="active">Circle particles</a>
+            <a href="projects.html">Projects</a>
+            <a href="circleparticles.html" class="active">Circle particles</a>
             <a href="javascript:void(0);" class="icon" id="navicon">
                 <i class="fa fa-bars"></i>
             </a>
@@ -23,9 +24,11 @@
         <button id="colorChangeButton">Change canvas color</button>
         <button id="randomColorButton">Random color</button>
         <div id="socialmedia" class="centerText">
+            <a href="mailto:alanluu4@gmail.com" class="fa fa-envelope"></a>
             <a href="https://github.com/alanluu" target="_blank" class="fa fa-github"></a>
             <!--<a href="#" class="fa fa-linkedin"></a>-->
         </div>
+        
         <script>
             (function() {
                 "use strict";
@@ -35,46 +38,45 @@
                 canvas.width = window.innerWidth - (isMobileDevice() ? 17.5 : 35);
                 canvas.height = window.innerHeight - (isMobileDevice() ? 100 : 70);
                 
-                class Circle {
-                    constructor(x, y, radius, color, xVelocity, yVelocity) {
-                        this.x = x;
-                        this.y = y;
-                        this.radius = radius;
-                        this.color = color;
-                        this.xVelocity = xVelocity;
-                        this.yVelocity = yVelocity;
-                    }
-                    
-                    static getRandomColor() {
-                        var letters = '0123456789ABCDEF';
-                        var color = "#";
-                        for (let i = 0; i < 6; i++) {
-                            color += letters[Math.floor(Math.random() * letters.length)];
-                        }
-                        return color;
-                    }
-                    
-                    updatePos() {
-                        this.x += this.xVelocity;
-                        this.y += this.yVelocity;
-                    }
-                    
-                    updateVelocity() {
-                        if (this.x + this.radius > canvas.width || this.x - this.radius < 0) {
-                            this.xVelocity = -this.xVelocity;
-                        }
-                        if (this.y + this.radius > canvas.height || this.y - this.radius < 0) {
-                            this.yVelocity = -this.yVelocity;
-                        }
-                    }
-                    
-                    drawCircle() {
-                        context.beginPath();
-                        context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
-                        context.fillStyle = this.color;
-                        context.fill();
-                    }
+                function Circle(x, y, radius, color, xVelocity, yVelocity) {
+                    this.x = x;
+                    this.y = y;
+                    this.radius = radius;
+                    this.color = color;
+                    this.xVelocity = xVelocity;
+                    this.yVelocity = yVelocity;
                 }
+                
+                Circle.getRandomColor = function() {
+                    var letters = '0123456789ABCDEF';
+                    var color = "#";
+                    for (let i = 0; i < 6; i++) {
+                        color += letters[Math.floor(Math.random() * letters.length)];
+                    }
+                    return color;
+                };
+                
+                Circle.prototype.updatePos = function() {
+                    this.x += this.xVelocity;
+                    this.y += this.yVelocity;
+                };
+                
+                Circle.prototype.updateVelocity = function() {
+                    if (this.x + this.radius > canvas.width || this.x - this.radius < 0) {
+                        this.xVelocity = -this.xVelocity;
+                    }
+                    
+                    if (this.y + this.radius > canvas.height || this.y - this.radius < 0) {
+                        this.yVelocity = -this.yVelocity;
+                    }  
+                };
+                
+                Circle.prototype.drawCircle = function() {
+                    context.beginPath();
+                    context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+                    context.fillStyle = this.color;
+                    context.fill();
+                };
                 
                 function isMobileDevice() {
                     /* global navigator */
@@ -110,7 +112,7 @@
                 
                 document.getElementById("colorChangeButton").addEventListener("click", function(e) {
                     var validColors = ["red", "orange", "yellow", "green", "blue", "purple", "brown", "black", "white", "cyan", "magenta"];
-                    var x = prompt("Enter a color name or a HEX code. Valid color names include: " + validColors.join(", "));
+                    var x = prompt("Enter a color name or a HEX code. Valid color names include: " + validColors.join(", "), "");
                     if (x === null) return;
                     for (let i = 0; i < validColors.length; i++) {
                         if (x.toLowerCase() === validColors[i].toLowerCase()) {
