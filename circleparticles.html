@@ -2,14 +2,14 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1"> 
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
         <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
         <meta name="theme-color" content="#33ccff">
         <title>Circle particles</title>
         <link href="index.css" rel="stylesheet" type="text/css">
         <link href="https://fonts.googleapis.com/css?family=PT+Serif" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css?family=Rancho" rel="stylesheet"> 
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     </head>
     <body>
         <div class="topnav" id="myTopnav">
@@ -37,6 +37,20 @@
                 var context = canvas.getContext("2d");
                 canvas.width = window.innerWidth - (isMobileDevice() ? 17.5 : 35);
                 canvas.height = window.innerHeight - (isMobileDevice() ? 100 : 70);
+                
+                /*
+                   Returns a new string with the specified string at the specified index.
+                */
+                String.prototype.insertAt = function(index, string) {
+                    return this.substring(0, index) + string + this.substring(index);
+                };
+                
+                /*
+                   Thanks AP Computer Science...
+                */
+                String.prototype.equals = function(str) {
+                    return this === str;
+                };
                 
                 function Circle(x, y, radius, color, xVelocity, yVelocity) {
                     this.x = x;
@@ -111,17 +125,24 @@
                 var color = "#FFFFFF";
                 
                 document.getElementById("colorChangeButton").addEventListener("click", function(e) {
-                    var validColors = ["red", "orange", "yellow", "green", "blue", "purple", "brown", "black", "white", "cyan", "magenta"];
-                    var x = prompt("Enter a color name or a HEX code. Valid color names include: " + validColors.join(", "), "");
-                    if (x === null) return;
+                    var validColors = ["red", "orange", "yellow", "green", "blue", "purple", "brown", "black", "white", "cyan", "magenta",
+                    "azure", "chocolate"];
+                    
+                    var colorsAsStr = validColors.join(", ") + ".";
+                    var index = colorsAsStr.indexOf(validColors[validColors.length - 1]);
+                    colorsAsStr = colorsAsStr.insertAt(index, "and ");
+                    
+                    var userInput = prompt("Enter a color name or a HEX code. Valid color names include: " + colorsAsStr, "");
+                    if (userInput === null) return;
                     for (let i = 0; i < validColors.length; i++) {
-                        if (x.toLowerCase() === validColors[i].toLowerCase()) {
+                        if (userInput.toLowerCase().equals(validColors[i].toLowerCase())) {
                             color = validColors[i];
                             return;
                         }
                     }
-                    if (x.length !== 6) return;
-                    color = "#" + x;
+                    
+                    if (!(/[0-9A-Fa-f]{6}/g.test(userInput))) return;
+                    color = "#" + userInput;
                 });
                 
                 document.getElementById("randomColorButton").addEventListener("click", function(e) {

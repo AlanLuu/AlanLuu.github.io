@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1"> 
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
         <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
         <meta name="theme-color" content="#33ccff">
         <title>Projects</title>
@@ -33,10 +33,12 @@
                     </div>
                 </div>
                 
+                <hr/>
+                
                 <div class="projectswithpics">
                     <div class="image">
                         <img src="images/circle-canvas-day.png" width="50%" height="auto">
-                        <img src="images/circle-canvas-night.png" width="50%" height="auto" style="float: right;">
+                        <img src="images/circle-canvas-night.png" width="50%" height="auto" class="alignright">
                         <p>
                             An HTML canvas with a circle that follows the user's mouse cursor. The background colors are 
                             different depending on the time of day the user visits this website. The circle also changes to 
@@ -53,9 +55,11 @@
                     </div>
                 </div>
                 
+                <hr/>
+                
                 <div class="projectswithpics">
                     <div class="image">
-                        <img src="images/patrioticpirates-student.png"width="50%" height="auto">
+                        <img src="images/patrioticpirates-student.png" width="50%" height="auto">
                         <p>
                             <img src="images/piratelogo.png" alt="(Pirate logo)" width="30px" height="30px">
                             Patriotic Pirates: An educational web app where teachers can create multiplayer math competitions. 
@@ -71,9 +75,9 @@
                             For the frontend, the <a href="https://www.desmos.com/api/v1.1/docs/index.html" target="_blank">Desmos API</a> is 
                             utilized in this app in order to allow students to submit graphs, along with <a href="https://www.mathjax.org/" target="_blank">MathJax</a>
                             to render beautiful math symbols in HTML, and <a href="https://www.latex-project.org/" target="_blank">LaTex</a>
-                            for student and teacher input. <a href="https://nodejs.org/en/" target="_blank">NodeJS</a> was used as the backend, along with 
-                            <a href="https://expressjs.com/" target="_blank">Express JS</a> handling the routing of the app’s webpage, 
-                            and <a href="https://socket.io/" target="_blank">Socket.IO</a> to enable participation from multiple students 
+                            for student and teacher input. <a href="https://nodejs.org/en/" target="_blank">Node.js</a> is used as the backend, along with 
+                            <a href="https://expressjs.com/" target="_blank">Express.Js</a> handling the routing of the app’s webpage, 
+                            and <a href="https://socket.io/" target="_blank">Socket.IO</a> to allow participation from multiple students 
                             in a single game session.
                         </p>
                         <p>
@@ -82,6 +86,8 @@
                         </p>
                     </div>
                 </div>
+                
+                <hr/>
                 
                 <p>
                     This website. Repo can be found <a href="https://github.com/alanluu/alanluu.github.io" target="_blank">here</a>.
@@ -93,5 +99,8 @@
             <a href="https://github.com/alanluu" target="_blank" class="fa fa-github"></a>
             <!--<a href="#" class="fa fa-linkedin"></a>-->
         </div>
+        
+        <!-- For mobile devices -->
+        <script>document.getElementById("navicon").addEventListener("click",function(){var x=document.getElementById("myTopnav");if(x.className==="topnav"){x.className+=" responsive";}else{x.className="topnav";}});</script>
     </body>
 </html>

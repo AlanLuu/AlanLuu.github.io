@@ -6,6 +6,7 @@ body {
     background: linear-gradient(to bottom, #33ccff 0%, #ff99cc 100%);
     font-family: 'PT Serif', serif;
     margin: 1;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); /* For iPhone X */
 }
 
 h1 {
@@ -13,6 +14,13 @@ h1 {
     text-shadow: 0 0 0.1em #fff, 0 0 0.2em #fff, 0 0 0.3em #fff, 0 0 0.4em #f7f,0 0 0.6em #f0f, 0 0 0.8em #f0f, 0 0 1.0em #f0f, 0 0 1.2em #f0f;
     color: #000000;
     font-size: 30px;
+}
+
+hr {
+    background-color: #000;
+    display: block;
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #000;
 }
 
 p, ul {
@@ -83,19 +91,23 @@ button:disabled {
 #socialmedia .fa {
     padding: 10px;
     font-size: 30px;
-    width: 50px;
+    width: 2em;
     text-align: center;
     text-decoration: none;
     margin: 5px 2px;
 }
 
 .projectswithpics {
-    border: 1px solid black;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
 }
 
 .image {
-    margin-left: 2px;
-    margin-top: 2px;
+    margin: auto;
+}
+
+.alignright {
+    float: right;
 }
 
 .innerdiv {
