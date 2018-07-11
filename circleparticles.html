@@ -102,24 +102,30 @@
                     context.fill();
                 }
                 
-                var ballArr = [];
+                var circleArr = [];
                 
-                var numCircles = isMobileDevice() ? 50 : 700;
+                var numCircles = (isMobileDevice() && window.innerWidth <= 400) ? 50 : (window.innerWidth > 400 && window.innerWidth <= 600) ? 200 : 700;
                 for (let i = 0; i < numCircles; i++) {
                     var randomSize = Math.random() * 15;   
                     var randomX = Math.floor(Math.random() * (canvas.width - randomSize) + randomSize);
                     var randomY = Math.floor(Math.random() * (canvas.height - randomSize) + randomSize);
                     var randomColor = Circle.getRandomColor();
-                    var randomXVel = getRandomInt(-3, 3);
-                    var randomYVel = getRandomInt(-3, 3);
-                    ballArr.push(new Circle(randomX, randomY, randomSize, randomColor, randomXVel, randomYVel));
+                    
+                    do {
+                        var randomXVel = getRandomInt(-3, 3);
+                    } while ((randomXVel > -1 && randomXVel < 1));
+                    
+                    do {
+                        var randomYVel = getRandomInt(-3, 3);
+                    } while (randomYVel > -1 && randomYVel < 1);
+                    
+                    circleArr.push(new Circle(randomX, randomY, randomSize, randomColor, randomXVel, randomYVel));
                 }
                 
                 var color = "#FFFFFF";
                 
                 document.getElementById("colorChangeButton").addEventListener("click", function(e) {
-                    var validColors = ["red", "orange", "yellow", "green", "blue", "purple", "brown", "black", "white", "cyan", "magenta",
-                    "azure", "lime", "chocolate"];
+                    var validColors = ["red", "orange", "yellow", "green", "blue", "purple", "brown", "black", "white", "cyan", "magenta", "azure"];
                     
                     var colorsAsStr = validColors.join(", ") + ".";
                     colorsAsStr = colorsAsStr.insertAt(colorsAsStr.indexOf(validColors[validColors.length - 1]), "and ");
@@ -129,27 +135,35 @@
                     for (let i = 0; i < validColors.length; i++) {
                         if (userInput.toLowerCase() === validColors[i].toLowerCase()) {
                             color = validColors[i];
+                            p.innerHTML = "Background color: " + color.charAt(0).toUpperCase() + color.substring(1);
                             return;
                         }
                     }
                     
                     if (!(/[0-9A-Fa-f]{6}/g.test(userInput))) return;
                     color = "#" + userInput;
+                    p.innerHTML = "Background color: " + color;
                 });
                 
                 document.getElementById("randomColorButton").addEventListener("click", function(e) {
                     color = Circle.getRandomColor();
+                    p.innerHTML = "Background color: " + color;
                 });
                 
-                (function main() {
+                var p = document.createElement("p");
+                var firstButton = document.getElementById("colorChangeButton");
+                p.style.fontSize = "15px";
+                p.innerHTML = "Background color: " + color;
+                document.body.insertBefore(p, firstButton);
+                
+                (function update() {
                     eraseCanvas(color);
-                    
-                    for (let i = 0; i < ballArr.length; i++) {
-                        ballArr[i].drawCircle();
-                        ballArr[i].updatePos();
-                        ballArr[i].updateVelocity();
+                    for (let i = 0; i < circleArr.length; i++) {
+                        circleArr[i].drawCircle();
+                        circleArr[i].updatePos();
+                        circleArr[i].updateVelocity();
                     }
-                    requestAnimationFrame(main);
+                    requestAnimationFrame(update);
                 })();
             })();
         </script>
