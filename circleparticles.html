@@ -40,6 +40,8 @@
                 var canvas = document.getElementById("canvas");
                 var context = canvas.getContext("2d");
                 var color = "#FFFFFF";
+                var circleArr = [];
+                var circles;
                 canvas.width = window.innerWidth - (isMobileDevice() ? 17.5 : 35);
                 canvas.height = window.innerHeight - (isMobileDevice() ? 100 : 70);
                 canvas.style.border = "1.5px solid black";
@@ -131,9 +133,6 @@
                     googStr = "What you see above you is a HEX code representing the current color of the canvas' background. Click <a href='https://www.google.com/search?q=%23" + color.substring(1) + "&oq=%23" + color.substring(1) + "&aqs=chrome..69i57&sourceid=chrome&ie=UTF-8' target='_blank'>here</a> to see this color in a HEX color picker.";
                 }
                 
-                var circleArr = [];
-                var circles;
-                
                 function render(numCircles) {
                     function makeCircles() {
                         var randomSize = Math.floor(Math.random() * 15) + 1;
@@ -146,18 +145,13 @@
                         } while (randomXVel > -2 && randomXVel < 2);
                         
                         do {
-                            var randomYVel = getRandomInt(-3, 3);
+                            var randomYVel = getRandomInt(-4, 4);
                         } while (randomYVel > -2 && randomYVel < 2);
                         
                         circleArr.push(new Circle(randomX, randomY, randomSize, randomColor, randomXVel, randomYVel));
                     }
                     
-                    if (typeof numCircles === "undefined") {
-                        numCircles = (isMobileDevice() && window.innerWidth <= 400) ? 100 : (window.innerWidth > 400 && window.innerWidth <= 600) ? 200 : 500;
-                        for (var i = 0; i < numCircles; i++) {
-                            makeCircles();
-                        }
-                    } else if (numCircles < circleArr.length) {
+                    if (numCircles < circleArr.length) {
                         while (numCircles < circleArr.length) {
                             circleArr.pop();
                         }
@@ -165,7 +159,7 @@
                         while (numCircles > circleArr.length) {
                             makeCircles();
                         }
-                    }
+                    } 
                     circles = numCircles;
                 }
                 
@@ -217,7 +211,7 @@
                     render(parseInt(userInput, 10));
                 });
                 
-                render();
+                render((isMobileDevice() && window.innerWidth <= 400) ? 100 : (window.innerWidth > 400 && window.innerWidth <= 600) ? 200 : 500);
                 
                 (function update() {
                     eraseCanvas(color);
