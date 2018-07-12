@@ -135,7 +135,7 @@
                 
                 function render(numCircles) {
                     function makeCircles() {
-                        var randomSize = Math.floor(Math.random() * 15) + 1;
+                        var randomSize = getRandomInt(1, 15);
                         var randomX = Math.floor(Math.random() * (canvas.width - randomSize) + randomSize);
                         var randomY = Math.floor(Math.random() * (canvas.height - randomSize) + randomSize);
                         var randomColor = Circle.getRandomColor();
@@ -180,7 +180,7 @@
                     
                     if (validColors.indexOf(userInput) !== -1) {
                         color = userInput;
-                        if (document.getElementById("rgbpicker")) {
+                        if (Boolean(document.getElementById("rgbpicker"))) {
                             rgbDiv.removeChild(rgbPicker);
                         } 
                         reloadGoogStr();
@@ -211,7 +211,7 @@
                     render(parseInt(userInput, 10));
                 });
                 
-                render((isMobileDevice() && window.innerWidth <= 400) ? 100 : (window.innerWidth > 400 && window.innerWidth <= 600) ? 200 : 500);
+                render((isMobileDevice() || window.innerWidth <= 400) ? 60 : (window.innerWidth > 400 && window.innerWidth <= 600) ? 200 : 500);
                 
                 (function update() {
                     eraseCanvas(color);
