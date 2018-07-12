@@ -21,8 +21,12 @@
             </a>
         </div>
         <canvas id="canvas"></canvas>
+        <div id="rgbdiv" class="main">
+            <p id="rgbpicker"></p>
+        </div>
         <button id="colorChangeButton">Change canvas color</button>
         <button id="randomColorButton">Random color</button>
+        <button id="circleChangeButton">Set the amount of circles</button>
         <div id="socialmedia" class="centerText">
             <a href="mailto:alanluu4@gmail.com" class="fa fa-envelope"></a>
             <a href="https://github.com/alanluu" target="_blank" class="fa fa-github"></a>
@@ -35,8 +39,25 @@
                 
                 var canvas = document.getElementById("canvas");
                 var context = canvas.getContext("2d");
+                var color = "#FFFFFF";
                 canvas.width = window.innerWidth - (isMobileDevice() ? 17.5 : 35);
                 canvas.height = window.innerHeight - (isMobileDevice() ? 100 : 70);
+                canvas.style.border = "1.5px solid black";
+                
+                var googStr = "What you see above you is a HEX code representing the current color of the canvas' background. Click <a href='https://www.google.com/search?q=%23" + color.substring(1) + "&oq=%23" + color.substring(1) + "&aqs=chrome..69i57&sourceid=chrome&ie=UTF-8' target='_blank'>here</a> to see this color in a HEX color picker.";
+                
+                var p = document.createElement("p");
+                var rgbDiv = document.getElementById("rgbdiv");
+                var rgbPicker = document.getElementById("rgbpicker");
+                var p2 = document.createElement("p");
+                p.style.fontSize = "15px";
+                p2.style.fontSize = "15px";
+                p2.style.fontStyle = "italic";
+                p.innerHTML = "Background color: " + color;
+                p2.innerHTML = "This page doesn't have any information you might want to know about me; it's just something I've worked on in my spare free time.";
+                rgbPicker.innerHTML = googStr;
+                rgbDiv.insertBefore(p, rgbPicker);
+                document.body.insertBefore(p2, canvas);
                 
                 /*
                    Returns a new string with the specified string at the specified index.
@@ -52,10 +73,14 @@
                     this.color = color;
                     this.xVelocity = xVelocity;
                     this.yVelocity = yVelocity;
+                    Circle.numCircles++;
+                    this.circleNum = Circle.numCircles;
                 }
                 
+                Circle.numCircles = 0;
+                
                 Circle.getRandomColor = function() {
-                    var letters = '0123456789ABCDEF';
+                    var letters = "0123456789ABCDEF";
                     var color = "#";
                     for (var i = 0; i < 6; i++) {
                         color += letters[Math.floor(Math.random() * letters.length)];
@@ -92,7 +117,7 @@
                 }
                 
                 function getRandomInt(min, max) {
-                    return Math.random() * (max - min + 1) + min;
+                    return Math.floor(Math.random() * (max - min + 1) + min);
                 }
                 
                 function eraseCanvas(color) {
@@ -102,27 +127,47 @@
                     context.fill();
                 }
                 
-                var circleArr = [];
-                
-                var numCircles = (isMobileDevice() && window.innerWidth <= 400) ? 100 : (window.innerWidth > 400 && window.innerWidth <= 600) ? 200 : 700;
-                for (var i = 0; i < numCircles; i++) {
-                    var randomSize = Math.random() * 15;   
-                    var randomX = Math.floor(Math.random() * (canvas.width - randomSize) + randomSize);
-                    var randomY = Math.floor(Math.random() * (canvas.height - randomSize) + randomSize);
-                    var randomColor = Circle.getRandomColor();
-                    
-                    do {
-                        var randomXVel = getRandomInt(-3, 3);
-                    } while ((randomXVel > -1 && randomXVel < 1));
-                    
-                    do {
-                        var randomYVel = getRandomInt(-3, 3);
-                    } while (randomYVel > -1 && randomYVel < 1);
-                    
-                    circleArr.push(new Circle(randomX, randomY, randomSize, randomColor, randomXVel, randomYVel));
+                function reloadGoogStr() {
+                    googStr = "What you see above you is a HEX code representing the current color of the canvas' background. Click <a href='https://www.google.com/search?q=%23" + color.substring(1) + "&oq=%23" + color.substring(1) + "&aqs=chrome..69i57&sourceid=chrome&ie=UTF-8' target='_blank'>here</a> to see this color in a HEX color picker.";
                 }
                 
-                var color = "#FFFFFF";
+                var circleArr = [];
+                var circles;
+                
+                function render(numCircles) {
+                    function makeCircles() {
+                        var randomSize = Math.floor(Math.random() * 15) + 1;
+                        var randomX = Math.floor(Math.random() * (canvas.width - randomSize) + randomSize);
+                        var randomY = Math.floor(Math.random() * (canvas.height - randomSize) + randomSize);
+                        var randomColor = Circle.getRandomColor();
+                        
+                        do {
+                            var randomXVel = getRandomInt(-4, 4);
+                        } while (randomXVel > -2 && randomXVel < 2);
+                        
+                        do {
+                            var randomYVel = getRandomInt(-3, 3);
+                        } while (randomYVel > -2 && randomYVel < 2);
+                        
+                        circleArr.push(new Circle(randomX, randomY, randomSize, randomColor, randomXVel, randomYVel));
+                    }
+                    
+                    if (typeof numCircles === "undefined") {
+                        numCircles = (isMobileDevice() && window.innerWidth <= 400) ? 100 : (window.innerWidth > 400 && window.innerWidth <= 600) ? 200 : 500;
+                        for (var i = 0; i < numCircles; i++) {
+                            makeCircles();
+                        }
+                    } else if (numCircles < circleArr.length) {
+                        while (numCircles < circleArr.length) {
+                            circleArr.pop();
+                        }
+                    } else if (numCircles > circleArr.length) {
+                        while (numCircles > circleArr.length) {
+                            makeCircles();
+                        }
+                    }
+                    circles = numCircles;
+                }
                 
                 document.getElementById("colorChangeButton").addEventListener("click", function(e) {
                     var validColors = ["red", "orange", "yellow", "green", "blue", "violet", "purple", "brown", "black", "white", "cyan", 
@@ -132,30 +177,47 @@
                     colorsAsStr = colorsAsStr.insertAt(colorsAsStr.indexOf(validColors[validColors.length - 1]), "and ");
                     
                     var userInput = prompt("Enter a color name or a HEX code. Valid color names include: " + colorsAsStr, "");
-                    if (userInput === null || userInput.length === 0) return;
-                    for (var i = 0; i < validColors.length; i++) {
-                        if (userInput.toLowerCase() === validColors[i].toLowerCase()) {
-                            color = validColors[i];
-                            p.innerHTML = "Background color: " + color.charAt(0).toUpperCase() + color.substring(1);
-                            return;
-                        }
+                    if (userInput === null) return;
+                    
+                    while (validColors.indexOf(userInput) === -1 && !(/[0-9A-Fa-f]{6}/g.test(userInput))) {
+                        userInput = prompt("That was not a valid color name or HEX code. Please try again. Valid color names include: " + colorsAsStr, "");
+                        if (userInput === null) return;
                     }
                     
-                    if (!(/[0-9A-Fa-f]{6}/g.test(userInput))) return;
-                    color = "#" + userInput;
-                    p.innerHTML = "Background color: " + color;
+                    if (validColors.indexOf(userInput) !== -1) {
+                        color = userInput;
+                        if (document.getElementById("rgbpicker")) {
+                            rgbDiv.removeChild(rgbPicker);
+                        } 
+                        reloadGoogStr();
+                        rgbPicker.innerHTML = googStr;
+                    } else {
+                        color = "#" + userInput;
+                        rgbDiv.appendChild(rgbPicker);
+                    }
+                    p.innerHTML = "Background color: " + (validColors.indexOf(userInput) !== -1 ? color.charAt(0).toUpperCase() + color.substring(1) : color.toUpperCase());
+                    
                 });
                 
                 document.getElementById("randomColorButton").addEventListener("click", function(e) {
                     color = Circle.getRandomColor();
                     p.innerHTML = "Background color: " + color;
+                    reloadGoogStr();
+                    rgbPicker.innerHTML = googStr;
+                    document.getElementById("rgbdiv").appendChild(rgbPicker);
                 });
                 
-                var p = document.createElement("p");
-                var firstButton = document.getElementById("colorChangeButton");
-                p.style.fontSize = "15px";
-                p.innerHTML = "Background color: " + color;
-                document.body.insertBefore(p, firstButton);
+                document.getElementById("circleChangeButton").addEventListener("click", function(e) {
+                    var userInput = prompt("Currently, there " + (circles === 1 ? "is " : "are ") + (circles === 0 ? "no" : circles) + (circles === 1 ? " circle" : " circles") + " in the canvas. Enter the new amount of circles.", "");
+                    if (userInput === null) return;
+                    while (userInput < 0 || parseInt(userInput, 10) != userInput) {
+                        userInput = prompt("That was not a valid number. Please try again.", "");
+                        if (userInput === null) return;
+                    }
+                    render(parseInt(userInput, 10));
+                });
+                
+                render();
                 
                 (function update() {
                     eraseCanvas(color);
