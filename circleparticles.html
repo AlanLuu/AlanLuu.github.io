@@ -183,10 +183,10 @@
                         if (Boolean(document.getElementById("rgbpicker"))) {
                             rgbDiv.removeChild(rgbPicker);
                         } 
-                        reloadGoogStr();
-                        rgbPicker.innerHTML = googStr;
                     } else {
                         color = "#" + userInput;
+                        reloadGoogStr();
+                        rgbPicker.innerHTML = googStr;
                         rgbDiv.appendChild(rgbPicker);
                     }
                     p.innerHTML = "Background color: " + (validColors.indexOf(userInput) !== -1 ? color.charAt(0).toUpperCase() + color.substring(1) : color.toUpperCase());
