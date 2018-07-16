@@ -24,9 +24,6 @@
         <div id="rgbdiv" class="main">
             <p id="rgbpicker"></p>
         </div>
-        <button id="colorChangeButton">Change canvas color</button>
-        <button id="randomColorButton">Random color</button>
-        <button id="circleChangeButton">Set the amount of circles</button>
         <div id="socialmedia" class="centerText">
             <a href="mailto:alanluu4@gmail.com" class="fa fa-envelope"></a>
             <a href="https://github.com/alanluu" target="_blank" class="fa fa-github"></a>
@@ -39,6 +36,7 @@
                 
                 var canvas = document.getElementById("canvas");
                 var context = canvas.getContext("2d");
+                
                 var color = "#FFFFFF";
                 var circleArr = [];
                 var circles;
@@ -60,6 +58,23 @@
                 rgbPicker.innerHTML = googStr;
                 rgbDiv.insertBefore(p, rgbPicker);
                 document.body.insertBefore(p2, canvas);
+                
+                (function() {
+                    var buttonMap = {
+                        "Change canvas color": "colorchangebutton",
+                        "Random color": "randomcolorbutton",
+                        "Set the amount of circles": "circlechangebutton"
+                    };
+                    
+                    for (var key in buttonMap) {
+                        if (buttonMap.hasOwnProperty(key)) {
+                            var button = document.createElement("button");
+                            button.id = buttonMap[key];
+                            button.innerHTML = key;
+                            document.body.insertBefore(button, document.getElementById("socialmedia"));
+                        }
+                    }
+                })();
                 
                 /*
                    Returns a new string with the specified string at the specified index.
@@ -110,6 +125,12 @@
                     context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
                     context.fillStyle = this.color;
                     context.fill();
+                    
+                    //Outlines looks nice on computers, not so much on mobile devices.
+                    if (!isMobileDevice()) {
+                        context.strokeStyle = "#000000";
+                        context.stroke();
+                    }
                 };
                 
                 function isMobileDevice() {
@@ -123,10 +144,8 @@
                 }
                 
                 function eraseCanvas(color) {
-                    context.beginPath();
-                    context.rect(0, 0, canvas.width, canvas.height);
                     context.fillStyle = color;
-                    context.fill();
+                    context.fillRect(0, 0, canvas.width, canvas.height);
                 }
                 
                 function reloadGoogStr() {
@@ -159,11 +178,11 @@
                         while (numCircles > circleArr.length) {
                             makeCircles();
                         }
-                    } 
+                    }
                     circles = numCircles;
                 }
                 
-                document.getElementById("colorChangeButton").addEventListener("click", function(e) {
+                document.getElementById("colorchangebutton").addEventListener("click", function(e) {
                     var validColors = ["red", "orange", "yellow", "green", "blue", "violet", "purple", "brown", "black", "white", "cyan", 
                     "magenta", "azure"];
                     
@@ -195,7 +214,7 @@
                     
                 });
                 
-                document.getElementById("randomColorButton").addEventListener("click", function(e) {
+                document.getElementById("randomcolorbutton").addEventListener("click", function(e) {
                     color = Circle.getRandomColor();
                     p.innerHTML = "Background color: " + color;
                     reloadGoogStr();
@@ -203,7 +222,7 @@
                     document.getElementById("rgbdiv").appendChild(rgbPicker);
                 });
                 
-                document.getElementById("circleChangeButton").addEventListener("click", function(e) {
+                document.getElementById("circlechangebutton").addEventListener("click", function(e) {
                     var userInput = prompt("Currently, there " + (circles === 1 ? "is " : "are ") + (circles === 0 ? "no" : circles) + (circles === 1 ? " circle" : " circles") + " in the canvas. Enter the new amount of circles.", "");
                     if (userInput === null) return;
                     while (userInput < 0 || parseInt(userInput, 10) != userInput) {
@@ -215,6 +234,10 @@
                 
                 render((isMobileDevice() || window.innerWidth <= 400) ? 60 : (window.innerWidth > 400 && window.innerWidth <= 600) ? 200 : 500);
                 
+                
+               /*////////////////////
+                    UPDATE LOOP
+                ////////////////////*/
                 (function update() {
                     eraseCanvas(color);
                     for (var i = 0; i < circleArr.length; i++) {

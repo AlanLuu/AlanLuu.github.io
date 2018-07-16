@@ -4,6 +4,7 @@ html {
 
 body {
     background: linear-gradient(to bottom, #33ccff 0%, #ff99cc 100%);
+    background-color: #33ccff;
     font-family: 'PT Serif', serif;
     margin: 1;
     padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); /* For iPhone X */
@@ -33,11 +34,15 @@ button {
     padding: 15px 35px 15px 30px;
     font-weight: bold;
     cursor: pointer;
-    font-family: 'PT Serif';
+    font-family: 'PT Serif', serif;
 }
 
 button:hover {
     background-color: #1eeaff;
+}
+
+button:active {
+    background-color: #01838e;
 }
 
 button:disabled {
@@ -71,7 +76,6 @@ button:disabled {
 
 .main a:link, .main a:visited {
     color: #000;
-    /*background-color: #C0C0C0;*/
     background-color: inherit;
     padding: 1px;
     text-align: center;
