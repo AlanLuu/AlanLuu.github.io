@@ -173,13 +173,15 @@
                     var userInput = prompt("Enter a color name or a HEX code. Valid color names include: " + colorsAsStr, "");
                     if (userInput === null) return;
                     
-                    while (validColors.indexOf(userInput) === -1 && !(/[0-9A-Fa-f]{6}/g.test(userInput))) {
+                    userInput = userInput.toLowerCase();
+                    while (validColors.indexOf(userInput) === -1 && (userInput.length !== 6 || !(/[0-9A-Fa-f]{6}/g.test(userInput)))) {
                         userInput = prompt("That was not a valid color name or HEX code. Please try again. Valid color names include: " + colorsAsStr, "");
                         if (userInput === null) return;
+                        userInput = userInput.toLowerCase();
                     }
                     
                     if (validColors.indexOf(userInput) !== -1) {
-                        color = userInput;
+                        color = userInput.toLowerCase();
                         if (Boolean(document.getElementById("rgbpicker"))) {
                             rgbDiv.removeChild(rgbPicker);
                         } 
@@ -189,7 +191,7 @@
                         rgbPicker.innerHTML = googStr;
                         rgbDiv.appendChild(rgbPicker);
                     }
-                    p.innerHTML = "Background color: " + (validColors.indexOf(userInput) !== -1 ? color.charAt(0).toUpperCase() + color.substring(1) : color.toUpperCase());
+                    p.innerHTML = "Background color: " + (validColors.indexOf(userInput) !== -1 ? color.charAt(0).toUpperCase() + color.substring(1).toLowerCase() : color.toUpperCase());
                     
                 });
                 
