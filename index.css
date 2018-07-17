@@ -189,4 +189,25 @@ button:disabled {
     .image img[height="auto"] {
         width: 100%;
     }
+    
+    ::selection {
+        background: #000;
+        color: #fff;
+    }
+    
+    ::-moz-selection { /* Code for Firefox */
+        background: #000;
+        color: #fff;
+    }
+    
+}
+
+@media screen and (max-width: 600px) and (orientation: landscape) {
+    .image img[height="auto"] {
+        width: 25%;
+    }
+    
+    .alignright {
+        position: absolute;
+    }
 }
