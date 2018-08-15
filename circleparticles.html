@@ -32,7 +32,7 @@
         
         <script>
             /*
-              Locally scope everything using an IIFE to prevent access to variables and functions from the browser console.
+              Locally scope everything inside an IIFE to prevent the user from accessing variables and functions from the browser console.
             */
             (function() {
                 "use strict";
@@ -54,14 +54,12 @@
                 var p = [
                     document.createElement("p"), //Background color
                     document.createElement("p"), //This page doesn't have any information you might want to know about me...
-                    document.createElement("p"), //Bug: Some circles might get stuck on the edges of the canvas.
                 ];
                 var rgbDiv = document.getElementById("rgbdiv");
                 var rgbPicker = document.getElementById("rgbpicker");
                 p[0].innerHTML = "Background color: " + color;
                 p[1].innerHTML = "This page doesn't have any information you might want to know about me; \
                 it's just something I've worked on in my spare free time.";
-                p[2].innerHTML = "Bug: Some circles might get stuck on the edges of the canvas.";
                 rgbPicker.innerHTML = googStr;
                 
                 //To prevent i from leaking out into the global IIFE's scope
@@ -178,8 +176,8 @@
                 function render(numCircles) {
                     function makeCircles() {
                         var randomSize = getRandomInt(1, 15);
-                        var randomX = Math.floor(Math.random() * (canvas.width - randomSize) + randomSize);
-                        var randomY = Math.floor(Math.random() * (canvas.height - randomSize) + randomSize);
+                        var randomX = Math.floor(Math.random() * (canvas.width - randomSize - 60) + randomSize);
+                        var randomY = Math.floor(Math.random() * (canvas.height - randomSize - 60) + randomSize);
                         var randomColor = Circle.getRandomColor();
                         
                         do {
@@ -239,11 +237,27 @@
                 document.getElementById("circlechangebutton").addEventListener("click", function(e) {
                     var userInput = prompt("Currently, there " + (circles === 1 ? "is " : "are ") + (circles === 0 ? "no" : circles) + (circles === 1 ? " circle" : " circles") + " in the canvas. Enter the new amount of circles.", "");
                     if (userInput === null) return;
-                    while (userInput < 0 || parseInt(userInput, 10) != userInput) {
+                    while (userInput < 0 || Number(userInput) % 1 !== 0 || Number.isNaN(Number(userInput))) {
                         userInput = prompt("That was not a valid number. Please try again.", "");
                         if (userInput === null) return;
                     }
-                    render(parseInt(userInput, 10));
+                    
+                    //RegExp for certain types of numbers
+                    var numMap = {
+                        "binary": /^0b[0-1]*$/,
+                        "hexadecimal": /^0x[0-f]*$/,
+                        "octal": /^0[1-7][0-7]*$/,
+                    };
+                    
+                    if (numMap["binary"].test(userInput)) {
+                        render(parseInt(userInput.substring(2), 2));
+                    } else if (numMap["hexadecimal"].test(userInput)) {
+                        render(parseInt(userInput.substring(2), 16));
+                    } else if (numMap["octal"].test(userInput)) {
+                        render(parseInt(userInput, 8));
+                    } else {
+                        render(parseInt(userInput, 10));
+                    }
                 });
                 
                 render((isMobileDevice() || window.innerWidth <= 400) ? 60 : (window.innerWidth > 400 && window.innerWidth <= 600) ? 200 : 500);
