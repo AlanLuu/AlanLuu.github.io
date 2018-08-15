@@ -31,6 +31,9 @@
         </div>
         
         <script>
+            /*
+              Locally scope everything using an IIFE to prevent access to variables and functions from the browser console.
+            */
             (function() {
                 "use strict";
                 
@@ -44,21 +47,38 @@
                 canvas.height = window.innerHeight - (isMobileDevice() ? 100 : 70);
                 canvas.style.border = "1.5px solid black";
                 
-                var googStr = "What you see above you is a HEX code representing the current color of the canvas' background. Click <a href='https://www.google.com/search?q=%23" + color.substring(1) + "&oq=%23" + color.substring(1) + "&aqs=chrome..69i57&sourceid=chrome&ie=UTF-8' target='_blank'>here</a> to see this color in a HEX color picker.";
+                var googStr = "What you see above you is a HEX code representing the current color of the canvas' background. \
+                Click <a href='https://www.google.com/search?q=%23" + color.substring(1) + "&oq=%23" + color.substring(1) + 
+                "&aqs=chrome..69i57&sourceid=chrome&ie=UTF-8' target='_blank'>here</a> to see this color in a HEX color picker.";
                 
-                var p = document.createElement("p");
+                var p = [
+                    document.createElement("p"), //Background color
+                    document.createElement("p"), //This page doesn't have any information you might want to know about me...
+                    document.createElement("p"), //Bug: Some circles might get stuck on the edges of the canvas.
+                ];
                 var rgbDiv = document.getElementById("rgbdiv");
                 var rgbPicker = document.getElementById("rgbpicker");
-                var p2 = document.createElement("p");
-                p.style.fontSize = "15px";
-                p2.style.fontSize = "15px";
-                p2.style.fontStyle = "italic";
-                p.innerHTML = "Background color: " + color;
-                p2.innerHTML = "This page doesn't have any information you might want to know about me; it's just something I've worked on in my spare free time.";
+                p[0].innerHTML = "Background color: " + color;
+                p[1].innerHTML = "This page doesn't have any information you might want to know about me; \
+                it's just something I've worked on in my spare free time.";
+                p[2].innerHTML = "Bug: Some circles might get stuck on the edges of the canvas.";
                 rgbPicker.innerHTML = googStr;
-                rgbDiv.insertBefore(p, rgbPicker);
-                document.body.insertBefore(p2, canvas);
                 
+                //To prevent i from leaking out into the global IIFE's scope
+                (function() {
+                    for (var i = 0; i < p.length; i++) {
+                        if (p[i].className === "bottomofcanvas" || i === 0) {
+                            p[i].style.fontSize = "15px";
+                            rgbDiv.insertBefore(p[i], rgbPicker);
+                            continue;
+                        }    
+                        p[i].style.fontSize = "14px";
+                        p[i].style.fontStyle = "italic";
+                        document.body.insertBefore(p[i], canvas);
+                    }
+                })();
+                
+                //To prevent buttonMap from leaking out into the global IIFE's scope
                 (function() {
                     var buttonMap = {
                         "Change canvas color": "colorchangebutton",
@@ -77,7 +97,7 @@
                 })();
                 
                 /*
-                   Returns a new string with the specified string at the specified index.
+                  Returns a new string with the specified string at the specified index.
                 */
                 String.prototype.insertAt = function(index, string) {
                     return this.substring(0, index) + string + this.substring(index);
@@ -149,7 +169,10 @@
                 }
                 
                 function reloadGoogStr() {
-                    googStr = "What you see above you is a HEX code representing the current color of the canvas' background. Click <a href='https://www.google.com/search?q=%23" + color.substring(1) + "&oq=%23" + color.substring(1) + "&aqs=chrome..69i57&sourceid=chrome&ie=UTF-8' target='_blank'>here</a> to see this color in a HEX color picker.";
+                    googStr = "What you see above you is a HEX code representing the current color of the canvas' background. \
+                    Click <a href='https://www.google.com/search?q=%23" + color.substring(1) + "&oq=%23" + color.substring(1) + 
+                    "&aqs=chrome..69i57&sourceid=chrome&ie=UTF-8' target='_blank'>here</a> to see this color in a HEX color picker.";
+                    rgbPicker.innerHTML = googStr;
                 }
                 
                 function render(numCircles) {
@@ -170,15 +193,8 @@
                         circleArr.push(new Circle(randomX, randomY, randomSize, randomColor, randomXVel, randomYVel));
                     }
                     
-                    if (numCircles < circleArr.length) {
-                        while (numCircles < circleArr.length) {
-                            circleArr.pop();
-                        }
-                    } else if (numCircles > circleArr.length) {
-                        while (numCircles > circleArr.length) {
-                            makeCircles();
-                        }
-                    }
+                    while (numCircles < circleArr.length) circleArr.pop();
+                    while (numCircles > circleArr.length) makeCircles();
                     circles = numCircles;
                 }
                 
@@ -207,18 +223,16 @@
                     } else {
                         color = "#" + userInput;
                         reloadGoogStr();
-                        rgbPicker.innerHTML = googStr;
                         rgbDiv.appendChild(rgbPicker);
                     }
-                    p.innerHTML = "Background color: " + (validColors.indexOf(userInput) !== -1 ? color.charAt(0).toUpperCase() + color.substring(1).toLowerCase() : color.toUpperCase());
+                    p[0].innerHTML = "Background color: " + (validColors.indexOf(userInput) !== -1 ? color.charAt(0).toUpperCase() + color.substring(1).toLowerCase() : color.toUpperCase());
                     
                 });
                 
                 document.getElementById("randomcolorbutton").addEventListener("click", function(e) {
                     color = Circle.getRandomColor();
-                    p.innerHTML = "Background color: " + color;
+                    p[0].innerHTML = "Background color: " + color;
                     reloadGoogStr();
-                    rgbPicker.innerHTML = googStr;
                     document.getElementById("rgbdiv").appendChild(rgbPicker);
                 });
                 
@@ -248,6 +262,7 @@
                     requestAnimationFrame(update);
                 })();
             })();
+            
         </script>
         
         <!-- For mobile devices -->
