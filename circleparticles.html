@@ -8,7 +8,6 @@
         <title>Circle particles</title>
         <link href="index.css" rel="stylesheet" type="text/css">
         <link href="https://fonts.googleapis.com/css?family=PT+Serif" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css?family=Rancho" rel="stylesheet"> 
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     </head>
     <body>
@@ -16,6 +15,7 @@
             <a href="index.html">Home</a>
             <a href="projects.html">Projects</a>
             <a href="circleparticles.html" class="active">Circle particles</a>
+            <a href="game/game.html">Platform game</a>
             <a href="javascript:void(0);" class="icon" id="navicon">
                 <em class="fa fa-bars"></em>
             </a>
@@ -35,7 +35,7 @@
               Locally scope everything inside an IIFE to prevent the user from accessing variables and functions from the browser console.
             */
             (function() {
-                "use strict";
+                'use strict';
                 
                 var canvas = document.getElementById("canvas");
                 var context = canvas.getContext("2d");
@@ -99,6 +99,14 @@
                 */
                 String.prototype.insertAt = function(index, string) {
                     return this.substring(0, index) + string + this.substring(index);
+                };
+                
+                Array.prototype.removeAt = function(index) {
+                    this.splice(index, 1);
+                };
+                
+                Array.prototype.addAt = function(index, element) {
+                    this.splice(index, 0, element);
                 };
                 
                 function Circle(x, y, radius, color, xVelocity, yVelocity) {
