@@ -113,7 +113,7 @@
                         "Hey look, the stars move now!",
                         "Does that make this game harder?",
                         "Hey, this game wasn't meant to be easy.",
-                        "It would quickly get boring if so.",
+                        "It would quickly get boring if \nthat was the case.",
                         "Are these messages distracting?",
                         "Ok, I'll stop.",
                         "So, how was your day so far?",
@@ -128,7 +128,7 @@
                     var canvas = {
                         type: Phaser.AUTO, //Defaults to WebGL if supported, otherwise canvas.
                         width: 800,
-                        height: 585,
+                        height: window.innerHeight - 143,
                         physics: {
                             default: 'arcade',
                             arcade: {
