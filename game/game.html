@@ -9,6 +9,7 @@
         <link href="../index.css" rel="stylesheet" type="text/css">
         <link href="https://fonts.googleapis.com/css?family=PT+Serif" rel="stylesheet">
         <script src="//cdn.jsdelivr.net/npm/phaser@3.11/dist/phaser.min.js"></script>
+        <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
         
         <style>
             #loadingdiv p {
@@ -75,20 +76,13 @@
                 
                 document.addEventListener("DOMContentLoaded", function(e) {
                     if (isMobileDevice()) {
-                        var script = document.createElement("script");
-                        
-                        script.setAttribute("src", "https://unpkg.com/sweetalert/dist/sweetalert.min.js");
-                        document.getElementsByTagName('head').item(0).appendChild(script);
-                        
-                        script.onload = function() {
-                            swal({
-                                text: "Sorry, but this game can't be played on a mobile device.",
-                                icon: "error",
-                                closeOnClickOutside: false,
-                            }).then(function() {
-                                window.history.back();
-                            });
-                        };
+                        swal({
+                            text: "Sorry, but this game can't be played on a mobile device.",
+                            icon: "error",
+                            closeOnClickOutside: false,
+                        }).then(function() {
+                            window.history.back();
+                        });
                         return;
                     } 
                     
@@ -119,6 +113,7 @@
                         "Hey look, the stars move now!",
                         "Does that make this game harder?",
                         "Hey, this game wasn't meant to be easy.",
+                        "It would quickly get boring if so.",
                         "Are these messages distracting?",
                         "Ok, I'll stop.",
                         "So, how was your day so far?",
@@ -133,7 +128,7 @@
                     var canvas = {
                         type: Phaser.AUTO, //Defaults to WebGL if supported, otherwise canvas.
                         width: 800,
-                        height: window.innerHeight - 143,
+                        height: 585,
                         physics: {
                             default: 'arcade',
                             arcade: {
@@ -214,7 +209,7 @@
                             this.sound.play("explosion");
                             this.physics.pause(); //Stops the game
                             this.sound.removeByKey("music"); //Stops the music
-                            thePlayer.setTint(0xff0000); //Changes the player's color to red
+                            thePlayer.setTint(0xff0000); 
                         }, null, this);
                         
                         stars = this.physics.add.group({
@@ -266,7 +261,7 @@
                                     }
                                 });
                                 
-                                infotext.setText(numBombs < infoTextList.length + 1 ? infoTextList[level - 1] : "");
+                                infotext.setText(level < infoTextList.length + 1 ? infoTextList[level - 1] : "");
                                 
                                 var x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
                                 
