@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="theme-color" content="#33ccff">
+        <title>Circle particles</title>
+        <link href="../index.css" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=PT+Serif" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    </head>
+    <body>
+        <div class="topnav" id="myTopnav">
+            <a href="../">Home</a>
+            <a href="../projects">Projects</a>
+            <a href="index.html" class="active">Circle particles</a>
+            <a href="../game">Platform game</a>
+            <a href="javascript:void(0);" class="icon" id="navicon">
+                <em class="fa fa-bars"></em>
+            </a>
+        </div>
+        <canvas id="canvas"></canvas>
+        <div id="rgbdiv" class="main">
+            <p id="rgbpicker"></p>
+        </div>
+        <div id="socialmedia" class="centerText">
+            <a href="mailto:alanluu4@gmail.com" class="fa fa-envelope"></a>
+            <a href="https://github.com/alanluu" target="_blank" class="fa fa-github"></a>
+            <!--<a href="#" class="fa fa-linkedin"></a>-->
+        </div>
+        
+        <script src="canvas.js"></script>
+        
+        <!-- For mobile devices -->
+        <script>
+            document.getElementById("navicon").addEventListener("click", function() {
+                var x = document.getElementById("myTopnav");
+                if (x.className === "topnav") {
+                    x.className += " responsive";
+                } else {
+                    x.className = "topnav";
+                }
+            });
+        </script>
+    </body>
+</html>

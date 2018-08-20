@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="theme-color" content="#33ccff">
+        <title>Platform game</title>
+        <link href="../index.css" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=PT+Serif" rel="stylesheet">
+        <script src="phaser.min.js"></script>
+        <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+        
+        <style>
+            #loadingdiv p {
+                font-size: 19px;
+                margin: auto;
+                display: block;
+                padding: 0;
+                text-align: center;
+            }
+            
+            #loadingdiv, p {
+                display: block;
+                width: 208px;
+                padding: 0;
+                margin: auto;
+                margin-top: 10px;
+                margin-bottom: 10px;
+            }
+            
+            canvas {
+                padding: 0;
+                margin: auto;
+                display: block;
+                width: 750px;
+            }
+            
+            .bottom a:link, .bottom a:visited {
+                color: #000;
+                background-color: inherit;
+                padding: 1px;
+                text-align: center;
+                text-decoration: underline;
+                display: inline-block;
+            }
+            
+            .bottom a:hover {
+                opacity: 0.7;
+            }
+            
+            .bottom {
+                margin-right: 635px;
+                margin-top: 10px;
+                font-size: 15px;
+                font-style: italic;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="topnav" id="myTopnav">
+            <a href="../">Home</a>
+            <a href="../projects">Projects</a>
+            <a href="../circleparticles">Circle particles</a>
+            <a href="index.html" class="active">Platform game</a>
+            <a href="javascript:void(0);" class="icon" id="navicon">
+                <em class="fa fa-bars"></em>
+            </a>
+        </div>
+        <div id="loadingdiv">
+            <p id="loading"></p>
+        </div>
+        
+        <!-- MAIN GAME SCRIPT -->
+        <script src="game.js"></script>
+        
+        <script>
+            var canvas;
+            
+            document.addEventListener("DOMContentLoaded", function(e) {
+                if (isMobileDevice()) return;
+                
+                canvas = document.getElementsByTagName("canvas")[0];
+                var p = [
+                    "Made with <a href='https://phaser.io/' target='_blank'>Phaser.JS</a>.",
+                    "Music: <a href='https://www.youtube.com/watch?v=JV41UkBQDhE' target='_blank'>Vexento - Arcade</a>"
+                ];
+                
+                for (var i = 0; i < p.length; i++) {
+                    var para = document.createElement("p");
+                    para.innerHTML = p[i];
+                    para.className = "bottom";
+                    document.body.appendChild(para);
+                }
+            });
+        </script>
+    </body>
+</html>
