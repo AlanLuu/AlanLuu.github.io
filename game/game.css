@@ -1,32 +1,24 @@
-#loadingdiv p {
-    font-size: 19px;
-    margin: auto;
-    display: block;
-    padding: 0;
-    text-align: center;
-}
-
-#loadingdiv, p {
-    display: block;
-    width: 208px;
-    padding: 0;
-    margin: auto;
+#loadingdiv p, .bottom {
     margin-top: 10px;
     margin-bottom: 10px;
+}
+
+#loadingdiv p {
+    padding: 0;
+    text-align: center;
 }
 
 canvas {
     padding: 0;
     margin: auto;
     display: block;
-    width: 750px;
+    width: 95vh;
 }
 
 .bottom a:link, .bottom a:visited {
     color: #000;
     background-color: inherit;
     padding: 1px;
-    text-align: center;
     text-decoration: underline;
     display: inline-block;
 }
@@ -36,8 +28,6 @@ canvas {
 }
 
 .bottom {
-    margin-right: 635px;
-    margin-top: 10px;
     font-size: 15px;
-    font-style: italic;
+    text-align: center;
 }

@@ -24,9 +24,6 @@ function isMobileDevice() {
             return;
         } 
         
-        document.getElementById("loading").innerHTML = "&nbsp;";
-        
-            
         /*
             VARIABLES
         */
@@ -59,6 +56,9 @@ function isMobileDevice() {
             "Ok, I'm stopping for real this time!",
             "xD"
         ];
+        var loading = document.getElementById("loading");
+        
+        loading.innerHTML = "&nbsp;";
         
         /*
             CONFIGURATION
@@ -66,7 +66,7 @@ function isMobileDevice() {
         var canvas = {
             type: Phaser.AUTO, //Defaults to WebGL if supported, otherwise canvas.
             width: 800,
-            height: window.innerHeight - 143,
+            height: 600,
             physics: {
                 default: 'arcade',
                 arcade: {
@@ -98,7 +98,7 @@ function isMobileDevice() {
             PRELOAD ASSETS HERE
         */
         function preload() {
-            document.getElementById("loading").innerHTML = "Loading... Please wait.";
+            loading.innerHTML = "Loading... Please wait.";
             this.load.image('sky', 'assets/sky.png');
             this.load.image('ground', 'assets/platform.png');
             this.load.image('star', 'assets/star.png');
@@ -113,7 +113,7 @@ function isMobileDevice() {
         }
         
         function create() {
-            document.getElementById("loading").innerHTML = "&nbsp;";
+            loading.innerHTML = "&nbsp;";
             this.add.image(canvas.width / 2, canvas.height / 2, 'sky');
             
             platforms = this.physics.add.staticGroup(); //Platforms do not move
@@ -189,6 +189,8 @@ function isMobileDevice() {
                     levelText.setText("Level: " + level);
                     stars.children.iterate(function(child) {
                         child.enableBody(true, child.x, 0, true, true);
+                        child.setX(Phaser.Math.Between(0, canvas.width - 100));
+                        child.setY(Phaser.Math.Between(0, canvas.height - 100));
                         
                         //Stars move at level 6 and above, which makes the game harder :)
                         if (level >= 6) {
