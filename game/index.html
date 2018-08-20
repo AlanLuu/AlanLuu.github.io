@@ -7,55 +7,11 @@
         <meta name="theme-color" content="#33ccff">
         <title>Platform game</title>
         <link href="../index.css" rel="stylesheet" type="text/css">
+        <link href="game.css" rel="stylesheet" type="text/css">
         <link href="https://fonts.googleapis.com/css?family=PT+Serif" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
         <script src="phaser.min.js"></script>
         <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-        
-        <style>
-            #loadingdiv p {
-                font-size: 19px;
-                margin: auto;
-                display: block;
-                padding: 0;
-                text-align: center;
-            }
-            
-            #loadingdiv, p {
-                display: block;
-                width: 208px;
-                padding: 0;
-                margin: auto;
-                margin-top: 10px;
-                margin-bottom: 10px;
-            }
-            
-            canvas {
-                padding: 0;
-                margin: auto;
-                display: block;
-                width: 750px;
-            }
-            
-            .bottom a:link, .bottom a:visited {
-                color: #000;
-                background-color: inherit;
-                padding: 1px;
-                text-align: center;
-                text-decoration: underline;
-                display: inline-block;
-            }
-            
-            .bottom a:hover {
-                opacity: 0.7;
-            }
-            
-            .bottom {
-                margin-right: 635px;
-                margin-top: 10px;
-                font-size: 15px;
-                font-style: italic;
-            }
-        </style>
     </head>
     <body>
         <div class="topnav" id="myTopnav">
@@ -71,28 +27,10 @@
             <p id="loading"></p>
         </div>
         
-        <!-- MAIN GAME SCRIPT -->
         <script src="game.js"></script>
+        <script src="paragraphs.js"></script>
         
-        <script>
-            var canvas;
-            
-            document.addEventListener("DOMContentLoaded", function(e) {
-                if (isMobileDevice()) return;
-                
-                canvas = document.getElementsByTagName("canvas")[0];
-                var p = [
-                    "Made with <a href='https://phaser.io/' target='_blank'>Phaser.JS</a>.",
-                    "Music: <a href='https://www.youtube.com/watch?v=JV41UkBQDhE' target='_blank'>Vexento - Arcade</a>"
-                ];
-                
-                for (var i = 0; i < p.length; i++) {
-                    var para = document.createElement("p");
-                    para.innerHTML = p[i];
-                    para.className = "bottom";
-                    document.body.appendChild(para);
-                }
-            });
-        </script>
+        <!-- For mobile devices -->
+        <script src="../responsive.js"></script>
     </body>
 </html>
