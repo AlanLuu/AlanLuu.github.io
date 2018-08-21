@@ -5,3 +5,7 @@
 #noscriptlinks {
     margin-bottom: 14px;
 }
+
+noscript p {
+    text-align: center;
+}
