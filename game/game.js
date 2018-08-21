@@ -13,15 +13,22 @@ function isMobileDevice() {
     'use strict';
     
     document.addEventListener("DOMContentLoaded", function(e) {
+        
         if (isMobileDevice()) {
-            swal({
-                text: "Sorry, but this game can't be played on a mobile device.",
-                icon: "error",
-                closeOnClickOutside: false,
-            }).then(function() {
+            try {
+                swal({
+                    text: "Sorry, but this game can't be played on a mobile device.",
+                    icon: "error",
+                    closeOnClickOutside: false,
+                }).then(function() {
+                    window.history.back();
+                });
+            } catch (e) {
+                alert("Sorry, but this game can't be played on a mobile device.");
                 window.history.back();
-            });
-            return;
+            } finally {
+                return;
+            }
         } 
         
         /*
@@ -189,8 +196,6 @@ function isMobileDevice() {
                     levelText.setText("Level: " + level);
                     stars.children.iterate(function(child) {
                         child.enableBody(true, child.x, 0, true, true);
-                        child.setX(Phaser.Math.Between(0, canvas.width - 100));
-                        child.setY(Phaser.Math.Between(0, canvas.height - 100));
                         
                         //Stars move at level 6 and above, which makes the game harder :)
                         if (level >= 6) {

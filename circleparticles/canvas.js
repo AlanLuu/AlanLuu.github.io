@@ -1,7 +1,3 @@
-/*
-  Locally scope everything inside an IIFE to prevent the user from accessing variables and functions from the browser console.
-*/
-
 (function() {
     'use strict';
     
@@ -15,32 +11,45 @@
     canvas.height = window.innerHeight - (isMobileDevice() ? 100 : 70);
     canvas.style.border = "1.5px solid black";
     
+    //Paragraph element for this string is hardcoded
     var googStr = "What you see above you is a HEX code representing the current color of the canvas' background. \
     Click <a href='https://www.google.com/search?q=%23" + color.substring(1) + "&oq=%23" + color.substring(1) + 
     "&aqs=chrome..69i57&sourceid=chrome&ie=UTF-8' target='_blank'>here</a> to see this color in a HEX color picker.";
     
+    /*
+        TODO: find a much better way of organizing these paragraphs...
+        For now, don't add p elements in between the existing p elements.
+    */
     var p = [
-        document.createElement("p"), //Background color
         document.createElement("p"), //This page doesn't have any information you might want to know about me...
+        document.createElement("p"), //Number of circles:
+        document.createElement("p"), //Background color
     ];
+    
     var rgbDiv = document.getElementById("rgbdiv");
     var rgbPicker = document.getElementById("rgbpicker");
-    p[0].innerHTML = "Background color: " + color;
-    p[1].innerHTML = "This page doesn't have any information you might want to know about me; \
+    
+    p[0].innerHTML = "This page doesn't have any information you might want to know about me; \
     it's just something I've worked on in my spare free time.";
+    p[1].innerHTML = "Number of circles: " + circles;
+    p[2].innerHTML = "Background color: " + color;
     rgbPicker.innerHTML = googStr;
     
     //To prevent i from leaking out into the global IIFE's scope
     (function() {
+        for (var i = p.length - 1; i >= 1; i--) {
+            p[i].className = "bottomofcanvas";
+        }
+        
         for (var i = 0; i < p.length; i++) {
-            if (p[i].className === "bottomofcanvas" || i === 0) {
-                p[i].style.fontSize = "15px";
-                rgbDiv.insertBefore(p[i], rgbPicker);
+            p[i].style.fontSize = "15px";
+            if (i === 0) {
+                p[i].style.fontStyle = "italic";
+                document.body.insertBefore(p[i], canvas);
                 continue;
             }    
-            p[i].style.fontSize = "14px";
-            p[i].style.fontStyle = "italic";
-            document.body.insertBefore(p[i], canvas);
+            //p[i].style.fontSize = "14px";
+            document.body.insertBefore(p[i], rgbDiv);
         }
     })();
     
@@ -149,11 +158,11 @@
         rgbPicker.innerHTML = googStr;
     }
     
-    function render(numCircles) {
+    function render(numCircles, firstRender) {
         function makeCircles() {
             var randomSize = getRandomInt(1, 15);
-            var randomX = Math.floor(Math.random() * (canvas.width - randomSize - 60) + randomSize);
-            var randomY = Math.floor(Math.random() * (canvas.height - randomSize - 60) + randomSize);
+            var randomX = Math.floor(Math.random() * (canvas.width - randomSize - (firstRender ? 60 : 0)) + randomSize);
+            var randomY = Math.floor(Math.random() * (canvas.height - randomSize - (firstRender ? 60 : 0)) + randomSize);
             var randomColor = Circle.getRandomColor();
             
             do {
@@ -170,6 +179,7 @@
         while (numCircles < circleArr.length) circleArr.pop();
         while (numCircles > circleArr.length) makeCircles();
         circles = numCircles;
+        p[1].innerHTML = "Number of circles: " + circles;
     }
     
     document.getElementById("colorchangebutton").addEventListener("click", function(e) {
@@ -199,13 +209,13 @@
             reloadGoogStr();
             rgbDiv.appendChild(rgbPicker);
         }
-        p[0].innerHTML = "Background color: " + (validColors.indexOf(userInput) !== -1 ? color.charAt(0).toUpperCase() + color.substring(1).toLowerCase() : color.toUpperCase());
+        p[2].innerHTML = "Background color: " + (validColors.indexOf(userInput) !== -1 ? color.charAt(0).toUpperCase() + color.substring(1).toLowerCase() : color.toUpperCase());
         
     });
     
     document.getElementById("randomcolorbutton").addEventListener("click", function(e) {
         color = Circle.getRandomColor();
-        p[0].innerHTML = "Background color: " + color;
+        p[2].innerHTML = "Background color: " + color;
         reloadGoogStr();
         document.getElementById("rgbdiv").appendChild(rgbPicker);
     });
@@ -226,17 +236,17 @@
         };
         
         if (numMap["binary"].test(userInput)) {
-            render(parseInt(userInput.substring(2), 2));
+            render(parseInt(userInput.substring(2), 2), false);
         } else if (numMap["hexadecimal"].test(userInput)) {
-            render(parseInt(userInput.substring(2), 16));
+            render(parseInt(userInput.substring(2), 16), false);
         } else if (numMap["octal"].test(userInput)) {
-            render(parseInt(userInput, 8));
+            render(parseInt(userInput, 8), false);
         } else {
-            render(parseInt(userInput, 10));
+            render(parseInt(userInput, 10), false);
         }
     });
     
-    render((isMobileDevice() || window.innerWidth <= 400) ? 60 : (window.innerWidth > 400 && window.innerWidth <= 600) ? 200 : 500);
+    render((isMobileDevice() || window.innerWidth <= 400) ? 60 : (window.innerWidth > 400 && window.innerWidth <= 600) ? 200 : 500, true);
     
     
    /*////////////////////
