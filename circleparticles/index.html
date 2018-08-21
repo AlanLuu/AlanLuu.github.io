@@ -9,6 +9,9 @@
         <link href="../index.css" rel="stylesheet" type="text/css">
         <link href="https://fonts.googleapis.com/css?family=PT+Serif" rel="stylesheet">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <noscript>
+            <link href="../noscript.css" rel="stylesheet" type="text/css">
+        </noscript>
     </head>
     <body>
         <div class="topnav" id="myTopnav">
@@ -20,6 +23,16 @@
                 <em class="fa fa-bars"></em>
             </a>
         </div>
+        <noscript>
+            <div id="noscriptlinks">
+                <nav>
+                    <a href="/">Home</a> |
+                    <a href="projects">Projects</a> |
+                    <a href="circleparticles">Circle particles</a> |
+                    <a href="game">Platform game</a> 
+                </nav>
+            </div>
+        </noscript>
         <canvas id="canvas"></canvas>
         <div id="rgbdiv" class="main">
             <p id="rgbpicker"></p>
@@ -30,6 +43,7 @@
             <!--<a href="#" class="fa fa-linkedin"></a>-->
         </div>
         
+        <script src="../utility.js"></script>
         <script src="canvas.js"></script>
         
         <!-- For mobile devices -->

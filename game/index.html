@@ -10,6 +10,9 @@
         <link href="game.css" rel="stylesheet" type="text/css">
         <link href="https://fonts.googleapis.com/css?family=PT+Serif" rel="stylesheet">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <noscript>
+            <link href="../noscript.css" rel="stylesheet" type="text/css">
+        </noscript>
         <script src="phaser.min.js"></script>
         <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     </head>
@@ -23,10 +26,21 @@
                 <em class="fa fa-bars"></em>
             </a>
         </div>
+        <noscript>
+            <div id="noscriptlinks">
+                <nav>
+                    <a href="/">Home</a> |
+                    <a href="projects">Projects</a> |
+                    <a href="circleparticles">Circle particles</a> |
+                    <a href="game">Platform game</a> 
+                </nav>
+            </div>
+        </noscript>
         <div id="loadingdiv">
             <p id="loading"></p>
         </div>
         
+        <script src="../utility.js"></script>
         <script src="game.js"></script>
         <script src="paragraphs.js"></script>
         

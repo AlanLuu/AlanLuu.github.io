@@ -1,3 +1,5 @@
+/* global isMobileDevice */
+
 var canvas;
             
 document.addEventListener("DOMContentLoaded", function(e) {
