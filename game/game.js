@@ -8,7 +8,6 @@
     'use strict';
     
     document.addEventListener("DOMContentLoaded", function(e) {
-        
         if (isMobileDevice()) {
             try {
                 swal({
@@ -19,7 +18,8 @@
                     window.history.back();
                 });
             } catch (err) {
-                if (err instanceof ReferenceError) {
+                //Fallback option in case SweetAlert's CDN fails to load, which causes swal to be undefined.
+                if (err instanceof ReferenceError) { 
                     alert("Sorry, but this game can't be played on a mobile device.");
                     window.history.back();
                 } 

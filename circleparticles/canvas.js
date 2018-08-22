@@ -1,5 +1,5 @@
 (function() {
-    /* global isMobileDevice */
+    /* global isMobileDevice, navigator */
     
     'use strict';
     
@@ -20,7 +20,7 @@
     
     /*
         TODO: find a much better way of organizing these paragraphs...
-        For now, don't add p elements in between the existing p elements.
+        For now, don't add any p elements in between the existing p elements.
     */
     var p = [
         document.createElement("p"), //This page doesn't have any information you might want to know about me...
@@ -39,11 +39,13 @@
     
     //To prevent i from leaking out into the global IIFE's scope
     (function() {
-        for (var i = p.length - 1; i >= 1; i--) {
+        var i;
+        
+        for (i = p.length - 1; i >= 1; i--) {
             p[i].className = "bottomofcanvas";
         }
         
-        for (var i = 0; i < p.length; i++) {
+        for (i = 0; i < p.length; i++) {
             p[i].style.fontSize = "15px";
             if (i === 0) {
                 p[i].style.fontStyle = "italic";
@@ -72,6 +74,7 @@
         }
     })();
     
+    //The only reason why I'm not using ES6 class syntax is because IE doesn't support it.
     function Circle(x, y, radius, color, xVelocity, yVelocity) {
         this.x = x;
         this.y = y;
@@ -79,11 +82,7 @@
         this.color = color;
         this.xVelocity = xVelocity;
         this.yVelocity = yVelocity;
-        Circle.numCircles++;
-        this.circleNum = Circle.numCircles;
     }
-    
-    Circle.numCircles = 0;
     
     Circle.getRandomColor = function() {
         var letters = "0123456789ABCDEF";
@@ -156,8 +155,12 @@
             circleArr.push(new Circle(randomX, randomY, randomSize, randomColor, randomXVel, randomYVel));
         }
         
-        while (numCircles < circleArr.length) circleArr.pop();
-        while (numCircles > circleArr.length) makeCircles();
+        while (numCircles < circleArr.length) {
+            circleArr.pop();
+        }
+        while (numCircles > circleArr.length) {
+            makeCircles();
+        }
         circles = numCircles;
         p[1].innerHTML = "Number of circles: " + circles;
     }
@@ -197,7 +200,7 @@
         color = Circle.getRandomColor();
         p[2].innerHTML = "Background color: " + color;
         reloadGoogStr();
-        document.getElementById("rgbdiv").appendChild(rgbPicker);
+        rgbDiv.appendChild(rgbPicker);
     });
     
     document.getElementById("circlechangebutton").addEventListener("click", function(e) {
@@ -226,7 +229,11 @@
         }
     });
     
-    render((isMobileDevice() || window.innerWidth <= 400) ? 60 : (window.innerWidth > 400 && window.innerWidth <= 600) ? 200 : 500, true);
+    
+    (function() {
+        var isIpad = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        render((isMobileDevice() || window.innerWidth <= 400) ? 60 : ((window.innerWidth > 400 && window.innerWidth <= 600) || isIpad) ? 200 : 500, true);
+    })();
     
     
    /*////////////////////
