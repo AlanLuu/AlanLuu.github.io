@@ -172,12 +172,12 @@
         var colorsAsStr = validColors.join(", ") + ".";
         colorsAsStr = colorsAsStr.insertAt(colorsAsStr.indexOf(validColors[validColors.length - 1]), "and ");
         
-        var userInput = prompt("Enter a color name or a HEX code. Valid color names include: " + colorsAsStr, "");
+        var userInput = prompt("Enter a color name or a HEX code. Valid color names include: " + colorsAsStr, "").trim();
         if (userInput === null) return;
         
         userInput = userInput.toLowerCase();
         while (validColors.indexOf(userInput) === -1 && (userInput.length !== 6 || !(/[0-9A-Fa-f]{6}/g.test(userInput)))) {
-            userInput = prompt("That was not a valid color name or HEX code. Please try again. Valid color names include: " + colorsAsStr, "");
+            userInput = prompt("That was not a valid color name or HEX code. Please try again. Valid color names include: " + colorsAsStr, "").trim();
             if (userInput === null) return;
             userInput = userInput.toLowerCase();
         }
@@ -204,12 +204,12 @@
     });
     
     document.getElementById("circlechangebutton").addEventListener("click", function(e) {
-        var userInput = prompt("Currently, there " + (circles === 1 ? "is " : "are ") + (circles === 0 ? "no" : circles) + (circles === 1 ? " circle" : " circles") + " in the canvas. Enter the new amount of circles.", "");
+        var userInput = prompt("Currently, there " + (circles === 1 ? "is " : "are ") + (circles === 0 ? "no" : circles) + (circles === 1 ? " circle" : " circles") + " in the canvas. Enter the new amount of circles.", "").trim();
         if (userInput === null) return;
         
         //Type coercion FTW
         while (userInput < 0 || userInput.length === 0 || userInput % 1 !== 0) {
-            userInput = prompt("That was not a valid number. Please try again.", "");
+            userInput = prompt("That was not a valid number. Please try again.", "").trim();
             if (userInput === null) return;
         }
         
