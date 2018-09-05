@@ -15,7 +15,7 @@
         } finally {
             return;
         }
-    } 
+    }
     
     /*
         GAME OBJECT VARIABLES
@@ -137,7 +137,6 @@
         
     };
     
-    //BE SURE TO REPLACE THE VALUE OF REF WITH A REFERENCE TO THE ADDED POWER-UP
     const powerUps = {
         ultimate: {
             sprite: 'assets/ultimatepotion.png',
@@ -590,7 +589,6 @@
                 bombs.children.iterate(function(child) {
                     child.disableBody(true, true);
                 });
-                
                 infoText.setText("All bombs successfully despawned. \n\nThis code can only be used once per game.");
                 wait(2000).then(resetInfoText);
             } else if (e.keyCodes.equals([80, 79, 87, 69, 82, 85, 80, 83]) && level <= 0) {
@@ -612,7 +610,7 @@
     }
     
     /*
-        RUN ON EVERY FRAME OF THE GAME
+        UPDATE LOOP
     */
     function update() {
         livesText.setText("Lives: " + (!isFinite(lives) ? "∞" : lives));
@@ -620,7 +618,7 @@
         scoreText.setText('Score: ' + score);
         
         /*
-            Allows the player to move
+            Allows the player to move.
         */
         if (cursors.left.isDown) {
             player.setVelocityX(-160);
