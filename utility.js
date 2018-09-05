@@ -26,3 +26,36 @@ Array.prototype.removeAt = function(index) {
 Array.prototype.addAt = function(index, element) {
     this.splice(index, 0, element);
 };
+
+/*
+    Returns a boolean determining whether the two specified arrays of ints are equal to one another. If both arrays contain 
+    the same number of elements, and all corresponding pairs of elements in the two arrays are equal, then the two arrays are
+    considered to be equal to each other.
+*/
+Array.equals = function(arr1, arr2) {
+    if (arr1.length !== arr2.length) return false;
+    
+    var i = arr1.length;
+    while (i--) {
+        if (arr1[i] !== arr2[i]) return false;
+    }
+    return true;
+};
+
+/*
+    Same method as above written in a prototypical way.
+*/
+Array.prototype.equals = function(other) {
+    if (this.length !== other.length) return false;
+    
+    var i = this.length;
+    while (i--) {
+        if (this[i] !== other[i]) return false;
+    }
+    return true;
+};
+
+/*
+    Apparently, the above method also works on strings.
+*/
+String.prototype.equals = Array.prototype.equals;

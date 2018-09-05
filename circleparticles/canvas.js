@@ -206,7 +206,9 @@
     document.getElementById("circlechangebutton").addEventListener("click", function(e) {
         var userInput = prompt("Currently, there " + (circles === 1 ? "is " : "are ") + (circles === 0 ? "no" : circles) + (circles === 1 ? " circle" : " circles") + " in the canvas. Enter the new amount of circles.", "");
         if (userInput === null) return;
-        while (userInput < 0 || userInput.length === 0 || Number(userInput) % 1 !== 0 || Number.isNaN(Number(userInput))) {
+        
+        //Type coercion FTW
+        while (userInput < 0 || userInput.length === 0 || userInput % 1 !== 0) {
             userInput = prompt("That was not a valid number. Please try again.", "");
             if (userInput === null) return;
         }
