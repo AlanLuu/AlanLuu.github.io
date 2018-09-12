@@ -167,7 +167,7 @@
         "Welcome to Star Collector - a platform game! \n\nUse the arrow keys to move and jump. \n\nCollect every star to progress \nthrough the game!",
         "Don't touch the bomb!",
         "Yikes! Two bombs!",
-        "Hey look, an extra life potion! \nGrab it for an extra life!",
+        "Hey look, a life potion! \nGrab it for an extra life!",
         "Starting from this level, power-ups will \noccasionally spawn to help you out. There \nare " + Object.keys(powerUps).length + " of them. Grab them and see what they \ndo!",
         "Hey look, the stars move now!",
         "Does that make this game harder?",
@@ -331,7 +331,7 @@
             });
             
             /*
-                Once the user collects all the stars, spawn 12 new stars and 1 bomb.
+                Once the user collects all the stars, spawn 12 new stars and add 1 bomb into the game.
             */
             if (stars.countActive(true) === 0) {
                 if (level >= 1) level++;
@@ -359,6 +359,7 @@
                 
                 /*
                     Spawn random power-ups occasionally starting from level 4.
+                    If one does get spawned, do not attempt to spawn any more.
                 */
                 if (level > 4) {
                     for (let key in powerUps) {
@@ -373,15 +374,15 @@
                                 powerUp.setVelocity(Phaser.Math.Between(-200, 200), 20);
                                 powerUp.allowGravity = false;
                                 powerUp.setCollideWorldBounds(true);
-                                break;
+                                break; 
                             }
                         } 
                     }
                     
-                    /*
-                        Spawns an extra life potion at level 4.
-                        This introduces the player to the concept of power-ups.
-                    */
+                /*
+                    Spawns an extra life potion at level 4.
+                    This introduces the player to the concept of power-ups.
+                */
                 } else if (level === 4) {
                     let oneUp = powerUps["oneUp"]["ref"];
                     let x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
@@ -408,7 +409,7 @@
             wait(2000).then(resetInfoText);
         }, null, this);
         this.physics.add.overlap(player, powerUps["invincibility"]["ref"], function(player, invincibility) {
-            if (!invincible) {
+            if (!canDestroy) {
                 invincible = true;
                 canDestroy = true;
                 this.sound.play('powerupcollect', {
@@ -437,6 +438,14 @@
                     child.allowGravity = false;
                 }
             });
+            for (let key in powerUps) {
+                let powerUp = powerUps[key]["ref"];
+                if (powerUps.hasOwnProperty(key) && powerUp.visible) {
+                    powerUp.setVelocity(0, 5);
+                    powerUp.setBounce(0.1);
+                    powerUp.allowGravity = false;
+                }
+            }
             this.sound.play('powerupcollect', {
                 volume: 0.5
             });
@@ -455,6 +464,15 @@
                         child.allowGravity = false;
                     }
                 });
+                for (let key in powerUps) {
+                    let powerUp = powerUps[key]["ref"];
+                    if (powerUps.hasOwnProperty(key) && powerUp.visible) {
+                        powerUp.setBounce(1);
+                        powerUp.setVelocity(Phaser.Math.Between(-200, 200), 20);
+                        powerUp.setY(powerUp.y - 60);
+                        powerUp.allowGravity = false;
+                    }
+                }
                 resetInfoText();
             });
         }, null, this);
@@ -476,10 +494,19 @@
                     child.allowGravity = false;
                 }
             });
+            for (let key in powerUps) {
+                let powerUp = powerUps[key]["ref"];
+                if (powerUps.hasOwnProperty(key) && powerUp.visible) {
+                    powerUp.setVelocity(0, 5);
+                    powerUp.setBounce(0.1);
+                    powerUp.allowGravity = false;
+                }
+            }
             
             this.sound.play('powerupcollect', {
                 volume: 0.5
             });
+            
             infoText.setText("Lives increased by one, \nyou are now invincible, \nand all game objects have been stopped!");
             
             wait(10000).then(function() {
@@ -498,6 +525,15 @@
                         child.allowGravity = false;
                     }
                 });
+                for (let key in powerUps) {
+                    let powerUp = powerUps[key]["ref"];
+                    if (powerUps.hasOwnProperty(key) && powerUp.visible) {
+                        powerUp.setBounce(1);
+                        powerUp.setVelocity(Phaser.Math.Between(-200, 200), 20);
+                        powerUp.setY(powerUp.y - 60);
+                        powerUp.allowGravity = false;
+                    }
+                }
                 resetInfoText();
             });
             
@@ -532,7 +568,6 @@
         this.input.keyboard.createCombo(reverseKonami, {
             resetOnMatch: true
         });
-        this.input.keyboard.createCombo("despawn");
         this.input.keyboard.createCombo("powerups", {
             resetOnMatch: true
         });
@@ -549,7 +584,7 @@
                 });
                 
                 const loop = function(messages, milliseconds, counter) {
-                    if (typeof counter !== "number") counter = 0;
+                    if (typeof counter !== "number" || counter < 0) counter = 0;
                     infoText.setText(messages[counter]);
                     wait(milliseconds).then(counter < messages.length - 1 ? function() {
                         loop(messages, milliseconds, ++counter);
@@ -585,12 +620,6 @@
                     invincible = !invincible;
                     resetInfoText();
                 });
-            } else if (e.keyCodes.equals([68, 69, 83, 80, 65, 87, 78])) {
-                bombs.children.iterate(function(child) {
-                    child.disableBody(true, true);
-                });
-                infoText.setText("All bombs successfully despawned. \n\nThis code can only be used once per game.");
-                wait(2000).then(resetInfoText);
             } else if (e.keyCodes.equals([80, 79, 87, 69, 82, 85, 80, 83]) && level <= 0) {
                 for (let key in powerUps) {
                     if (powerUps.hasOwnProperty(key)) {
@@ -646,5 +675,10 @@
         } else if (!isDead) {
             player.clearTint();
         }
+        
+        /*
+            Prevents the player from getting stuck if they somehow accidentally clip through the bottom platform.
+        */
+        if (player.y >= 530) player.y = 520;
     }
 })();
