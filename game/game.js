@@ -374,7 +374,7 @@
                                 powerUp.setVelocity(Phaser.Math.Between(-200, 200), 20);
                                 powerUp.allowGravity = false;
                                 powerUp.setCollideWorldBounds(true);
-                                break; 
+                                break;
                             }
                         } 
                     }
