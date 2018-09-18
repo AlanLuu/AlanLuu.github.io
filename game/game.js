@@ -181,6 +181,22 @@
     
     const game = new Phaser.Game(canvas); //Actually load the canvas
     
+    document.addEventListener("DOMContentLoaded", function(e) {
+        window.canvas = document.getElementsByTagName("canvas")[0];
+        
+        var p = [
+            "Made with <a href='https://phaser.io/' target='_blank'>Phaser.JS</a>.",
+            "Music: <a href='https://www.youtube.com/watch?v=JV41UkBQDhE' target='_blank'>Vexento - Arcade</a>"
+        ];
+        
+        for (var i = 0; i < p.length; i++) {
+            var paragraph = document.createElement("p");
+            paragraph.innerHTML = p[i];
+            paragraph.className = "bottom";
+            document.body.appendChild(paragraph);
+        }
+    });
+    
     /*
         PRELOAD ASSETS HERE
     */
@@ -357,7 +373,7 @@
                 
                 /*
                     Spawn random power-ups occasionally starting from level 4.
-                    If one does get spawned, do not attempt to spawn any more.
+                    If one does get spawned, do not attempt to spawn anymore.
                 */
                 if (level > 4) {
                     for (let key in powerUps) {
