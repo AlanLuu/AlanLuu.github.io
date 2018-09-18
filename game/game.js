@@ -8,7 +8,7 @@
             swal({
                 text: "Sorry, but this game can't be played on a mobile device.",
                 icon: "error",
-                closeOnClickOutside: false,
+                closeOnClickOutside: false
             }).then(function() {
                 window.history.back();
             });
@@ -57,7 +57,6 @@
     */
     var canDestroy = false; 
     
-    var isDead = false;
     const konami = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
     const reverseKonami = [40, 40, 38, 38, 39, 37, 39, 37, 65, 66];
     const loading = document.getElementById("loading");
@@ -98,7 +97,6 @@
         You can also call this explicitly if you want to manually trigger a game over.
     */
     function gameOver(_this) {
-        isDead = true;
         invincible = false; //Ignore any invincibility the player has
         lives = 0;
         despawnEverything();
@@ -583,27 +581,23 @@
                     child.disableBody(true, true);
                 });
                 
-                const loop = function(messages, milliseconds, counter) {
-                    if (typeof counter !== "number" || counter < 0) counter = 0;
+                (function loop(messages, milliseconds, counter) {
                     infoText.setText(messages[counter]);
                     wait(milliseconds).then(counter < messages.length - 1 ? function() {
                         loop(messages, milliseconds, ++counter);
                     } : function() {
                         gameOver(_this);
                     });
-                };
-                
-                loop([
+                })([
                     "Konami code?",
                     "Ah, you're so clever.",
                     "Why did you enter this code?",
                     "Did you think it would help you out?",
                     "Nope, it actually kills you.",
                     "LOL"
-                ], 2000);
+                ], 2000, 0);
                 
                 invincible = false;
-                isDead = true;
                 pause.visible = false;
                 despawnEverything();
                 background.setTint(0xff0000);
@@ -649,13 +643,7 @@
         /*
             Allows the player to move.
         */
-        if (cursors.left.isDown) {
-            player.setVelocityX(-160);
-        } else if (cursors.right.isDown) {
-            player.setVelocityX(160);
-        } else {
-            player.setVelocityX(0);
-        }
+        player.setVelocityX(cursors.left.isDown ? -160 : cursors.right.isDown ? 160 : 0);
         
         /*
             Allows the player to jump.
@@ -670,15 +658,20 @@
         /*
             If invincible, change the player's color to yellow.
         */
-        if (invincible) {
-            player.setTintFill(0xe6e600);
-        } else if (!isDead) {
+        if (invincible && canDestroy) {
+            player.setTintFill(0xffff00);
+        } else if (invincible) {
+            player.setTintFill(0xffab00);
+        } else {
             player.clearTint();
         }
+        
+        if (canDestroy && !invincible) throw new Error("canDestroy should NEVER be true if the player is not invincible.");
+        if (level < 0) throw new Error("Level cannot be negative: it is " + level + ".");
         
         /*
             Prevents the player from getting stuck if they somehow accidentally clip through the bottom platform.
         */
-        if (player.y >= 530) player.y = 520;
+        if (player.y >= 530) player.y = 510;
     }
 })();
