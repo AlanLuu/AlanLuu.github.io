@@ -197,11 +197,12 @@
         
         var p = [
             "Made with <a href='https://phaser.io/' target='_blank'>Phaser.JS</a>.",
-            "Music: <a href='https://www.youtube.com/watch?v=JV41UkBQDhE' target='_blank'>Vexento - Arcade</a>"
+            "Music: <a href='https://www.youtube.com/watch?v=JV41UkBQDhE' target='_blank'>Vexento - Arcade</a>",
+            "Source code on <a href='https://github.com/AlanLuu/AlanLuu.github.io/blob/master/game/game.js' target='_blank'>GitHub</a>"
         ];
         
-        for (var i = 0; i < p.length; i++) {
-            var paragraph = document.createElement("p");
+        for (let i = 0; i < p.length; i++) {
+            let paragraph = document.createElement("p");
             paragraph.innerHTML = p[i];
             paragraph.className = "bottom";
             document.body.appendChild(paragraph);
@@ -654,8 +655,7 @@
                 daredevil = true;
                 lives = 1;
                 despawnPowerUps();
-                infoTextList[3] = "";
-                infoTextList[4] = "";
+                for (let i = 3; i <= 4; i++) infoTextList[i] = "";
                 infoText.setText("Daredevil mode activated!");
                 wait(2000).then(resetInfoText);
             }
