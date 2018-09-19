@@ -3,6 +3,7 @@
     
     'use strict';
     
+    //Not going to add mobile device support for this game.
     if (isMobileDevice()) {
         try {
             swal({
@@ -57,6 +58,11 @@
     */
     var canDestroy = false; 
     
+    /*
+        Daredevil mode: how far can you get with only one life and no power-ups?
+    */
+    var daredevil = false;
+    
     const konami = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
     const reverseKonami = [40, 40, 38, 38, 39, 37, 39, 37, 65, 66];
     const loading = document.getElementById("loading");
@@ -85,6 +91,10 @@
             child.disableBody(true, true);
         });
         
+        despawnPowerUps();
+    }
+    
+    function despawnPowerUps() {
         for (let key in powerUps) {
             if (powerUps.hasOwnProperty(key)) {
                 powerUps[key]["ref"].disableBody(true, true);
@@ -183,6 +193,7 @@
     
     document.addEventListener("DOMContentLoaded", function(e) {
         window.canvas = document.getElementsByTagName("canvas")[0];
+        window.context = window.canvas.getContext("webgl");
         
         var p = [
             "Made with <a href='https://phaser.io/' target='_blank'>Phaser.JS</a>.",
@@ -372,9 +383,11 @@
                 bomb.allowGravity = false;
                 
                 /*
-                    Spawn random power-ups occasionally starting from level 4.
+                    Spawn random power-ups occasionally starting from level 4, if not in daredevil mode.
                     If one does get spawned, do not attempt to spawn anymore.
                 */
+                if (daredevil) return;
+                
                 if (level > 4) {
                     for (let key in powerUps) {
                         if (powerUps.hasOwnProperty(key)) {
@@ -585,17 +598,12 @@
         this.input.keyboard.createCombo("powerups", {
             resetOnMatch: true
         });
+        this.input.keyboard.createCombo("daredevil");
         this.input.keyboard.on('keycombomatch', function(e) {
+            if (daredevil) return; //Cheat codes do not work in daredevil mode.
+            
             if (e.keyCodes.equals(konami)) {
                 lives += 30;
-                
-                stars.children.iterate(function(child) {
-                    child.disableBody(true, true);
-                });
-                
-                bombs.children.iterate(function(child) {
-                    child.disableBody(true, true);
-                });
                 
                 (function loop(messages, milliseconds, counter) {
                     infoText.setText(messages[counter]);
@@ -630,7 +638,7 @@
                     invincible = !invincible;
                     resetInfoText();
                 });
-            } else if (e.keyCodes.equals([80, 79, 87, 69, 82, 85, 80, 83]) && level <= 0) {
+            } else if (e.keyCodes.equals([80, 79, 87, 69, 82, 85, 80, 83]) && level === 0) {
                 for (let key in powerUps) {
                     if (powerUps.hasOwnProperty(key)) {
                         let powerUp = powerUps[key]["ref"];
@@ -642,6 +650,14 @@
                         powerUp.setCollideWorldBounds(true);
                     }
                 }
+            } else if (e.keyCodes.equals([68, 65, 82, 69, 68, 69, 86, 73, 76])) {
+                daredevil = true;
+                lives = 1;
+                despawnPowerUps();
+                infoTextList[3] = "";
+                infoTextList[4] = "";
+                infoText.setText("Daredevil mode activated!");
+                wait(2000).then(resetInfoText);
             }
         });
         
