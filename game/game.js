@@ -654,11 +654,7 @@
                 daredevil = true;
                 lives = 1;
                 despawnPowerUps();
-                for (let i = 3; i <= 4; i++) {
-                    infoTextList[i] = "";
-                }
-                infoTextList[3] = "";
-                infoTextList[4] = "";
+                for (let i = 3; i <= 4; i++) infoTextList[i] = "";
                 infoText.setText("Daredevil mode activated!");
                 wait(2000).then(resetInfoText);
             }
