@@ -39,7 +39,7 @@
     */
     var score = 0;
     var level = 1;
-    var lives = level <= 0 ? Infinity : 5;
+    var lives = level === 0 ? Infinity : 5;
     
     //Prevents the player from repeatedly jumping if the up arrow key is constantly held down.
     var upKeyDown = false;
@@ -325,6 +325,10 @@
                 }
             } else if (canDestroy) {
                 theBomb.disableBody(true, true);
+                score += 20;
+                this.sound.play('starcollect', {
+                    volume: 0.25
+                });
             }
         }, null, this);
         
@@ -367,6 +371,20 @@
             */
             if (stars.countActive(true) === 0) {
                 if (level >= 1) level++;
+                
+                {
+                    let everyNLevels = 10;
+                    if (level % everyNLevels == 0) {
+                        lives++;
+                        this.sound.play('powerupcollect', {
+                            volume: 0.5
+                        });
+                        wait(100).then(function() {
+                            infoText.setText("You got an extra life for passing " + everyNLevels + " levels!");
+                        });
+                        wait(2000).then(resetInfoText);
+                    }
+                } 
                 
                 stars.children.iterate(function(child) {
                     child.enableBody(true, child.x, 0, true, true);
@@ -443,7 +461,7 @@
             wait(2000).then(resetInfoText);
         }, null, this);
         this.physics.add.overlap(player, powerUps["invincibility"]["ref"], function(player, invincibility) {
-            if (!canDestroy) {
+            if (!invincible && !canDestroy) {
                 invincible = true;
                 canDestroy = true;
                 this.sound.play('powerupcollect', {
