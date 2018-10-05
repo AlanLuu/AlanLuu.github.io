@@ -209,6 +209,13 @@
     });
     
     /*
+        ERROR HANDLER
+    */
+    window.addEventListener("error", function(e) {
+        loading.innerHTML = "An error has been detected and the game has been stopped to prevent a crash. <br> Check the browser console for more information.";
+    });
+    
+    /*
         PRELOAD ASSETS HERE
     */
     function preload() {
@@ -697,7 +704,6 @@
             player.clearTint();
         }
         
-        if (canDestroy && !invincible) throw new Error("canDestroy should NEVER be true if the player is not invincible.");
         if (level < 0) throw new Error("Level cannot be negative: it is " + level + ".");
         
         /*
