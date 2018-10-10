@@ -26,8 +26,8 @@ public class CustomArrayList<E> implements Iterable<E> {
         } catch (Exception err) {
             return false;
         }
-	    data[size++] = element;
-	    return true;
+        data[size++] = element;
+        return true;
     }
 
     public void add(int index, E element) {
@@ -78,42 +78,42 @@ public class CustomArrayList<E> implements Iterable<E> {
         return flag;
     }
     
-	public void clear() {
-	    data = (E[]) new Object[10];
-	    size = 0;
-	}
+    public void clear() {
+        data = (E[]) new Object[10];
+        size = 0;
+    }
 
     public E remove(int index) {
         check(index);
-	    E e = data[index];
+        E e = data[index];
         fastRemove(index);
-	    return e;
+        return e;
     }
 
-	/*
-	    Removes the first occurrence of the specified element from this list, if it is present.
-	*/
+    /*
+        Removes the first occurrence of the specified element from this list, if it is present.
+    */
     public boolean remove(Object o) {
-	    int index = indexOf(o);
-	    if (index >= 0) {
-	        fastRemove(index);
-	        return true;
-	    }
-	    return false;
+        int index = indexOf(o);
+        if (index >= 0) {
+            fastRemove(index);
+            return true;
+        }
+        return false;
     }
 
-	/*
-	    Removes all occurrences of the specified element from this list, if it is present.
-	*/
+    /*
+        Removes all occurrences of the specified element from this list, if it is present.
+    */
     public boolean removeAll(Object o) {
-	    int index = indexOf(o);
-	    boolean flag = false;
-	    while (index >= 0) {
+        int index = indexOf(o);
+        boolean flag = false;
+        while (index >= 0) {
             flag = true;
-	        fastRemove(index);
-	        index = indexOf(o);
-	    }
-	    return flag;
+            fastRemove(index);
+            index = indexOf(o);
+        }
+        return flag;
     }
 
     public E get(int index) {
@@ -185,7 +185,7 @@ public class CustomArrayList<E> implements Iterable<E> {
     }
 
     /*
-	    Allows the CustomArrayList to be a target of the for-each loop
+        Allows the CustomArrayList to be a target of the for-each loop
     */
     @Override
     public Iterator<E> iterator() {
@@ -205,7 +205,7 @@ public class CustomArrayList<E> implements Iterable<E> {
                 return data[current++];
             }
 
-	        @Override
+            @Override
             public void remove() {
                 throw new UnsupportedOperationException("remove");
             }
