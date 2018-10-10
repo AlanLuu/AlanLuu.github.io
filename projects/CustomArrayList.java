@@ -56,8 +56,8 @@ public class CustomArrayList<E> implements Iterable<E> {
     public boolean remove(Object o) {
 	int index = indexOf(o);
 	if (index >= 0) {
-		fastRemove(index);
-		return true;
+	    fastRemove(index);
+	    return true;
 	}
 	return false;
     }
@@ -125,9 +125,9 @@ public class CustomArrayList<E> implements Iterable<E> {
         }
     }
 
-	/*
-		Returns a string representation of the CustomArrayList
-	*/
+    /*
+        Returns a string representation of the CustomArrayList
+    */
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder()
