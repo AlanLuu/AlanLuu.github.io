@@ -134,7 +134,7 @@ public class CustomArrayList<E> implements Iterable<E> {
                 .append("[");
 	    Iterator<E> iterator = iterator();
 	    while (iterator.hasNext()) {
-		E element = iterator.next();
+	        E element = iterator.next();
                 builder.append(element);
                 if (iterator.hasNext()) {
                     builder.append(", ");
@@ -144,9 +144,9 @@ public class CustomArrayList<E> implements Iterable<E> {
 	    return builder.toString();
     }
 
-	/*
-		Allows the CustomArrayList to be a target of the for-each loop
-	*/
+    /*
+	Allows the CustomArrayList to be a target of the for-each loop
+    */
     @Override
     public Iterator<E> iterator() {
         return new Iterator<E>() {
