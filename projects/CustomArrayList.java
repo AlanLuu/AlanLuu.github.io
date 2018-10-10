@@ -77,6 +77,7 @@ public class CustomArrayList<E> implements Iterable<E> {
         }
         return flag;
     }
+    
 	public void clear() {
 	    data = (E[]) new Object[10];
 	    size = 0;
