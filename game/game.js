@@ -1,13 +1,13 @@
 (function() {
-    /* global Phaser, swal, isMobileDevice */
+    /* global Phaser, swal, isMobile */
     
     'use strict';
     
-    //Not going to add mobile device support for this game.
-    if (isMobileDevice()) {
+    //Not going to add mobile or tablet device support for this game.
+    if (isMobile.any()) {
         try {
             swal({
-                text: "Sorry, but this game can't be played on a mobile device.",
+                text: "Sorry, but this game can only be played on a computer.",
                 icon: "error",
                 closeOnClickOutside: false
             }).then(function() {
