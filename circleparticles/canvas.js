@@ -1,5 +1,5 @@
 (function() {
-    /* global isMobileDevice, navigator */
+    /* global isMobile, navigator */
     
     'use strict';
     
@@ -9,8 +9,8 @@
     var color = "#FFFFFF";
     var circleArr = [];
     var circles;
-    canvas.width = window.innerWidth - (isMobileDevice() ? 17.5 : 35);
-    canvas.height = window.innerHeight - (isMobileDevice() ? 100 : 70);
+    canvas.width = window.innerWidth - (isMobile.any() ? 17.5 : 35);
+    canvas.height = window.innerHeight - (isMobile.any() ? 100 : 70);
     canvas.style.border = "1.5px solid black";
     
     //Paragraph element for this string is hardcoded
@@ -115,7 +115,7 @@
         context.fill();
         
         //Outlines looks nice on computers, not so much on mobile devices.
-        if (!isMobileDevice()) {
+        if (!isMobile.any()) {
             context.strokeStyle = "#000000";
             context.stroke();
         }
@@ -234,7 +234,7 @@
     
     (function() {
         var isIpad = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        render((isMobileDevice() || window.innerWidth <= 400) ? 60 : ((window.innerWidth > 400 && window.innerWidth <= 600) || isIpad) ? 200 : 500, true);
+        render((isMobile.any() || window.innerWidth <= 400) ? 60 : ((window.innerWidth > 400 && window.innerWidth <= 600) || isIpad) ? 200 : 500, true);
     })();
     
     
