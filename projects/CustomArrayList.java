@@ -26,8 +26,6 @@ public class CustomArrayList<E> implements Iterable<E> {
         } catch (Exception err) {
             return false;
         }
-        data[size++] = element;
-        return true;
     }
 
     public void add(int index, E element) {
@@ -40,44 +38,6 @@ public class CustomArrayList<E> implements Iterable<E> {
         size++;
     }
 
-    public void clear() {
-        data = (E[]) new Object[10];
-        size = 0;
-    }
-
-    public E remove(int index) {
-        check(index);
-        E e = data[index];
-        fastRemove(index);
-        return e;
-    }
-
-    /*
-        Removes the first occurrence of the specified element from this list, if it is present.
-    */
-    public boolean remove(Object o) {
-        int index = indexOf(o);
-        if (index >= 0) {
-            fastRemove(index);
-            return true;
-        }
-        return false;
-    }
-
-    /*
-        Removes all occurrences of the specified element from this list, if it is present.
-    */
-    public boolean removeAll(Object o) {
-        int index = indexOf(o);
-        boolean flag = false;
-        while (index >= 0) {
-            flag = true;
-            fastRemove(index);
-            index = indexOf(o);
-        }
-        return flag;
-    }
-    
     public void clear() {
         data = (E[]) new Object[10];
         size = 0;
@@ -161,7 +121,7 @@ public class CustomArrayList<E> implements Iterable<E> {
 
     private void check(int index) {
         if (index < 0 || index > size - 1) {
-            throw new ArrayIndexOutOfBoundsException("Index: " + index + ", Size " + index);
+            throw new ArrayIndexOutOfBoundsException("Index: " + index + ", Size " + size);
         }
     }
 
