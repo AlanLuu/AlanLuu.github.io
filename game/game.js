@@ -145,31 +145,52 @@
         
     };
     
-    const powerUps = {
-        ultimate: {
-            sprite: 'assets/ultimatepotion.png',
-            key: 'ultimate',
-            spawnRate: 0.05
+    /*
+        GAME ASSETS
+    */
+    const assets = {
+        sky: 'assets/sky.png',
+        ground: 'assets/platform.png',
+        star: 'assets/star.png',
+        bomb: 'assets/bomb.png',
+        player: 'assets/player.png',
+        pause: 'assets/pause.png',
+        resume: 'assets/resume.png',
+        
+        powerUps: {
+            ultimate: {
+                sprite: 'assets/ultimatepotion.png',
+                key: 'ultimate',
+                spawnRate: 0.05
+            },
+            
+            invincibility: {
+                sprite: 'assets/invinciblepotion.png',
+                key: 'invincibility',
+                spawnRate: 0.2
+            },
+            
+            stop: {
+                sprite: 'assets/stoppotion.png',
+                key: 'stop',
+                spawnRate: 0.6
+            },
+            
+            oneUp: {
+                sprite: 'assets/lifepotion.png',
+                key: '1up',
+                spawnRate: 0.6
+            }
         },
         
-        invincibility: {
-            sprite: 'assets/invinciblepotion.png',
-            key: 'invincibility',
-            spawnRate: 0.2
-        },
-        
-        stop: {
-            sprite: 'assets/stoppotion.png',
-            key: 'stop',
-            spawnRate: 0.6
-        },
-        
-        oneUp: {
-            sprite: 'assets/lifepotion.png',
-            key: '1up',
-            spawnRate: 0.6
+        sounds: {
+            explosion: 'assets/audio/explosion.mp3',
+            starcollect: 'assets/audio/starcollect.mp3',
+            powerupcollect: 'assets/audio/powerup.mp3',
+            music: 'assets/audio/arcade.mp3'
         }
     };
+    const powerUps = assets["powerUps"];
     
     const infoTextList = [
         "Welcome to Star Collector - a platform game! \n\nUse the arrow keys to move and jump. \n\nCollect every star to progress \nthrough the game!",
@@ -220,35 +241,25 @@
     */
     function preload() {
         loading.innerHTML = "Loading... Please wait.";
-        this.load.image('sky', 'assets/sky.png');
-        this.load.image('ground', 'assets/platform.png');
-        this.load.image('star', 'assets/star.png');
-        this.load.image('bomb', 'assets/bomb.png');
-        this.load.image('player', 'assets/player.png');
-        this.load.image('pause', 'assets/pause.png');
-        this.load.image('resume', 'assets/resume.png');
         
-        for (let key in powerUps) {
-            if (powerUps.hasOwnProperty(key)) {
-                this.load.image(powerUps[key]["key"], powerUps[key]["sprite"]);
+        for (let key in assets) {
+            let subObject = assets[key];
+            
+            loop2:
+            for (let element in subObject) {
+                switch (key) {
+                    case 'powerUps':
+                        this.load.image(subObject[element]["key"], subObject[element]["sprite"]);
+                        break;
+                    case 'sounds':
+                        this.load.audio(element, subObject[element]);
+                        break;
+                    default:
+                        this.load.image(key, subObject);
+                        break loop2;
+                }
             }
         }
-        
-        this.load.audio('explosion', [
-            'assets/audio/explosion.mp3'
-        ]);
-        
-        this.load.audio('starcollect', [
-            'assets/audio/starcollect.mp3'
-        ]);
-        
-        this.load.audio('powerupcollect', [
-            'assets/audio/powerup.mp3'
-        ]);
-        
-        this.load.audio('music', [
-            'assets/audio/arcade.mp3'
-        ]);
         
         console.log("Documentation: https://photonstorm.github.io/phaser3-docs/index.html");
         console.log("Uncompressed code: https://cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js");
