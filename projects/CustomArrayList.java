@@ -1,8 +1,5 @@
 import java.util.*;
 
-/**
- * Custom reimplementation of java.util.ArrayList.
- */ 
 @SuppressWarnings("unchecked")
 public class CustomArrayList<E> implements Iterable<E> {
     private int size = 0;
@@ -20,12 +17,8 @@ public class CustomArrayList<E> implements Iterable<E> {
         if (size == data.length) {
             expand();
         }
-        try {
-            data[size++] = element;
-            return true;
-        } catch (Exception err) {
-            return false;
-        }
+        data[size++] = element;
+        return true;
     }
 
     public void add(int index, E element) {
