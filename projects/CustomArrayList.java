@@ -37,6 +37,13 @@ public class CustomArrayList<E> implements Iterable<E> {
         data[index] = element;
         size++;
     }
+    
+    public E set(int index, E element) {
+        check(index);
+        E e = data[index];
+        data[index] = element;
+        return e;
+    }
 
     public void clear() {
         data = (E[]) new Object[10];
