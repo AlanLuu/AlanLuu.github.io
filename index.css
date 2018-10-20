@@ -3,8 +3,8 @@ html {
 }
 
 body {
-    background: linear-gradient(to bottom, #33ccff 0%, #ff99cc 100%);
-    background-color: #33ccff;
+    background: linear-gradient(to bottom, #41bae2 0%, #ff99cc 100%);
+    background-color: #41bae2;
     font-family: 'PT Serif', serif;
     margin: 1;
     padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); /* For iPhone X */
