@@ -139,7 +139,7 @@ p, ul {
     display: none;
 }
 
-.youtube-flex, .flex {
+.flex {
     display: flex;
     justify-content: space-evenly;
     flex-wrap: wrap;
