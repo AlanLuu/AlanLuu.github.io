@@ -95,9 +95,9 @@
     }
     
     function despawnPowerUps() {
-        for (let key in powerUps) {
-            if (powerUps.hasOwnProperty(key)) {
-                powerUps[key]["ref"].disableBody(true, true);
+        for (let key in powerups) {
+            if (powerups.hasOwnProperty(key)) {
+                powerups[key]["ref"].disableBody(true, true);
             }
         }
     }
@@ -157,7 +157,7 @@
         pause: 'assets/pause.png',
         resume: 'assets/resume.png',
         
-        powerUps: {
+        powerups: {
             ultimate: {
                 sprite: 'assets/ultimatepotion.png',
                 key: 'ultimate',
@@ -190,14 +190,14 @@
             music: 'assets/audio/arcade.mp3'
         }
     };
-    const powerUps = assets["powerUps"];
+    const powerups = assets["powerups"];
     
     const infoTextList = [
         "Welcome to Star Collector - a platform game! \n\nUse the arrow keys to move and jump. \n\nCollect every star to progress \nthrough the game!",
         "Don't touch the bomb!",
         "Yikes! Two bombs!",
         "Hey look, a life potion! \nGrab it for an extra life!",
-        "Starting from this level, power-ups will \noccasionally spawn to help you out. There \nare " + Object.keys(powerUps).length + " of them. Grab them and see what they \ndo!",
+        "Starting from this level, power-ups will \noccasionally spawn to help you out. There \nare " + Object.keys(powerups).length + " of them. Grab them and see what they \ndo!",
         "Hey look, the stars move now!",
         "Does that make this game harder?",
         "Hey, this game wasn't meant to be easy.",
@@ -206,8 +206,7 @@
         "Ok, I'll stop.",
         "So, how was your day so far?",
         "Good? That's good.",
-        "Ok, I'm stopping for real this time!",
-        "xD"
+        "Ok, I'm stopping for real this time!"
     ];
     
     const game = new Phaser.Game(canvas); //Actually load the canvas
@@ -246,13 +245,13 @@
             let subObject = assets[key];
             
             loop2:
-            for (let element in subObject) {
+            for (let key2 in subObject) {
                 switch (key) {
-                    case 'powerUps':
-                        this.load.image(subObject[element]["key"], subObject[element]["sprite"]);
+                    case 'powerups':
+                        this.load.image(subObject[key2]["key"], subObject[key2]["sprite"]);
                         break;
                     case 'sounds':
-                        this.load.audio(element, subObject[element]);
+                        this.load.audio(key2, subObject[key2]);
                         break;
                     default:
                         this.load.image(key, subObject);
@@ -288,11 +287,11 @@
         resume.visible = false;
         resume.setInteractive();
         
-        for (let key in powerUps) {
-            if (powerUps.hasOwnProperty(key)) {
-                let x = Phaser.Math.Between(10, canvas.width - 30), y = 10, theKey = powerUps[key]["key"];
-                powerUps[key]["ref"] = this.physics.add.image(x, y, theKey);
-                let powerUp = powerUps[key]["ref"];
+        for (let key in powerups) {
+            if (powerups.hasOwnProperty(key)) {
+                let x = Phaser.Math.Between(10, canvas.width - 30), y = 10, theKey = powerups[key]["key"];
+                powerups[key]["ref"] = this.physics.add.image(x, y, theKey);
+                let powerUp = powerups[key]["ref"];
                 powerUp.disableBody(true, true);
                 this.physics.add.collider(powerUp, platforms);
             }
@@ -425,10 +424,10 @@
                 if (daredevil) return;
                 
                 if (level > 4) {
-                    for (let key in powerUps) {
-                        if (powerUps.hasOwnProperty(key)) {
-                            let powerUp = powerUps[key]["ref"];
-                            let spawnRate = powerUps[key]["spawnRate"];
+                    for (let key in powerups) {
+                        if (powerups.hasOwnProperty(key)) {
+                            let powerUp = powerups[key]["ref"];
+                            let spawnRate = powerups[key]["spawnRate"];
                             let randomNumber = Math.floor(Math.random() * 100) / 100;
                             if (!powerUp.visible && randomNumber < spawnRate) {
                                 let x = Phaser.Math.Between(10, canvas.width - 30), y = 10;
@@ -447,7 +446,7 @@
                     This introduces the player to the concept of power-ups.
                 */
                 } else if (level === 4) {
-                    let oneUp = powerUps["oneUp"]["ref"];
+                    let oneUp = powerups["oneUp"]["ref"];
                     let x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
                     let y = 10;
                     oneUp.enableBody(true, x, y, true, true);
@@ -462,7 +461,7 @@
         /*
             POWER-UPS 
         */
-        this.physics.add.overlap(player, powerUps["oneUp"]["ref"], function(player, oneUp) {
+        this.physics.add.overlap(player, powerups["oneUp"]["ref"], function(player, oneUp) {
             lives++;
             this.sound.play('powerupcollect', {
                 volume: 0.5
@@ -471,7 +470,7 @@
             oneUp.disableBody(true, true);
             wait(2000).then(resetInfoText);
         }, null, this);
-        this.physics.add.overlap(player, powerUps["invincibility"]["ref"], function(player, invincibility) {
+        this.physics.add.overlap(player, powerups["invincibility"]["ref"], function(player, invincibility) {
             if (!invincible && !canDestroy) {
                 invincible = true;
                 canDestroy = true;
@@ -487,7 +486,7 @@
                 });
             }
         }, null, this);
-        this.physics.add.overlap(player, powerUps["stop"]["ref"], function(player, stop) {
+        this.physics.add.overlap(player, powerups["stop"]["ref"], function(player, stop) {
             stop.disableBody(true, true);
             bombs.children.iterate(function(child) {
                 child.setVelocity(0, 5);
@@ -501,9 +500,9 @@
                     child.allowGravity = false;
                 }
             });
-            for (let key in powerUps) {
-                let powerUp = powerUps[key]["ref"];
-                if (powerUps.hasOwnProperty(key) && powerUp.visible) {
+            for (let key in powerups) {
+                let powerUp = powerups[key]["ref"];
+                if (powerups.hasOwnProperty(key) && powerUp.visible) {
                     powerUp.setVelocity(0, 5);
                     powerUp.setBounce(0.1);
                     powerUp.allowGravity = false;
@@ -527,9 +526,9 @@
                         child.allowGravity = false;
                     }
                 });
-                for (let key in powerUps) {
-                    let powerUp = powerUps[key]["ref"];
-                    if (powerUps.hasOwnProperty(key) && powerUp.visible) {
+                for (let key in powerups) {
+                    let powerUp = powerups[key]["ref"];
+                    if (powerups.hasOwnProperty(key) && powerUp.visible) {
                         powerUp.setBounce(1);
                         powerUp.setVelocity(Phaser.Math.Between(-200, 200), 20);
                         powerUp.setY(powerUp.y - 60);
@@ -539,7 +538,7 @@
                 resetInfoText();
             });
         }, null, this);
-        this.physics.add.overlap(player, powerUps["ultimate"]["ref"], function(player, ultimate) {
+        this.physics.add.overlap(player, powerups["ultimate"]["ref"], function(player, ultimate) {
             ultimate.disableBody(true, true);
             invincible = true;
             canDestroy = true;
@@ -557,9 +556,9 @@
                     child.allowGravity = false;
                 }
             });
-            for (let key in powerUps) {
-                let powerUp = powerUps[key]["ref"];
-                if (powerUps.hasOwnProperty(key) && powerUp.visible) {
+            for (let key in powerups) {
+                let powerUp = powerups[key]["ref"];
+                if (powerups.hasOwnProperty(key) && powerUp.visible) {
                     powerUp.setVelocity(0, 5);
                     powerUp.setBounce(0.1);
                     powerUp.allowGravity = false;
@@ -588,9 +587,9 @@
                         child.allowGravity = false;
                     }
                 });
-                for (let key in powerUps) {
-                    let powerUp = powerUps[key]["ref"];
-                    if (powerUps.hasOwnProperty(key) && powerUp.visible) {
+                for (let key in powerups) {
+                    let powerUp = powerups[key]["ref"];
+                    if (powerups.hasOwnProperty(key) && powerUp.visible) {
                         powerUp.setBounce(1);
                         powerUp.setVelocity(Phaser.Math.Between(-200, 200), 20);
                         powerUp.setY(powerUp.y - 60);
@@ -675,9 +674,9 @@
                     resetInfoText();
                 });
             } else if (e.keyCodes.equals([80, 79, 87, 69, 82, 85, 80, 83]) && level === 0) {
-                for (let key in powerUps) {
-                    if (powerUps.hasOwnProperty(key)) {
-                        let powerUp = powerUps[key]["ref"];
+                for (let key in powerups) {
+                    if (powerups.hasOwnProperty(key)) {
+                        let powerUp = powerups[key]["ref"];
                         let x = Phaser.Math.Between(10, canvas.width - 30), y = 10;
                         powerUp.enableBody(true, x, y, true, true);
                         powerUp.setBounce(1);
