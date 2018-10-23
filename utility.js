@@ -28,6 +28,12 @@ var isMobile = {
     }
 };
 
+function assert(bool) {
+    if (!bool) {
+        throw new Error("AssertionError");
+    }
+}
+
 /*
     Returns a new string with the specified string at the specified index.
 */

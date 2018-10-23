@@ -1,5 +1,5 @@
 (function() {
-    /* global Phaser, swal, isMobile */
+    /* global Phaser, swal, assert, isMobile */
     
     'use strict';
     
@@ -17,6 +17,12 @@
             return;
         }
     }
+    
+    /*
+        Toggle this to enable debugging mode.
+    */
+    var debug = false;
+    assert(debug === true || debug === false);
     
     /*
         GAME OBJECT VARIABLES
@@ -39,7 +45,8 @@
     */
     var score = 0;
     var level = 1;
-    var lives = level === 0 ? Infinity : 5;
+    var lives = debug ? Infinity : 5;
+    assert(lives >= 1);
     
     //Prevents the player from repeatedly jumping if the up arrow key is constantly held down.
     var upKeyDown = false;
@@ -49,14 +56,14 @@
         
         This however, by itself, doesn't allow the player to destroy any bomb on contact.
     */
-    var invincible = false; 
+    var invincible = false;
     
     /*
         When this is true, the player will be able to destroy any bomb on contact.
         
         This boolean should NEVER be true if the player is not invincible.
     */
-    var canDestroy = false; 
+    var canDestroy = false;
     
     /*
         Daredevil mode: how far can you get with only one life and no power-ups?
@@ -134,7 +141,7 @@
                 gravity: { 
                     y: 300 
                 },
-                debug: false
+                debug: debug
             }
         },
         scene: {
@@ -161,25 +168,29 @@
             ultimate: {
                 sprite: 'assets/ultimatepotion.png',
                 key: 'ultimate',
-                spawnRate: 0.05
+                spawnRate: 0.05,
+                duration: 10000
             },
             
             invincibility: {
                 sprite: 'assets/invinciblepotion.png',
                 key: 'invincibility',
-                spawnRate: 0.2
+                spawnRate: 0.2,
+                duration: 10000
             },
             
             stop: {
                 sprite: 'assets/stoppotion.png',
                 key: 'stop',
-                spawnRate: 0.6
+                spawnRate: 0.6,
+                duration: 10000
             },
             
             oneUp: {
                 sprite: 'assets/lifepotion.png',
                 key: '1up',
-                spawnRate: 0.6
+                spawnRate: 0.6,
+                duration: null
             }
         },
         
@@ -260,6 +271,7 @@
             }
         }
         
+        if (debug) console.log("Debug mode enabled");
         console.log("Documentation: https://photonstorm.github.io/phaser3-docs/index.html");
         console.log("Uncompressed code: https://cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js");
     }
@@ -302,6 +314,7 @@
         resetInfoText();
         livesText = this.add.text(16, 84, "Lives: " + lives, {fontSize: '25px', fill: '#000'});
         levelText = this.add.text(16, 50, "Level: " + level, {fontSize: '25px', fill: '#000'});
+        if (debug) this.add.text(560, 500, "Debug mode enabled", {fontSize: '20px', fill: '#000'});
         
         cursors = this.input.keyboard.createCursorKeys();
         
@@ -384,7 +397,7 @@
                 
                 {
                     let everyNLevels = 10;
-                    if (level % everyNLevels == 0) {
+                    if (!debug && level % everyNLevels == 0) {
                         lives++;
                         this.sound.play('powerupcollect', {
                             volume: 0.5
@@ -429,7 +442,10 @@
                             let powerUp = powerups[key]["ref"];
                             let spawnRate = powerups[key]["spawnRate"];
                             let randomNumber = Math.floor(Math.random() * 100) / 100;
-                            if (!powerUp.visible && randomNumber < spawnRate) {
+                            let willSpawn = !powerUp.visible && randomNumber < spawnRate;
+                            if (debug) console.log(key, spawnRate, randomNumber, willSpawn);
+                            
+                            if (willSpawn) {
                                 let x = Phaser.Math.Between(10, canvas.width - 30), y = 10;
                                 powerUp.enableBody(true, x, y, true, true);
                                 powerUp.setBounce(1);
@@ -479,7 +495,7 @@
                 });
                 infoText.setText("You obtained an invincibility potion! \nYou're invincible!");
                 invincibility.disableBody(true, true);
-                wait(10000).then(function() {
+                wait(assets["powerups"]["invincibility"]["duration"]).then(function() {
                     invincible = false;
                     canDestroy = false;
                     resetInfoText();
@@ -512,7 +528,7 @@
                 volume: 0.5
             });
             infoText.setText("Game objects stopped!");
-            wait(10000).then(function() {
+            wait(assets["powerups"]["stop"]["duration"]).then(function() {
                 bombs.children.iterate(function(child) {
                     child.setBounce(1);
                     child.setVelocity(Phaser.Math.Between(-200, 200), 20);
@@ -571,7 +587,7 @@
             
             infoText.setText("Lives increased by one, \nyou are now invincible, \nand all game objects have been stopped!");
             
-            wait(10000).then(function() {
+            wait(assets["powerups"]["ultimate"]["duration"]).then(function() {
                 invincible = false;
                 canDestroy = false;
                 bombs.children.iterate(function(child) {
@@ -673,7 +689,7 @@
                     invincible = !invincible;
                     resetInfoText();
                 });
-            } else if (e.keyCodes.equals([80, 79, 87, 69, 82, 85, 80, 83]) && level === 0) {
+            } else if (e.keyCodes.equals([80, 79, 87, 69, 82, 85, 80, 83]) && debug) {
                 for (let key in powerups) {
                     if (powerups.hasOwnProperty(key)) {
                         let powerUp = powerups[key]["ref"];
@@ -732,11 +748,12 @@
             player.clearTint();
         }
         
-        if (level < 0) throw new Error("Level cannot be negative: it is " + level + ".");
-        
         /*
             Prevents the player from getting stuck if they somehow accidentally clip through the bottom platform.
         */
         if (player.y >= 530) player.y = 510;
+        
+        assert(level >= 1);
+        assert(score >= 0);
     }
 })();
