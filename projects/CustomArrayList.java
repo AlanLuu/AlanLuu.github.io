@@ -85,6 +85,10 @@ public class CustomArrayList<E> implements Iterable<E> {
         return size;
     }
 
+    public boolean isEmpty() {
+        return size == 0;
+    }
+
     public boolean contains(Object o) {
         return indexOf(o) >= 0;
     }
@@ -98,10 +102,28 @@ public class CustomArrayList<E> implements Iterable<E> {
         return -1;
     }
 
+    public int lastIndexOf(Object o) {
+        for (int i = size - 1; i >= 0; i--) {
+            if ((o == null && data[i] == null) || (o != null && o.equals(data[i]))) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public Object[] toArray() {
         Object[] o = new Object[size];
         System.arraycopy(data, 0, o, 0, size);
         return o;
+    }
+
+    /*
+        Trims the capacity of this ArrayList instance to be the list's current size.
+    */
+    public void trimToSize() {
+        E[] e = (E[]) new Object[size];
+        System.arraycopy(data, 0, e, 0, e.length);
+        data = e;
     }
 
     /*
