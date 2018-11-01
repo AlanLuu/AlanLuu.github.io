@@ -118,7 +118,7 @@ public class CustomArrayList<E> implements Iterable<E> {
     }
 
     /*
-        Trims the capacity of this ArrayList instance to be the list's current size.
+        Trims the capacity of this CustomArrayList instance to be the list's current size.
     */
     public void trimToSize() {
         E[] e = (E[]) new Object[size];
