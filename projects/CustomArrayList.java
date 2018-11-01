@@ -51,7 +51,8 @@ public class CustomArrayList<E> implements Iterable<E> {
     }
 
     /*
-        Removes the first occurrence of the specified element from this list, if it is present.
+        Removes the first occurrence of the specified element 
+        from this list, if it is present.
     */
     public boolean remove(Object o) {
         int index = indexOf(o);
@@ -63,7 +64,8 @@ public class CustomArrayList<E> implements Iterable<E> {
     }
 
     /*
-        Removes all occurrences of the specified element from this list, if it is present.
+        Removes all occurrences of the specified element 
+        from this list, if it is present.
     */
     public boolean removeAll(Object o) {
         int index = indexOf(o);
@@ -118,7 +120,8 @@ public class CustomArrayList<E> implements Iterable<E> {
     }
 
     /*
-        Trims the capacity of this CustomArrayList instance to be the list's current size.
+        Trims the capacity of this CustomArrayList instance 
+        to be the list's current size.
     */
     public void trimToSize() {
         E[] e = (E[]) new Object[size];
@@ -167,7 +170,8 @@ public class CustomArrayList<E> implements Iterable<E> {
     }
 
     /*
-        Allows the CustomArrayList to be a target of the for-each loop
+        Allows the CustomArrayList to be a target 
+        of the for-each loop
     */
     @Override
     public Iterator<E> iterator() {

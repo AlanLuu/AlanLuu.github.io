@@ -1,9 +1,9 @@
 .gist {
-    width: 750px;
+    width: 700px;
 }
 .gist-file .gist-data {
-    max-width: 750px;
-    max-height: 500px;
+    max-width: 700px;
+    max-height: 300px;
 }
 
 @media screen and (max-width: 600px) and (orientation: portrait) {
@@ -12,6 +12,5 @@
     }
     .gist-file .gist-data {
         max-width: 300px;
-        max-height: 300px;
     }
 }
