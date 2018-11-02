@@ -1,5 +1,71 @@
+/* global navigator */
+
+var isMobile = {
+    android: function() {
+        return navigator.userAgent.match(/Android/i);
+    },
+    blackberry: function() {
+        return navigator.userAgent.match(/BlackBerry/i);
+    },
+    ios: function() {
+        return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+    },
+    opera: function() {
+        return navigator.userAgent.match(/Opera Mini/i);
+    },
+    windows: function() {
+        return navigator.userAgent.match(/IEMobile/i) || navigator.userAgent.match(/WPDesktop/i);
+    },
+    any: function() {
+        return isMobile.android() || isMobile.blackberry() || isMobile.ios() || isMobile.opera() || isMobile.windows();
+    }
+};
+
+function assert(bool) {
+    if (!bool) {
+        throw new Error("AssertionError");
+    }
+}
+
+String.prototype.insertAt = function(index, string) {
+    return this.substring(0, index) + string + this.substring(index);
+};
+
+Array.prototype.removeAt = function(index) {
+    return this.splice(index, 1)[0];
+};
+
+Array.prototype.addAt = function(index, element) {
+    this.splice(index, 0, element);
+};
+
+Array.equals = function(arr1, arr2) {
+    if (arr1.length !== arr2.length) return false;
+    
+    var i = arr1.length;
+    while (i--) {
+        if (arr1[i] !== arr2[i]) return false;
+    }
+    return true;
+};
+
+Array.prototype.equals = function(other) {
+    if (this.length !== other.length) return false;
+    
+    var i = this.length;
+    while (i--) {
+        if (this[i] !== other[i]) return false;
+    }
+    return true;
+};
+
+String.prototype.equals = Array.prototype.equals;
+
+/*
+    ACTUAL GAME CODE
+*/
 (function() {
-    /* global Phaser, swal, assert, isMobile */
+    /* global Phaser, swal */
     
     'use strict';
     
@@ -73,8 +139,6 @@
     const konami = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
     const reverseKonami = [40, 40, 38, 38, 39, 37, 39, 37, 65, 66];
     const loading = document.getElementById("loading");
-    
-    loading.innerHTML = "&nbsp;";
     
     /*
         SweetAlert's CDN includes a polyfill for ES6 promises, which allows this game to run in IE.
