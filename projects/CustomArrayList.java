@@ -5,8 +5,10 @@ public class CustomArrayList<E> implements Iterable<E> {
     private int size = 0;
     private E[] data;
 
+    public static final int INITIAL_CAPACITY = 10;
+
     public CustomArrayList() {
-        data = (E[]) new Object[10];
+        data = (E[]) new Object[INITIAL_CAPACITY];
     }
     
     public CustomArrayList(int initialCapacity) {
@@ -50,10 +52,6 @@ public class CustomArrayList<E> implements Iterable<E> {
         return e;
     }
 
-    /*
-        Removes the first occurrence of the specified element 
-        from this list, if it is present.
-    */
     public boolean remove(Object o) {
         int index = indexOf(o);
         if (index >= 0) {
@@ -63,10 +61,6 @@ public class CustomArrayList<E> implements Iterable<E> {
         return false;
     }
 
-    /*
-        Removes all occurrences of the specified element 
-        from this list, if it is present.
-    */
     public boolean removeAll(Object o) {
         int index = indexOf(o);
         boolean flag = false;
@@ -113,16 +107,39 @@ public class CustomArrayList<E> implements Iterable<E> {
         return -1;
     }
 
+    public CustomArrayList<E> subList(int from) {
+        check(from);
+        CustomArrayList<E> c = new CustomArrayList<>();
+        for (int i = from; i < size(); i++) {
+            c.add(get(i));
+        }
+        return c;
+    }
+
+    public CustomArrayList<E> subList(int from, int to) {
+        if (from < 0) {
+            throw new ArrayIndexOutOfBoundsException(from);
+        }
+        if (to > size) {
+            throw new ArrayIndexOutOfBoundsException(to);
+        }
+        if (to - from < 0) {
+            throw new StringIndexOutOfBoundsException(to - from);
+        }
+
+        CustomArrayList<E> c = new CustomArrayList<>();
+        for (int i = from; i < to; i++) {
+            c.add(get(i));
+        }
+        return c;
+    }
+
     public Object[] toArray() {
         Object[] o = new Object[size];
         System.arraycopy(data, 0, o, 0, size);
         return o;
     }
 
-    /*
-        Trims the capacity of this CustomArrayList instance 
-        to be the list's current size.
-    */
     public void trimToSize() {
         E[] e = (E[]) new Object[size];
         System.arraycopy(data, 0, e, 0, e.length);
@@ -150,9 +167,6 @@ public class CustomArrayList<E> implements Iterable<E> {
         }
     }
 
-    /*
-        Returns a string representation of the CustomArrayList
-    */
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder()
@@ -169,10 +183,6 @@ public class CustomArrayList<E> implements Iterable<E> {
         return builder.toString();
     }
 
-    /*
-        Allows the CustomArrayList to be a target 
-        of the for-each loop
-    */
     @Override
     public Iterator<E> iterator() {
         return new Iterator<E>() {
