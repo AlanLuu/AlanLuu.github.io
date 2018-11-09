@@ -31,38 +31,8 @@ String.prototype.insertAt = function(index, string) {
     return this.substring(0, index) + string + this.substring(index);
 };
 
-Array.prototype.removeAt = function(index) {
-    return this.splice(index, 1)[0];
-};
-
-Array.prototype.addAt = function(index, element) {
-    this.splice(index, 0, element);
-};
-
-Array.equals = function(arr1, arr2) {
-    if (arr1.length !== arr2.length) return false;
-    
-    var i = arr1.length;
-    while (i--) {
-        if (arr1[i] !== arr2[i]) return false;
-    }
-    return true;
-};
-
-Array.prototype.equals = function(other) {
-    if (this.length !== other.length) return false;
-    
-    var i = this.length;
-    while (i--) {
-        if (this[i] !== other[i]) return false;
-    }
-    return true;
-};
-
-String.prototype.equals = Array.prototype.equals;
-
 (function() {
-    /* global isMobile, navigator */
+    /* global navigator */
     
     'use strict';
     
