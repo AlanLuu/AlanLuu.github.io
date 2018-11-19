@@ -1,18 +1,29 @@
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 @SuppressWarnings("unchecked")
 public class CustomArrayList<E> implements Iterable<E> {
     private int size = 0;
     private E[] data;
 
-    public static final int INITIAL_CAPACITY = 10;
-
     public CustomArrayList() {
-        data = (E[]) new Object[INITIAL_CAPACITY];
+        data = (E[]) new Object[10];
     }
     
     public CustomArrayList(int initialCapacity) {
         data = (E[]) new Object[initialCapacity];
+    }
+
+    public CustomArrayList(Collection<? extends E> c) {
+        data = (E[]) c.toArray();
+        size = c.size();
+
+        Class<Object[]> clazz = Object[].class;
+        if (data.getClass() != clazz) {
+            data = (E[]) Arrays.copyOf(data, size, clazz);
+        }
     }
 
     public boolean add(E element) {
@@ -109,11 +120,7 @@ public class CustomArrayList<E> implements Iterable<E> {
 
     public CustomArrayList<E> subList(int from) {
         check(from);
-        CustomArrayList<E> c = new CustomArrayList<>();
-        for (int i = from; i < size(); i++) {
-            c.add(get(i));
-        }
-        return c;
+        return subList(from, size);
     }
 
     public CustomArrayList<E> subList(int from, int to) {
