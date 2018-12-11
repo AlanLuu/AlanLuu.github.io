@@ -131,7 +131,7 @@ public class CustomArrayList<E> implements Iterable<E> {
             throw new ArrayIndexOutOfBoundsException(to);
         }
         if (to - from < 0) {
-            throw new StringIndexOutOfBoundsException(to - from);
+            throw new ArrayIndexOutOfBoundsException(to - from);
         }
 
         CustomArrayList<E> c = new CustomArrayList<>();
@@ -174,6 +174,28 @@ public class CustomArrayList<E> implements Iterable<E> {
         }
     }
 
+    private class CustomArrayListIterator implements Iterator<E> {
+        private int current = 0;
+
+        @Override
+        public boolean hasNext() {
+            return current < CustomArrayList.this.size;
+        }
+
+        @Override
+        public E next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            return data[current++];
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException("remove");
+        }
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder()
@@ -192,26 +214,6 @@ public class CustomArrayList<E> implements Iterable<E> {
 
     @Override
     public Iterator<E> iterator() {
-        return new Iterator<E>() {
-            private int current = 0;
-
-            @Override
-            public boolean hasNext() {
-                return current < CustomArrayList.this.size;
-            }
-
-            @Override
-            public E next() {
-                if (!hasNext()) {
-                    throw new NoSuchElementException();
-                }
-                return data[current++];
-            }
-
-            @Override
-            public void remove() {
-                throw new UnsupportedOperationException("remove");
-            }
-        };
+        return new CustomArrayListIterator();
     }
 }
