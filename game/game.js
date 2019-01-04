@@ -113,6 +113,7 @@ String.prototype.equals = Array.prototype.equals;
     var infoText;
     var livesText;
     var levelText;
+    var highScoreText;
     
     /*
         NUMERICAL VARIABLES
@@ -200,7 +201,7 @@ String.prototype.equals = Array.prototype.equals;
         player.disableBody(true, true); 
         pause.visible = false;
         resume.visible = false;
-        if (score > highScore) {
+        if (!debug && score > highScore) {
             document.cookie = score;
         }
     }
@@ -327,7 +328,7 @@ String.prototype.equals = Array.prototype.equals;
         Saves the player's high score in document.cookie when they exit or reload the page.
     */
     window.addEventListener("beforeunload", function(e) {
-        if (score > highScore) {
+        if (!debug && score > highScore) {
             document.cookie = score;
         }
     });
@@ -401,7 +402,7 @@ String.prototype.equals = Array.prototype.equals;
         resetInfoText();
         livesText = this.add.text(16, 84, "Lives: " + lives, {fontSize: '25px', fill: '#000'});
         levelText = this.add.text(16, 50, "Level: " + level, {fontSize: '25px', fill: '#000'});
-        this.add.text(16, 120, "High Score: " + highScore, {fontSize: '25px', fill: '#000'});
+        highScoreText = this.add.text(16, 120, "High Score: " + highScore, {fontSize: '25px', fill: '#000'});
         if (debug) this.add.text(510, 500, "Debug mode enabled", {fontSize: '25px', fill: '#000'});
         
         cursors = this.input.keyboard.createCursorKeys();
@@ -410,14 +411,12 @@ String.prototype.equals = Array.prototype.equals;
         
         this.physics.add.collider(player, platforms);
         this.physics.add.collider(bombs, platforms);
-        this.sound.play("music", {
-            loop: true
-        });
+        this.sound.play("music", {loop: true});
         
         /*
             ON DEATH
         */
-        this.physics.add.collider(player, bombs, function(thePlayer, theBomb) {
+        this.physics.add.collider(player, bombs, function(player, bomb) {
             if (canDestroy && !invincible) canDestroy = false;
             
             if (!invincible) {
@@ -435,7 +434,7 @@ String.prototype.equals = Array.prototype.equals;
                     gameOver(_this);
                 }
             } else if (canDestroy) {
-                theBomb.disableBody(true, true);
+                bomb.disableBody(true, true);
                 score += 20;
                 this.sound.play('starcollect', {
                     volume: 0.25
@@ -470,9 +469,13 @@ String.prototype.equals = Array.prototype.equals;
         /*
             ON STAR COLLECT
         */
-        this.physics.add.overlap(player, stars, function(thePlayer, theStar) {
-            theStar.disableBody(true, true);
-            score += 10; 
+        this.physics.add.overlap(player, stars, function(player, star) {
+            star.disableBody(true, true);
+            score += 10;
+            if (!debug && score > highScore) {
+                highScoreText.setText("High Score: " + score);
+            }
+            
             this.sound.play('starcollect', {
                 volume: 0.25
             });
@@ -485,17 +488,21 @@ String.prototype.equals = Array.prototype.equals;
                 
                 {
                     let everyNLevels = 10;
-                    if (!debug && level % everyNLevels == 0) {
+                    if (!debug && level % everyNLevels === 0) {
                         lives++;
                         this.sound.play('powerupcollect', {
                             volume: 0.5
                         });
-                        wait(100).then(function() {
+                        wait(5).then(function() {
                             infoText.setText("You got an extra life for passing " + everyNLevels + " levels!");
+                            invincible = true;
                         });
-                        wait(2000).then(resetInfoText);
+                        wait(2000).then(function() {
+                            resetInfoText();
+                            invincible = false;
+                        });
                     }
-                } 
+                }
                 
                 stars.children.iterate(function(child) {
                     child.enableBody(true, child.x, 0, true, true);
