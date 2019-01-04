@@ -1,6 +1,6 @@
-/* global navigator */
-
 var isMobile = {
+    /* global navigator */
+    
     android: function() {
         return navigator.userAgent.match(/Android/i);
     },
@@ -21,9 +21,17 @@ var isMobile = {
     }
 };
 
-function assert(bool) {
+function assert(bool, message) {
     if (!bool) {
-        throw new Error("AssertionError");
+        /*
+        class AssertionError extends Error {
+            constructor(s) {
+                super(s || "");
+                this.name = this.constructor.name;
+            }
+        }
+        */
+        throw new Error(message || "");
     }
 }
 
@@ -88,7 +96,7 @@ String.prototype.equals = Array.prototype.equals;
         Toggle this to enable debugging mode.
     */
     var debug = false;
-    assert(debug === true || debug === false);
+    assert(debug === true || debug === false, "Debug variable is not a boolean");
     
     /*
         GAME OBJECT VARIABLES
@@ -112,7 +120,9 @@ String.prototype.equals = Array.prototype.equals;
     var score = 0;
     var level = 1;
     var lives = debug ? Infinity : 5;
-    assert(lives >= 1);
+    var highScore = !isNaN(Number(document.cookie)) ? Number(document.cookie) : 0;
+    
+    assert(lives >= 1, "Lives must be greater than or equal to 1");
     
     //Prevents the player from repeatedly jumping if the up arrow key is constantly held down.
     var upKeyDown = false;
@@ -190,6 +200,9 @@ String.prototype.equals = Array.prototype.equals;
         player.disableBody(true, true); 
         pause.visible = false;
         resume.visible = false;
+        if (score > highScore) {
+            document.cookie = score;
+        }
     }
     
     /*
@@ -268,7 +281,7 @@ String.prototype.equals = Array.prototype.equals;
     const powerups = assets["powerups"];
     
     const infoTextList = [
-        "Welcome to Star Collector - a platform game! \n\nUse the arrow keys to move and jump. \n\nCollect every star to progress \nthrough the game!",
+        "Welcome to Star Collector - a platform game! \n\nUse the arrow keys to move and jump. \n\nCollect every star to progress through the game!",
         "Don't touch the bomb!",
         "Yikes! Two bombs!",
         "Hey look, a life potion! \nGrab it for an extra life!",
@@ -311,26 +324,36 @@ String.prototype.equals = Array.prototype.equals;
     });
     
     /*
+        Saves the player's high score in document.cookie when they exit or reload the page.
+    */
+    window.addEventListener("beforeunload", function(e) {
+        if (score > highScore) {
+            document.cookie = score;
+        }
+    });
+    
+    /*
         PRELOAD ASSETS HERE
     */
     function preload() {
-        loading.innerHTML = "Loading... Please wait.";
+        loading.innerHTML = (debug ? "Debug mode loading" : "Loading") + "... Please wait.";
         
         for (let key in assets) {
             let subObject = assets[key];
             
-            loop2:
-            for (let key2 in subObject) {
-                switch (key) {
-                    case 'powerups':
-                        this.load.image(subObject[key2]["key"], subObject[key2]["sprite"]);
-                        break;
-                    case 'sounds':
-                        this.load.audio(key2, subObject[key2]);
-                        break;
-                    default:
-                        this.load.image(key, subObject);
-                        break loop2;
+            out: {
+                for (let key2 in subObject) {
+                    switch (key) {
+                        case 'powerups':
+                            this.load.image(subObject[key2]["key"], subObject[key2]["sprite"]);
+                            break;
+                        case 'sounds':
+                            this.load.audio(key2, subObject[key2]);
+                            break;
+                        default:
+                            this.load.image(key, subObject);
+                            break out;
+                    }
                 }
             }
         }
@@ -378,7 +401,8 @@ String.prototype.equals = Array.prototype.equals;
         resetInfoText();
         livesText = this.add.text(16, 84, "Lives: " + lives, {fontSize: '25px', fill: '#000'});
         levelText = this.add.text(16, 50, "Level: " + level, {fontSize: '25px', fill: '#000'});
-        if (debug) this.add.text(560, 500, "Debug mode enabled", {fontSize: '20px', fill: '#000'});
+        this.add.text(16, 120, "High Score: " + highScore, {fontSize: '25px', fill: '#000'});
+        if (debug) this.add.text(510, 500, "Debug mode enabled", {fontSize: '25px', fill: '#000'});
         
         cursors = this.input.keyboard.createCursorKeys();
         
@@ -817,7 +841,7 @@ String.prototype.equals = Array.prototype.equals;
         */
         if (player.y >= 530) player.y = 510;
         
-        assert(level >= 1);
-        assert(score >= 0);
+        assert(level >= 1, "Invalid level number");
+        assert(score >= 0, "Invalid score");
     }
 })();
