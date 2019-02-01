@@ -268,7 +268,7 @@ String.prototype.equals = Array.prototype.equals;
                 sprite: 'assets/lifepotion.png',
                 key: '1up',
                 spawnRate: 0.6,
-                duration: null
+                duration: 1500
             }
         },
         
@@ -276,7 +276,7 @@ String.prototype.equals = Array.prototype.equals;
             explosion: 'assets/audio/explosion.mp3',
             starcollect: 'assets/audio/starcollect.mp3',
             powerupcollect: 'assets/audio/powerup.mp3',
-            music: 'assets/audio/arcade.mp3'
+            music: 'assets/audio/candyland.mp3'
         }
     };
     const powerups = assets["powerups"];
@@ -286,7 +286,7 @@ String.prototype.equals = Array.prototype.equals;
         "Don't touch the bomb!",
         "Yikes! Two bombs!",
         "Hey look, a life potion! \nGrab it for an extra life!",
-        "Starting from this level, power-ups will \noccasionally spawn to help you out. There \nare " + Object.keys(powerups).length + " of them. Grab them and see what they \ndo!",
+        "Other powerups may occasionally spawn as \nwell. There are " + Object.keys(powerups).length + " of them. Be sure to take \nadvantage of those too!",
         "Hey look, the stars move now!",
         "Does that make this game harder?",
         "Hey, this game wasn't meant to be easy.",
@@ -306,7 +306,7 @@ String.prototype.equals = Array.prototype.equals;
         
         var p = [
             "Made with <a href='https://phaser.io/' target='_blank'>Phaser.JS</a>.",
-            "Music: <a href='https://www.youtube.com/watch?v=JV41UkBQDhE' target='_blank'>Vexento - Arcade</a>"
+            "Music: <a href='https://www.youtube.com/watch?v=IhchfhxvPKI' target='_blank'>Tobu - Candyland</a>"
         ];
         
         for (let i = 0; i < p.length; i++) {
@@ -579,7 +579,13 @@ String.prototype.equals = Array.prototype.equals;
             });
             infoText.setText("You got an extra life!");
             oneUp.disableBody(true, true);
-            wait(2000).then(resetInfoText);
+            wait(assets["powerups"]["oneUp"]["duration"]).then(function() {
+                if (level === 4) {
+                    infoText.setText("Be sure to take advantage of extra lives!");
+                } else {
+                    resetInfoText();
+                }
+            });
         }, null, this);
         this.physics.add.overlap(player, powerups["invincibility"]["ref"], function(player, invincibility) {
             if (!invincible && !canDestroy) {
