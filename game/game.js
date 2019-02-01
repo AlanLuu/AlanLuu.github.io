@@ -361,7 +361,7 @@ String.prototype.equals = Array.prototype.equals;
         
         if (debug) console.log("Debug mode enabled");
         console.log("Documentation: https://photonstorm.github.io/phaser3-docs/index.html");
-        console.log("Uncompressed code: https://cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js");
+        console.log("Uncompressed engine code: https://cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js");
     }
     
     function create() {
@@ -397,7 +397,7 @@ String.prototype.equals = Array.prototype.equals;
             }
         }
         
-        scoreText = this.add.text(16, 16, "Score: 0", { fontSize: '25px', fill: '#000' });
+        scoreText = this.add.text(16, 16, "Score: 0", { fontSize: '25px', fill: '#000'});
         infoText = this.add.text(200, 16, "", {fontSize: '20px', fill: '#000'});
         resetInfoText();
         livesText = this.add.text(16, 84, "Lives: " + lives, {fontSize: '25px', fill: '#000'});
@@ -490,9 +490,7 @@ String.prototype.equals = Array.prototype.equals;
                     let everyNLevels = 10;
                     if (!debug && level % everyNLevels === 0) {
                         lives++;
-                        this.sound.play('powerupcollect', {
-                            volume: 0.5
-                        });
+                        this.sound.play('powerupcollect', {volume: 0.5});
                         wait(5).then(function() {
                             infoText.setText("You got an extra life for passing " + everyNLevels + " levels!");
                             invincible = true;
@@ -573,14 +571,13 @@ String.prototype.equals = Array.prototype.equals;
             POWER-UPS 
         */
         this.physics.add.overlap(player, powerups["oneUp"]["ref"], function(player, oneUp) {
+            let isLevel4 = level === 4;
             lives++;
-            this.sound.play('powerupcollect', {
-                volume: 0.5
-            });
-            infoText.setText("You got an extra life!");
+            this.sound.play('powerupcollect', {volume: 0.5});
             oneUp.disableBody(true, true);
+            infoText.setText(isLevel4 ? "Nice!" : "You got an extra life!");
             wait(assets["powerups"]["oneUp"]["duration"]).then(function() {
-                if (level === 4) {
+                if (isLevel4) {
                     infoText.setText("Be sure to take advantage of extra lives!");
                 } else {
                     resetInfoText();
@@ -591,9 +588,7 @@ String.prototype.equals = Array.prototype.equals;
             if (!invincible && !canDestroy) {
                 invincible = true;
                 canDestroy = true;
-                this.sound.play('powerupcollect', {
-                    volume: 0.5
-                });
+                this.sound.play('powerupcollect', {volume: 0.5});
                 infoText.setText("You obtained an invincibility potion! \nYou're invincible!");
                 invincibility.disableBody(true, true);
                 wait(assets["powerups"]["invincibility"]["duration"]).then(function() {
@@ -625,9 +620,7 @@ String.prototype.equals = Array.prototype.equals;
                     powerUp.allowGravity = false;
                 }
             }
-            this.sound.play('powerupcollect', {
-                volume: 0.5
-            });
+            this.sound.play('powerupcollect', {volume: 0.5});
             infoText.setText("Game objects stopped!");
             wait(assets["powerups"]["stop"]["duration"]).then(function() {
                 bombs.children.iterate(function(child) {
@@ -682,9 +675,7 @@ String.prototype.equals = Array.prototype.equals;
                 }
             }
             
-            this.sound.play('powerupcollect', {
-                volume: 0.5
-            });
+            this.sound.play('powerupcollect', {volume: 0.5});
             
             infoText.setText("Lives increased by one, \nyou are now invincible, \nand all game objects have been stopped!");
             
