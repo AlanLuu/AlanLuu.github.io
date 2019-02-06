@@ -1,4 +1,4 @@
-document.getElementById("navicon").addEventListener("click", function() {
+document.getElementById("nav").addEventListener("click", function() {
     var x = document.getElementById("myTopnav");
     if (x.className === "topnav") {
         x.className += " responsive";

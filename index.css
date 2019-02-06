@@ -7,7 +7,7 @@ body {
     background-color: #41bae2;
     font-family: 'PT Serif', serif;
     margin: 1;
-    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); /* For iPhone X */
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); /* For notched iPhones */
 }
 
 h1 {
@@ -26,6 +26,27 @@ hr {
 
 p, ul {
     font-size: 19px;
+}
+
+button {
+    background-color: #00c8dc;
+    border: 2px solid black;
+    padding: 15px 35px 15px 30px;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: 'PT Serif', serif;
+}
+
+button:hover {
+    background-color: #1eeaff;
+}
+
+button:active {
+    background-color: #01838e;
+}
+
+button:disabled {
+    background-color: #5e6577;
 }
 
 .centerText {
@@ -67,11 +88,8 @@ p, ul {
 }
 
 #socialmedia .fa {
-    padding: 10px;
     font-size: 30px;
     width: 2em;
-    text-align: center;
-    text-decoration: none;
     margin: 5px 2px;
 }
 
@@ -93,18 +111,19 @@ p, ul {
 }
 
 .fa-envelope {
-    color: white;
-    background: #a4c639;
+    color: #333;
 }
 
 .fa-github {
-    background: #FFFFFF;
-    color: black;
+    color: #333;
 }
 
 .fa-linkedin {
-    background: #007bb5;
-    color: white;
+    color: #007bb5;
+}
+
+.fa-instagram {
+    color: #c32aa3;
 }
 
 .active {
