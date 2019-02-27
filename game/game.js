@@ -123,6 +123,12 @@ String.prototype.equals = Array.prototype.equals;
     var lives = debug ? Infinity : 5;
     var highScore = !isNaN(Number(document.cookie)) ? Number(document.cookie) : 0;
     
+    /*
+        CONSTANT NUMERICAL VALUES
+    */
+    const WALKING_SPEED = 160;
+    const RUNNING_SPEED = 250;
+    
     assert(lives >= 1, "Lives must be greater than or equal to 1");
     
     //Prevents the player from repeatedly jumping if the up arrow key is constantly held down.
@@ -282,7 +288,7 @@ String.prototype.equals = Array.prototype.equals;
     const powerups = assets["powerups"];
     
     const infoTextList = [
-        "Welcome to Star Collector - a platform game! \n\nUse the arrow keys to move and jump. \n\nCollect every star to progress through the game!",
+        "Welcome to Star Collector!\nUse the arrow keys to move and jump. \nHold the shift key to move faster.\nCollect every star to progress through the game!",
         "Don't touch the bomb!",
         "Yikes! Two bombs!",
         "Hey look, a life potion! \nGrab it for an extra life!",
@@ -405,6 +411,12 @@ String.prototype.equals = Array.prototype.equals;
         highScoreText = this.add.text(16, 120, "High Score: " + highScore, {fontSize: '25px', fill: '#000'});
         if (debug) this.add.text(510, 500, "Debug mode enabled", {fontSize: '25px', fill: '#000'});
         
+        if (daredevil) {
+            lives = 1;
+            for (let i = 3; i <= 4; i++) infoTextList[i] = "";
+            this.add.text(620, 510, "Daredevil mode", {fontSize: '20px', fill: '#ff0000'});
+        }
+        
         cursors = this.input.keyboard.createCursorKeys();
         
         bombs = this.physics.add.group();
@@ -486,13 +498,17 @@ String.prototype.equals = Array.prototype.equals;
             if (stars.countActive(true) === 0) {
                 if (level >= 1) level++;
                 
+                /*
+                    Gives the player an extra life after a certain amount of levels; comment out this block
+                    if this feature is not desired.
+                */
                 {
-                    let everyNLevels = 10;
-                    if (!debug && level % everyNLevels === 0) {
+                    let levels = 10;
+                    if (!daredevil && !debug && level % levels === 0) {
                         lives++;
                         this.sound.play('powerupcollect', {volume: 0.5});
                         wait(5).then(function() {
-                            infoText.setText("You got an extra life for passing " + everyNLevels + " levels!");
+                            infoText.setText("You got an extra life for passing " + levels + " levels!");
                             invincible = true;
                         });
                         wait(2000).then(function() {
@@ -799,6 +815,7 @@ String.prototype.equals = Array.prototype.equals;
                 despawnPowerUps();
                 for (let i = 3; i <= 4; i++) infoTextList[i] = "";
                 infoText.setText("Daredevil mode activated!");
+                _this.add.text(620, 510, "Daredevil mode", {fontSize: '20px', fill: '#ff0000'});
                 wait(2000).then(resetInfoText);
             }
         });
@@ -817,7 +834,11 @@ String.prototype.equals = Array.prototype.equals;
         /*
             Allows the player to move.
         */
-        player.setVelocityX(cursors.left.isDown ? -160 : cursors.right.isDown ? 160 : 0);
+        if (cursors.shift.isDown) {
+            player.setVelocityX(cursors.left.isDown ? -RUNNING_SPEED : cursors.right.isDown ? RUNNING_SPEED : 0);
+        } else {
+            player.setVelocityX(cursors.left.isDown ? -WALKING_SPEED : cursors.right.isDown ? WALKING_SPEED : 0);
+        }
         
         /*
             Allows the player to jump.
