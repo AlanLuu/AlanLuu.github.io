@@ -35,6 +35,11 @@ function assert(bool, message) {
     }
 }
 
+function playTheme(name) {
+    var audio = new Audio("assets/audio/jackpot.mp3");
+    return audio.play(), audio;
+}
+
 String.prototype.insertAt = function(index, string) {
     return this.substring(0, index) + string + this.substring(index);
 };
@@ -282,7 +287,7 @@ String.prototype.equals = Array.prototype.equals;
             explosion: 'assets/audio/explosion.mp3',
             starcollect: 'assets/audio/starcollect.mp3',
             powerupcollect: 'assets/audio/powerup.mp3',
-            music: 'assets/audio/candyland.mp3'
+            music: 'assets/audio/jackpot.mp3'
         }
     };
     const powerups = assets["powerups"];
@@ -312,7 +317,7 @@ String.prototype.equals = Array.prototype.equals;
         
         var p = [
             "Made with <a href='https://phaser.io/' target='_blank'>Phaser.JS</a>.",
-            "Music: <a href='https://www.youtube.com/watch?v=IhchfhxvPKI' target='_blank'>Tobu - Candyland</a>"
+            "Music: <a href='https://www.youtube.com/watch?v=kL8CyVqzmkc0' target='_blank'>TheFatRat - Jackpot</a>"
         ];
         
         for (let i = 0; i < p.length; i++) {
