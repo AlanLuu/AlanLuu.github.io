@@ -35,7 +35,7 @@ function assert(bool, message) {
     }
 }
 
-function playTheme(name) {
+function playTheme() {
     var audio = new Audio("assets/audio/jackpot.mp3");
     return audio.play(), audio;
 }
