@@ -648,11 +648,13 @@ String.prototype.equals = Array.prototype.equals;
         }, null, this);
         this.physics.add.overlap(player, powerups["stop"]["ref"], function(player, stop) {
             stop.disableBody(true, true);
+            
             bombs.children.iterate(function(child) {
                 child.setVelocity(0, 5);
                 child.setBounce(0.1);
                 child.allowGravity = false;
             });
+            
             stars.children.iterate(function(child) {
                 if (child.body.velocity.x !== 0) {
                     child.setVelocity(0, 5);
@@ -660,6 +662,7 @@ String.prototype.equals = Array.prototype.equals;
                     child.allowGravity = false;
                 }
             });
+            
             for (let key in powerups) {
                 let powerUp = powerups[key]["ref"];
                 if (powerups.hasOwnProperty(key) && powerUp.visible) {
@@ -668,7 +671,9 @@ String.prototype.equals = Array.prototype.equals;
                     powerUp.allowGravity = false;
                 }
             }
-            this.sound.play('powerupcollect', {volume: 0.5});
+            
+            this.sound.play('powerupcollect', {volume: POWER_UP_VOLUME});
+            
             infoText.setText("Game objects stopped!");
             wait(assets["powerups"]["stop"]["duration"]).then(function() {
                 bombs.children.iterate(function(child) {
@@ -677,6 +682,7 @@ String.prototype.equals = Array.prototype.equals;
                     child.setY(child.y - 60);
                     child.allowGravity = false;
                 });
+                
                 stars.children.iterate(function(child) {
                     if (child.body.velocity.x === 0 && level >= 6) {
                         child.setBounce(1);
@@ -684,6 +690,7 @@ String.prototype.equals = Array.prototype.equals;
                         child.allowGravity = false;
                     }
                 });
+                
                 for (let key in powerups) {
                     let powerUp = powerups[key]["ref"];
                     if (powerups.hasOwnProperty(key) && powerUp.visible) {
@@ -693,6 +700,7 @@ String.prototype.equals = Array.prototype.equals;
                         powerUp.allowGravity = false;
                     }
                 }
+                
                 resetInfoText();
             });
         }, null, this);
