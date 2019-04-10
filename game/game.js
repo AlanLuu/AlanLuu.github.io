@@ -531,14 +531,15 @@ String.prototype.equals = Array.prototype.equals;
                 if (level >= 1) level++;
                 
                 /*
-                    Gives the player an extra life after a certain amount of levels; comment out this block
+                    Rewards the player with an extra life after a certain amount of levels, comment out this block
                     if this feature is not desired.
                 */
+                /*
                 {
                     let levels = 10;
                     if (!daredevil && !debug && level % levels === 0) {
                         lives++;
-                        this.sound.play('powerupcollect', {volume: 0.5});
+                        this.sound.play('powerupcollect', {volume: POWER_UP_VOLUME});
                         wait(5).then(function() {
                             infoText.setText("You got an extra life for passing " + levels + " levels!");
                             invincible = true;
@@ -549,6 +550,7 @@ String.prototype.equals = Array.prototype.equals;
                         });
                     }
                 }
+                */
                 
                 stars.children.iterate(function(child) {
                     child.enableBody(true, child.x, 0, true, true);
