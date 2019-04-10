@@ -36,7 +36,7 @@ function assert(bool, message) {
 }
 
 function playTheme() {
-    var audio = new Audio("assets/audio/jackpot.mp3");
+    var audio = new Audio("assets/audio/music.mp3");
     return audio.play(), audio;
 }
 
@@ -44,12 +44,37 @@ String.prototype.insertAt = function(index, string) {
     return this.substring(0, index) + string + this.substring(index);
 };
 
-Array.prototype.removeAt = function(index) {
+Array.prototype.removeIndex = function(index) {
     return this.splice(index, 1)[0];
+};
+
+Array.prototype.removeElement = function(element) {
+    let i = this.indexOf(element);
+    if (i >= 0) {
+        this.removeIndex(i);
+        return true;
+    }
+    return false;
 };
 
 Array.prototype.addAt = function(index, element) {
     this.splice(index, 0, element);
+};
+
+Array.prototype.contains = function(element) {
+    return this.indexOf(element) >= 0;
+};
+
+Array.prototype.clear = function() {
+    this.length = 0;
+};
+
+Array.prototype.subList = function(fromIndex, toIndex) {
+    let arr = [];
+    for (let i = fromIndex; i < toIndex; i++) {
+        arr.push(this[i]);
+    }
+    return arr;
 };
 
 Array.equals = function(arr1, arr2) {
@@ -133,6 +158,8 @@ String.prototype.equals = Array.prototype.equals;
     */
     const WALKING_SPEED = 160;
     const RUNNING_SPEED = 250;
+    const MUSIC_VOLUME = 1;
+    const POWER_UP_VOLUME = 0.3;
     
     assert(lives >= 1, "Lives must be greater than or equal to 1");
     
@@ -287,7 +314,7 @@ String.prototype.equals = Array.prototype.equals;
             explosion: 'assets/audio/explosion.mp3',
             starcollect: 'assets/audio/starcollect.mp3',
             powerupcollect: 'assets/audio/powerup.mp3',
-            music: 'assets/audio/jackpot.mp3'
+            music: 'assets/audio/music.mp3'
         }
     };
     const powerups = assets["powerups"];
@@ -317,7 +344,7 @@ String.prototype.equals = Array.prototype.equals;
         
         var p = [
             "Made with <a href='https://phaser.io/' target='_blank'>Phaser.JS</a>.",
-            "Music: <a href='https://www.youtube.com/watch?v=kL8CyVqzmkc0' target='_blank'>TheFatRat - Jackpot</a>"
+            "Music: <a href='https://youtu.be/UNTBGiMqcGc' target='_blank'>https://youtu.be/UNTBGiMqcGc</a>"
         ];
         
         for (let i = 0; i < p.length; i++) {
@@ -428,7 +455,7 @@ String.prototype.equals = Array.prototype.equals;
         
         this.physics.add.collider(player, platforms);
         this.physics.add.collider(bombs, platforms);
-        this.sound.play("music", {loop: true});
+        this.sound.play("music", {loop: true, volume: MUSIC_VOLUME});
         
         /*
             ON DEATH
@@ -594,7 +621,7 @@ String.prototype.equals = Array.prototype.equals;
         this.physics.add.overlap(player, powerups["oneUp"]["ref"], function(player, oneUp) {
             let isLevel4 = level === 4;
             lives++;
-            this.sound.play('powerupcollect', {volume: 0.5});
+            this.sound.play('powerupcollect', {volume: POWER_UP_VOLUME});
             oneUp.disableBody(true, true);
             infoText.setText(isLevel4 ? "Nice!" : "You got an extra life!");
             wait(assets["powerups"]["oneUp"]["duration"]).then(function() {
@@ -609,7 +636,7 @@ String.prototype.equals = Array.prototype.equals;
             if (!invincible && !canDestroy) {
                 invincible = true;
                 canDestroy = true;
-                this.sound.play('powerupcollect', {volume: 0.5});
+                this.sound.play('powerupcollect', {volume: POWER_UP_VOLUME});
                 infoText.setText("You obtained an invincibility potion! \nYou're invincible!");
                 invincibility.disableBody(true, true);
                 wait(assets["powerups"]["invincibility"]["duration"]).then(function() {
@@ -696,7 +723,7 @@ String.prototype.equals = Array.prototype.equals;
                 }
             }
             
-            this.sound.play('powerupcollect', {volume: 0.5});
+            this.sound.play('powerupcollect', {volume: POWER_UP_VOLUME});
             
             infoText.setText("Lives increased by one, \nyou are now invincible, \nand all game objects have been stopped!");
             
