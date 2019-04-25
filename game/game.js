@@ -359,7 +359,8 @@ String.prototype.equals = Array.prototype.equals;
         ERROR HANDLER
     */
     window.addEventListener("error", function(e) {
-        loading.innerHTML = "An error has been detected and the game has been stopped to prevent a crash. <br> Check the browser console for more information.";
+        var file = e.filename;
+        loading.innerHTML = "An error has been detected and the game has been stopped to prevent a crash. <br> " + e.message + " (at " + file.substring(file.lastIndexOf("/") + 1) + " [Line " + e.lineno + "])";
     });
     
     /*
