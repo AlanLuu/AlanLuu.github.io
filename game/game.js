@@ -7,24 +7,25 @@
 */
 var isMobile = {
     android: function() {
-        return navigator.userAgent.match(/Android/i) !== null;
+        return navigator.userAgent.match(/Mobile|Android/i) !== null;
     },
     blackberry: function() {
         return navigator.userAgent.match(/BlackBerry/i) !== null;
     },
     ios: function() {
-        return navigator.userAgent.match(/iPhone|iPod/i) != null;
+        return navigator.userAgent.match(/iPhone|iPod/i) !== null;
     },
     opera: function() {
         return navigator.userAgent.match(/Opera Mini/i) !== null;
     },
     windows: function() {
-        return navigator.userAgent.match(/IEMobile/i) !== null || navigator.userAgent.match(/WPDesktop/i) != null;
+        return navigator.userAgent.match(/IEMobile/i) !== null || navigator.userAgent.match(/WPDesktop/i) !== null;
     },
     any: function() {
         return isMobile.android() || isMobile.blackberry() || isMobile.ios() || isMobile.opera() || isMobile.windows();
     }
 };
+
 
 /**
  * Asserts that a passed in boolean value is true. If not, throws an error with the passed in error message.
@@ -34,14 +35,6 @@ var isMobile = {
 */
 function assert(bool, message) {
     if (!bool) {
-        /*
-        class AssertionError extends Error {
-            constructor(s) {
-                super(s || "");
-                this.name = this.constructor.name;
-            }
-        }
-        */
         throw new Error(message || "");
     }
 }
