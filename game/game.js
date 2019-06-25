@@ -1,26 +1,37 @@
+/*
+    BEGIN UTILITY FUNCTIONS
+*/
+
+/*
+ * Functions to detect mobile devices.
+*/
 var isMobile = {
-    /* global navigator */
-    
     android: function() {
-        return navigator.userAgent.match(/Android/i);
+        return navigator.userAgent.match(/Android/i) !== null;
     },
     blackberry: function() {
-        return navigator.userAgent.match(/BlackBerry/i);
+        return navigator.userAgent.match(/BlackBerry/i) !== null;
     },
     ios: function() {
-        return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+        return navigator.userAgent.match(/iPhone|iPod/i) != null;
     },
     opera: function() {
-        return navigator.userAgent.match(/Opera Mini/i);
+        return navigator.userAgent.match(/Opera Mini/i) !== null;
     },
     windows: function() {
-        return navigator.userAgent.match(/IEMobile/i) || navigator.userAgent.match(/WPDesktop/i);
+        return navigator.userAgent.match(/IEMobile/i) !== null || navigator.userAgent.match(/WPDesktop/i) != null;
     },
     any: function() {
         return isMobile.android() || isMobile.blackberry() || isMobile.ios() || isMobile.opera() || isMobile.windows();
     }
 };
 
+/**
+ * Asserts that a passed in boolean value is true. If not, throws an error with the passed in error message.
+ * 
+ * @param bool - the boolean value to test
+ * @param message - the error message to display if bool is false.
+*/
 function assert(bool, message) {
     if (!bool) {
         /*
@@ -35,19 +46,36 @@ function assert(bool, message) {
     }
 }
 
-function playTheme() {
-    var audio = new Audio("assets/audio/music.mp3");
-    return audio.play(), audio;
-}
 
+/**
+ * Returns a new string consisting of the specified substring at the specified index of this string.
+ * 
+ * @param index - the specified index
+ * @param string - the substring to insert
+ * @return a new string consisting of the specified substring at the specified index of this string
+*/
 String.prototype.insertAt = function(index, string) {
     return this.substring(0, index) + string + this.substring(index);
 };
 
+
+/**
+ * Removes the element at the specified position in this array and shifts any subsequent elements to the left.
+ * 
+ * @param index - the index of the element to be removed
+ * @return the element that was removed from this array
+*/
 Array.prototype.removeIndex = function(index) {
     return this.splice(index, 1)[0];
 };
 
+
+/**
+ * Removes the first occurrence of the specified element from this array, if it exists.
+ * 
+ * @param element - the element to be removed from this array, if it exists.
+ * @return true if this array contained the specified element
+*/
 Array.prototype.removeElement = function(element) {
     let i = this.indexOf(element);
     if (i >= 0) {
@@ -57,36 +85,44 @@ Array.prototype.removeElement = function(element) {
     return false;
 };
 
+
+/**
+ * Inserts the specified element at the specified index in this array.
+ * 
+ * @param index - index at which the specified element is to be inserted
+ * @param element - element to be inserted
+*/
 Array.prototype.addAt = function(index, element) {
     this.splice(index, 0, element);
 };
 
+
+/**
+ * Returns true if this array contains the specified element.
+ * 
+ * @param element - element whose presence in this array is to be tested
+ * @return true if this array contains the specified element
+*/
 Array.prototype.contains = function(element) {
     return this.indexOf(element) >= 0;
 };
 
+
+/**
+ * Removes all the elements from this array.
+*/
 Array.prototype.clear = function() {
     this.length = 0;
 };
 
-Array.prototype.subList = function(fromIndex, toIndex) {
-    let arr = [];
-    for (let i = fromIndex; i < toIndex; i++) {
-        arr.push(this[i]);
-    }
-    return arr;
-};
 
-Array.equals = function(arr1, arr2) {
-    if (arr1.length !== arr2.length) return false;
-    
-    var i = arr1.length;
-    while (i--) {
-        if (arr1[i] !== arr2[i]) return false;
-    }
-    return true;
-};
-
+/**
+ * Compares the specified array with this array for equality. Two arrays are said to be equal if and only if 
+ * they both have the same length and all corresponding pairs of elements in the two arrays are equal.
+ * 
+ * @param other - the array to be compared for equality with this array
+ * @return true if the specified object is equal to this array
+*/
 Array.prototype.equals = function(other) {
     if (this.length !== other.length) return false;
     
@@ -97,21 +133,41 @@ Array.prototype.equals = function(other) {
     return true;
 };
 
+
+/**
+ * A static version of Array::equals.
+ * 
+ * @param arr1 - the first array to compare
+ * @param arr2 the second array to compare
+ * @return true if arr1 equals arr2
+*/
+Array.equals = function(arr1, arr2) {
+    if (arr1.length !== arr2.length) return false;
+    
+    var i = arr1.length;
+    while (i--) {
+        if (arr1[i] !== arr2[i]) return false;
+    }
+    return true;
+};
+
 String.prototype.equals = Array.prototype.equals;
+
+/*
+    END UTILITY FUNCTIONS
+*/
 
 /*
     ACTUAL GAME CODE
 */
 (function() {
-    /* global Phaser, swal */
-    
     'use strict';
     
-    //Not going to add mobile or tablet device support for this game.
+    //Not going to add mobile device support for this game.
     if (isMobile.any()) {
         try {
             swal({
-                text: "Sorry, but this game can only be played on a computer.",
+                text: "Sorry, but this game can only be played on a computer or a tablet with an external keyboard.",
                 icon: "error",
                 closeOnClickOutside: false
             }).then(function() {
@@ -121,6 +177,25 @@ String.prototype.equals = Array.prototype.equals;
             return;
         }
     }
+    
+    const loading = document.getElementById("loading");
+    
+    /*
+        ERROR HANDLER
+    */
+    window.addEventListener("error", function(e) {
+        var file = e.filename;
+        loading.innerHTML = "An error has been detected and the game has been stopped to prevent a crash. <br> " + e.message + " (at " + file.substring(file.lastIndexOf("/") + 1) + " [Line " + e.lineno + "])";
+    });
+    
+    /*
+        Saves the player's high score in document.cookie when they exit or reload the page.
+    */
+    window.addEventListener("beforeunload", function(e) {
+        if (!debug && score > highScore) {
+            document.cookie = score;
+        }
+    });
     
     /*
         Toggle this to enable debugging mode.
@@ -144,22 +219,24 @@ String.prototype.equals = Array.prototype.equals;
     var livesText;
     var levelText;
     var highScoreText;
-    
-    /*
-        NUMERICAL VARIABLES
-    */
-    var score = 0;
-    var level = 1;
-    var lives = debug ? Infinity : 5;
-    var highScore = !isNaN(Number(document.cookie)) ? Number(document.cookie) : 0;
+    var fpsDebugText;
     
     /*
         CONSTANT NUMERICAL VALUES
     */
     const WALKING_SPEED = 160;
     const RUNNING_SPEED = 250;
+    const STARTING_LIVES = 5;
     const MUSIC_VOLUME = 1;
     const POWER_UP_VOLUME = 0.3;
+    
+    /*
+        NUMERICAL VARIABLES
+    */
+    var score = 0;
+    var level = 1;
+    var lives = debug ? Infinity : STARTING_LIVES;
+    var highScore = !isNaN(Number(document.cookie)) ? Number(document.cookie) : 0;
     
     assert(lives >= 1, "Lives must be greater than or equal to 1");
     
@@ -187,7 +264,6 @@ String.prototype.equals = Array.prototype.equals;
     
     const konami = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
     const reverseKonami = [40, 40, 38, 38, 39, 37, 39, 37, 65, 66];
-    const loading = document.getElementById("loading");
     
     /*
         SweetAlert's CDN includes a polyfill for ES6 promises, which allows this game to run in IE.
@@ -339,9 +415,6 @@ String.prototype.equals = Array.prototype.equals;
     const game = new Phaser.Game(canvas); //Actually load the canvas
     
     document.addEventListener("DOMContentLoaded", function(e) {
-        window.canvas = document.getElementsByTagName("canvas")[0];
-        window.context = window.canvas.getContext("webgl");
-        
         var p = [
             "Made with <a href='https://phaser.io/' target='_blank'>Phaser.JS</a>.",
             "Music: <a href='https://youtu.be/UNTBGiMqcGc' target='_blank'>https://youtu.be/UNTBGiMqcGc</a>"
@@ -352,23 +425,6 @@ String.prototype.equals = Array.prototype.equals;
             paragraph.innerHTML = p[i];
             paragraph.className = "bottom";
             document.body.appendChild(paragraph);
-        }
-    });
-    
-    /*
-        ERROR HANDLER
-    */
-    window.addEventListener("error", function(e) {
-        var file = e.filename;
-        loading.innerHTML = "An error has been detected and the game has been stopped to prevent a crash. <br> " + e.message + " (at " + file.substring(file.lastIndexOf("/") + 1) + " [Line " + e.lineno + "])";
-    });
-    
-    /*
-        Saves the player's high score in document.cookie when they exit or reload the page.
-    */
-    window.addEventListener("beforeunload", function(e) {
-        if (!debug && score > highScore) {
-            document.cookie = score;
         }
     });
     
@@ -442,7 +498,12 @@ String.prototype.equals = Array.prototype.equals;
         livesText = this.add.text(16, 84, "Lives: " + lives, {fontSize: '25px', fill: '#000'});
         levelText = this.add.text(16, 50, "Level: " + level, {fontSize: '25px', fill: '#000'});
         highScoreText = this.add.text(16, 120, "High Score: " + highScore, {fontSize: '25px', fill: '#000'});
-        if (debug) this.add.text(510, 500, "Debug mode enabled", {fontSize: '25px', fill: '#000'});
+        
+        if (debug) {
+            let fps = (Math.round(game.loop.actualFps * 100.0) / 100.0) + "";
+            fpsDebugText = this.add.text(16, 500, "FPS: " + (fps.length === 4 ? fps + "0" : fps), {fontSize: '25px', fill: '#000'});
+            this.add.text(510, 500, "Debug mode enabled", {fontSize: '25px', fill: '#000'});
+        }
         
         if (daredevil) {
             lives = 1;
@@ -911,5 +972,10 @@ String.prototype.equals = Array.prototype.equals;
         
         assert(level >= 1, "Invalid level number");
         assert(score >= 0, "Invalid score");
+        
+        if (debug) {
+            let fps = (Math.round(game.loop.actualFps * 100.0) / 100.0) + "";
+            fpsDebugText.setText("FPS: " + (fps.length === 4 ? fps + "0" : fps));
+        }
     }
 })();
