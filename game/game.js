@@ -7,7 +7,7 @@
 */
 var isMobile = {
     android: function() {
-        return navigator.userAgent.match(/Mobile|Android/i) !== null;
+        return navigator.userAgent.match(/(?=.*Android)(?=.*Mobile)/i) !== null;
     },
     blackberry: function() {
         return navigator.userAgent.match(/BlackBerry/i) !== null;
