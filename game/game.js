@@ -91,10 +91,10 @@ Array.prototype.addAt = function(index, element) {
 
 
 /**
- * Returns true if this array contains the specified element.
+ * Returns true if and only if this array contains the specified element.
  * 
  * @param element - element whose presence in this array is to be tested
- * @return true if this array contains the specified element
+ * @return true if and only if this array contains the specified element
 */
 Array.prototype.contains = function(element) {
     return this.indexOf(element) >= 0;
@@ -131,7 +131,7 @@ Array.prototype.equals = function(other) {
  * A static version of Array::equals.
  * 
  * @param arr1 - the first array to compare
- * @param arr2 the second array to compare
+ * @param arr2 - the second array to compare
  * @return true if arr1 equals arr2
 */
 Array.equals = function(arr1, arr2) {
@@ -357,13 +357,6 @@ String.prototype.equals = Array.prototype.equals;
                 duration: 10000
             },
             
-            invincibility: {
-                sprite: 'assets/invinciblepotion.png',
-                key: 'invincibility',
-                spawnRate: 0.2,
-                duration: 10000
-            },
-            
             stop: {
                 sprite: 'assets/stoppotion.png',
                 key: 'stop',
@@ -376,7 +369,14 @@ String.prototype.equals = Array.prototype.equals;
                 key: '1up',
                 spawnRate: 0.6,
                 duration: 1500
-            }
+            },
+            
+            invincibility: {
+                sprite: 'assets/invinciblepotion.png',
+                key: 'invincibility',
+                spawnRate: 0.2,
+                duration: 10000
+            },
         },
         
         sounds: {
@@ -464,10 +464,6 @@ String.prototype.equals = Array.prototype.equals;
         platforms.create(canvas.width - 750, canvas.height - 350, 'ground'); //MIDMOST PLATFORM
         platforms.create(canvas.width - 300, canvas.height - 200, 'ground'); //BOTTOMMOST PLATFORM
         
-        player = this.physics.add.image(10, canvas.height - 220, 'player');
-        player.setBounce(0.2); //A small bounce upon landing
-        player.setCollideWorldBounds(true); //Prevent the player from going out of bounds
-        
         pause = this.add.image(canvas.width - 30, 35, 'pause');
         pause.setInteractive();
         
@@ -475,28 +471,21 @@ String.prototype.equals = Array.prototype.equals;
         resume.visible = false;
         resume.setInteractive();
         
-        for (let key in powerups) {
-            if (powerups.hasOwnProperty(key)) {
-                let x = Phaser.Math.Between(10, canvas.width - 30), y = 10, theKey = powerups[key]["key"];
-                powerups[key]["ref"] = this.physics.add.image(x, y, theKey);
-                let powerUp = powerups[key]["ref"];
-                powerUp.disableBody(true, true);
-                this.physics.add.collider(powerUp, platforms);
-            }
-        }
-        
         scoreText = this.add.text(16, 16, "Score: 0", { fontSize: '25px', fill: '#000'});
         infoText = this.add.text(200, 16, "", {fontSize: '20px', fill: '#000'});
         resetInfoText();
         livesText = this.add.text(16, 84, "Lives: " + lives, {fontSize: '25px', fill: '#000'});
         levelText = this.add.text(16, 50, "Level: " + level, {fontSize: '25px', fill: '#000'});
         highScoreText = this.add.text(16, 120, "High Score: " + highScore, {fontSize: '25px', fill: '#000'});
-        
         if (debug) {
             let fps = (Math.round(game.loop.actualFps * 100.0) / 100.0) + "";
             fpsDebugText = this.add.text(16, 500, "FPS: " + (fps.length === 4 ? fps + "0" : fps), {fontSize: '25px', fill: '#000'});
             this.add.text(510, 500, "Debug mode enabled", {fontSize: '25px', fill: '#000'});
         }
+        
+        player = this.physics.add.image(10, canvas.height - 220, 'player');
+        player.setBounce(0.2); //A small bounce upon landing
+        player.setCollideWorldBounds(true); //Prevent the player from going out of bounds
         
         if (daredevil) {
             lives = 1;
@@ -510,6 +499,53 @@ String.prototype.equals = Array.prototype.equals;
         
         this.physics.add.collider(player, platforms);
         this.physics.add.collider(bombs, platforms);
+        this.physics.add.collider(bombs, bombs);
+        
+        /*
+            INITIALIZE STARS HERE
+        */
+        stars = this.physics.add.group({
+            key: 'star',
+            
+            /*
+                Change this number to control how many stars spawn. 
+                The numbers of stars spawned is the number here plus one.
+                If you increase this number, make sure to decrease stepX as well.
+            */
+            repeat: 11, 
+            setXY: { 
+                x: 12, 
+                y: 0, 
+                stepX: 70
+            },
+            collider: true
+        });
+        stars.children.iterate(function(child) {
+            child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+        });
+        this.physics.add.collider(stars, platforms);
+        
+        {
+            let powerUpArr = [];
+            for (let key in powerups) {
+                if (powerups.hasOwnProperty(key)) {
+                    let x = Phaser.Math.Between(10, canvas.width - 30), y = 10, theKey = powerups[key]["key"];
+                    powerups[key]["ref"] = this.physics.add.image(x, y, theKey);
+                    let powerUp = powerups[key]["ref"];
+                    powerUpArr.push(powerUp);
+                    powerUp.disableBody(true, true);
+                    this.physics.add.collider(powerUp, platforms);
+                    this.physics.add.collider(powerUp, bombs);
+                }
+            }
+            
+            for (let i = 0; i < powerUpArr.length; i++) {
+                for (let j = i + 1; j < powerUpArr.length; j++) {
+                    this.physics.add.collider(powerUpArr[i], powerUpArr[j]);
+                }
+            }
+        }
+        
         this.sound.play("music", {loop: true, volume: MUSIC_VOLUME});
         
         /*
@@ -540,30 +576,6 @@ String.prototype.equals = Array.prototype.equals;
                 });
             }
         }, null, this);
-        
-        /*
-            INITIALIZE STARS HERE
-        */
-        stars = this.physics.add.group({
-            key: 'star',
-            
-            /*
-                Change this number to control how many stars spawn. 
-                The numbers of stars spawned is the number here plus one.
-                If you increase this number, make sure to decrease stepX as well.
-            */
-            repeat: 11, 
-            setXY: { 
-                x: 12, 
-                y: 0, 
-                stepX: 70
-            },
-            collider: true
-        });
-        stars.children.iterate(function(child) {
-            child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
-        });
-        this.physics.add.collider(stars, platforms);
         
         /*
             ON STAR COLLECT
