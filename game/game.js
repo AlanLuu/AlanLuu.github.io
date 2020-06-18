@@ -151,7 +151,7 @@ String.prototype.equals = Array.prototype.equals;
 */
 
 /*
-    ACTUAL GAME CODE
+    GAME CODE
 */
 (function() {
     'use strict';
@@ -233,8 +233,15 @@ String.prototype.equals = Array.prototype.equals;
     
     assert(lives >= 1, "Lives must be greater than or equal to 1");
     
-    //Prevents the player from repeatedly jumping if the up arrow key is constantly held down.
+    /*
+        Prevents the player from repeatedly jumping if the up arrow key is constantly held down.
+    */
     var upKeyDown = false;
+    
+    /*
+        Represents whether the player has finished their jump.
+    */
+    var jumpEnded = false;
     
     /*
         When this is true, the player is unaffected by bombs.
@@ -249,6 +256,11 @@ String.prototype.equals = Array.prototype.equals;
         This boolean should NEVER be true if the player is not invincible.
     */
     var canDestroy = false;
+    
+    /*
+        Provides a time limit on holding down the shift key to speed up.
+    */
+    var tired = false;
     
     /*
         Daredevil mode: how far can you get with only one life and no power-ups?
@@ -464,13 +476,25 @@ String.prototype.equals = Array.prototype.equals;
         platforms.create(canvas.width - 750, canvas.height - 350, 'ground'); //MIDMOST PLATFORM
         platforms.create(canvas.width - 300, canvas.height - 200, 'ground'); //BOTTOMMOST PLATFORM
         
+        /*
+            Init player
+        */
+        player = this.physics.add.image(10, canvas.height - 220, 'player');
+        player.setBounce(0.2); //A small bounce upon landing
+        player.setCollideWorldBounds(true); //Prevent the player from going out of bounds
+        
+        /*
+            Init pause and resume buttons
+        */
         pause = this.add.image(canvas.width - 30, 35, 'pause');
         pause.setInteractive();
-        
         resume = this.add.image(canvas.width - 30, 35, 'resume');
         resume.visible = false;
         resume.setInteractive();
         
+        /*
+            Init game info text
+        */
         scoreText = this.add.text(16, 16, "Score: 0", { fontSize: '25px', fill: '#000'});
         infoText = this.add.text(200, 16, "", {fontSize: '20px', fill: '#000'});
         resetInfoText();
@@ -482,10 +506,6 @@ String.prototype.equals = Array.prototype.equals;
             fpsDebugText = this.add.text(16, 500, "FPS: " + (fps.length === 4 ? fps + "0" : fps), {fontSize: '25px', fill: '#000'});
             this.add.text(510, 500, "Debug mode enabled", {fontSize: '25px', fill: '#000'});
         }
-        
-        player = this.physics.add.image(10, canvas.height - 220, 'player');
-        player.setBounce(0.2); //A small bounce upon landing
-        player.setCollideWorldBounds(true); //Prevent the player from going out of bounds
         
         if (daredevil) {
             lives = 1;
@@ -906,7 +926,7 @@ String.prototype.equals = Array.prototype.equals;
                     invincible = !invincible;
                     resetInfoText();
                 });
-            } else if (e.keyCodes.equals([80, 79, 87, 69, 82, 85, 80, 83]) && debug) {
+            } else if (e.keyCodes.equals([80, 79, 87, 69, 82, 85, 80, 83]) && debug) { //Code "p o w e r u p s" (debug)
                 for (let key in powerups) {
                     if (powerups.hasOwnProperty(key)) {
                         let powerUp = powerups[key]["ref"];
@@ -918,7 +938,7 @@ String.prototype.equals = Array.prototype.equals;
                         powerUp.setCollideWorldBounds(true);
                     }
                 }
-            } else if (e.keyCodes.equals([68, 65, 82, 69, 68, 69, 86, 73, 76])) {
+            } else if (e.keyCodes.equals([68, 65, 82, 69, 68, 69, 86, 73, 76])) { //Code "d a r e d e v i l"
                 daredevil = true;
                 lives = 1;
                 despawnPowerUps();
@@ -942,18 +962,29 @@ String.prototype.equals = Array.prototype.equals;
         
         /*
             Allows the player to move.
+            Speed increase when the shift key is held down.
         */
-        if (cursors.shift.isDown) {
+        if (cursors.shift.isDown && !tired) {
             player.setVelocityX(cursors.left.isDown ? -RUNNING_SPEED : cursors.right.isDown ? RUNNING_SPEED : 0);
+            wait(5000).then(function() {
+                if (cursors.shift.isDown) tired = true;
+            });
         } else {
             player.setVelocityX(cursors.left.isDown ? -WALKING_SPEED : cursors.right.isDown ? WALKING_SPEED : 0);
+            wait(5000).then(function() {
+                tired = false;
+            });
         }
         
         /*
             Allows the player to jump.
         */
-        if (cursors.up.isDown && player.body.touching.down && !upKeyDown) {
-            player.setVelocityY(-330);
+        if (player.body.touching.down) jumpEnded = true;
+        if (cursors.up.isDown) {
+            if (!upKeyDown && jumpEnded) {
+                player.setVelocityY(-330);
+                jumpEnded = false;
+            }
             upKeyDown = true;
         } else if (!cursors.up.isDown) {
             upKeyDown = false;
