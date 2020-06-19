@@ -477,13 +477,6 @@ String.prototype.equals = Array.prototype.equals;
         platforms.create(canvas.width - 300, canvas.height - 200, 'ground'); //BOTTOMMOST PLATFORM
         
         /*
-            Init player
-        */
-        player = this.physics.add.image(10, canvas.height - 220, 'player');
-        player.setBounce(0.2); //A small bounce upon landing
-        player.setCollideWorldBounds(true); //Prevent the player from going out of bounds
-        
-        /*
             Init pause and resume buttons
         */
         pause = this.add.image(canvas.width - 30, 35, 'pause');
@@ -506,12 +499,18 @@ String.prototype.equals = Array.prototype.equals;
             fpsDebugText = this.add.text(16, 500, "FPS: " + (fps.length === 4 ? fps + "0" : fps), {fontSize: '25px', fill: '#000'});
             this.add.text(510, 500, "Debug mode enabled", {fontSize: '25px', fill: '#000'});
         }
-        
         if (daredevil) {
             lives = 1;
             for (let i = 3; i <= 4; i++) infoTextList[i] = "";
             this.add.text(620, 510, "Daredevil mode", {fontSize: '20px', fill: '#ff0000'});
         }
+        
+        /*
+            Init player
+        */
+        player = this.physics.add.image(10, canvas.height - 220, 'player');
+        player.setBounce(0.2); //A small bounce upon landing
+        player.setCollideWorldBounds(true); //Prevent the player from going out of bounds
         
         cursors = this.input.keyboard.createCursorKeys();
         
