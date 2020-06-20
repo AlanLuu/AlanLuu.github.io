@@ -410,7 +410,7 @@ String.prototype.equals = Array.prototype.equals;
     const powerups = assets["powerups"];
     
     const infoTextList = [
-        "Welcome to Star Collector!\nUse the arrow keys to move, jump, and \nground-pound. Hold shift to move faster.\nCollect every star to progress through the game!",
+        "Welcome to Star Collector!\nUse the arrow keys to move, jump, and \nground pound. Hold shift to move faster.\nCollect every star to progress through the game!",
         "Don't touch the bomb!",
         "Yikes! Two bombs!",
         "Hey look, a life potion! \nGrab it for an extra life!",
