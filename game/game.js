@@ -217,9 +217,13 @@ String.prototype.equals = Array.prototype.equals;
     /*
         CONSTANT NUMERICAL VALUES
     */
-    const GROUND_POUND_STRENGTH = 550;
+    const COLOR_RED = 0xff0000;
+    const COLOR_INVINCIBLE = 0xffff00;
+    const COLOR_MERCY = 0xffab00;
+    const COLOR_WHITE = 0xffffff;
+    const GROUND_POUND_SPEED = 500;
     const JUMP_STRENGTH = 330;
-    const MUSIC_VOLUME = 1;
+    const MUSIC_VOLUME = 1.0;
     const POWER_UP_VOLUME = 0.3;
     const RUNNING_SPEED = 250;
     const STARTING_LIVES = 5;
@@ -277,6 +281,8 @@ String.prototype.equals = Array.prototype.equals;
     
     const konami = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
     const reverseKonami = [40, 40, 38, 38, 39, 37, 39, 37, 65, 66];
+    
+    const UNDEFINED = "undefined";
     
     /*
         SweetAlert's CDN includes a polyfill for ES6 promises, which allows this game to run in IE.
@@ -412,7 +418,7 @@ String.prototype.equals = Array.prototype.equals;
     const infoTextList = [
         "Welcome to Star Collector!\nUse the arrow keys to move, jump, and \nground pound. Hold shift to move faster.\nCollect every star to progress through the game!",
         "Don't touch the bomb!",
-        "Yikes! Two bombs!",
+        "Yikes! Another bomb!",
         "Hey look, a life potion! \nGrab it for an extra life!",
         "Other powerups may occasionally spawn as \nwell. There are " + Object.keys(powerups).length + " of them. Be sure to take \nadvantage of those too!",
         "Hey look, the stars move now!",
@@ -425,6 +431,14 @@ String.prototype.equals = Array.prototype.equals;
         "Good? That's good.",
         "Ok, I'm stopping for real this time!"
     ];
+    
+    const specialInfoTextList = {
+        "2": "Nice, you destroyed the bomb!",
+        "4": "Be sure to take advantage of extra lives!",
+        set: function() {
+            infoText.setText(this[level]);
+        }
+    };
     
     const game = new Phaser.Game(canvas); //Actually load the canvas
     
@@ -479,6 +493,9 @@ String.prototype.equals = Array.prototype.equals;
         loading.innerHTML = "&nbsp;";
         background = this.add.image(canvas.width / 2, canvas.height / 2, 'sky');
         
+        /*
+            Init platforms
+        */
         platforms = this.physics.add.staticGroup(); //Platforms do not move
         platforms.create(canvas.width / 2, canvas.height - 32, 'ground').setScale(2).refreshBody(); //GROUND
         platforms.create(canvas.width - 50, canvas.height - 380, 'ground'); //TOPMOST PLATFORM
@@ -613,6 +630,17 @@ String.prototype.equals = Array.prototype.equals;
                 this.sound.play('starcollect', {
                     volume: 0.25
                 });
+                
+                if (groundPounding) {
+                    infoText.setText("Bam!");
+                    wait(level === 2 ? 1500 : 1000).then(function() {
+                        if (level === 2) {
+                            specialInfoTextList.set();
+                        } else {
+                            resetInfoText();
+                        }
+                    });
+                }
             }
             
             if (groundPounding) {
@@ -728,14 +756,13 @@ String.prototype.equals = Array.prototype.equals;
             POWER-UPS 
         */
         this.physics.add.overlap(player, powerups["oneUp"]["ref"], function(player, oneUp) {
-            let isLevel4 = level === 4;
             lives++;
             this.sound.play('powerupcollect', {volume: POWER_UP_VOLUME});
             oneUp.disableBody(true, true);
-            infoText.setText(isLevel4 ? "Nice!" : "You got an extra life!");
+            infoText.setText(level === 4 ? "Nice!" : "You got an extra life!");
             wait(assets["powerups"]["oneUp"]["duration"]).then(function() {
-                if (isLevel4) {
-                    infoText.setText("Be sure to take advantage of extra lives!");
+                if (level === 4) {
+                    specialInfoTextList.set();
                 } else {
                     resetInfoText();
                 }
@@ -915,8 +942,6 @@ String.prototype.equals = Array.prototype.equals;
             if (daredevil) return; //Cheat codes do not work in daredevil mode.
             
             if (e.keyCodes.equals(konami)) {
-                lives += 30;
-                
                 (function loop(messages, milliseconds, counter) {
                     infoText.setText(messages[counter]);
                     wait(milliseconds).then(counter < messages.length - 1 ? function() {
@@ -936,12 +961,12 @@ String.prototype.equals = Array.prototype.equals;
                 invincible = false;
                 pause.visible = false;
                 despawnEverything();
-                background.setTint(0xff0000);
-                player.setTintFill(0xff0000);
-                scoreText.setTintFill(0xffffff);
-                infoText.setTintFill(0xffffff);
-                livesText.setTintFill(0xffffff);
-                levelText.setTintFill(0xffffff);
+                background.setTint(COLOR_RED);
+                player.setTintFill(COLOR_RED);
+                scoreText.setTintFill(COLOR_WHITE);
+                infoText.setTintFill(COLOR_WHITE);
+                livesText.setTintFill(COLOR_WHITE);
+                levelText.setTintFill(COLOR_WHITE);
             } else if (e.keyCodes.equals(reverseKonami)) {
                 lives += 30;
                 invincible = true;
@@ -966,7 +991,9 @@ String.prototype.equals = Array.prototype.equals;
                 daredevil = true;
                 lives = 1;
                 despawnPowerUps();
-                for (let i = 3; i <= 4; i++) infoTextList[i] = "";
+                for (let i = 3; i <= 4; i++) {
+                    infoTextList[i] = "";
+                }
                 infoText.setText("Daredevil mode activated!");
                 _this.add.text(620, 510, "Daredevil mode", {fontSize: '20px', fill: '#ff0000'});
                 wait(2000).then(resetInfoText);
@@ -1011,7 +1038,7 @@ String.prototype.equals = Array.prototype.equals;
                 jumpEnded = false;
             }
             upKeyDown = true;
-        } else if (!cursors.up.isDown) {
+        } else {
             upKeyDown = false;
         }
         
@@ -1020,16 +1047,16 @@ String.prototype.equals = Array.prototype.equals;
         */
         if (cursors.down.isDown) {
             player.setVelocityX(0);
-            player.setVelocityY(!jumpEnded ? GROUND_POUND_STRENGTH : 0);
+            player.setVelocityY(!jumpEnded ? GROUND_POUND_SPEED : 0);
         }
         
         /*
             If invincible, change the player's color to yellow.
         */
         if (invincible && canDestroy) {
-            player.setTintFill(0xffff00);
+            player.setTintFill(COLOR_INVINCIBLE);
         } else if (invincible) {
-            player.setTintFill(0xffab00);
+            player.setTintFill(COLOR_MERCY);
         } else {
             player.clearTint();
         }
