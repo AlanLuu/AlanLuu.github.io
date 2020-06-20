@@ -217,11 +217,13 @@ String.prototype.equals = Array.prototype.equals;
     /*
         CONSTANT NUMERICAL VALUES
     */
-    const WALKING_SPEED = 160;
-    const RUNNING_SPEED = 250;
-    const STARTING_LIVES = 5;
+    const GROUND_POUND_STRENGTH = 550;
+    const JUMP_STRENGTH = 330;
     const MUSIC_VOLUME = 1;
     const POWER_UP_VOLUME = 0.3;
+    const RUNNING_SPEED = 250;
+    const STARTING_LIVES = 5;
+    const WALKING_SPEED = 160;
     
     /*
         NUMERICAL VARIABLES
@@ -251,6 +253,12 @@ String.prototype.equals = Array.prototype.equals;
     var invincible = false;
     
     /*
+        This is true when a power-up that causes invincibility is collected. It stays true for the duration
+        of the power-up.
+    */
+    var invinciblePowerup = false;
+    
+    /*
         When this is true, the player will be able to destroy any bomb on contact.
         
         This boolean should NEVER be true if the player is not invincible.
@@ -260,7 +268,7 @@ String.prototype.equals = Array.prototype.equals;
     /*
         Provides a time limit on holding down the shift key to speed up.
     */
-    var tired = false;
+    var isTired = false;
     
     /*
         Daredevil mode: how far can you get with only one life and no power-ups?
@@ -332,6 +340,7 @@ String.prototype.equals = Array.prototype.equals;
         type: Phaser.AUTO, //Defaults to WebGL if supported, otherwise canvas.
         width: 800,
         height: 600,
+        
         physics: {
             default: 'arcade',
             arcade: {
@@ -341,12 +350,12 @@ String.prototype.equals = Array.prototype.equals;
                 debug: debug
             }
         },
+        
         scene: {
             preload: preload,
             create: create,
             update: update
         },
-        
     };
     
     /*
@@ -401,7 +410,7 @@ String.prototype.equals = Array.prototype.equals;
     const powerups = assets["powerups"];
     
     const infoTextList = [
-        "Welcome to Star Collector!\nUse the arrow keys to move and jump. \nHold the shift key to move faster.\nCollect every star to progress through the game!",
+        "Welcome to Star Collector!\nUse the arrow keys to move, jump, and \nground-pound. Hold shift to move faster.\nCollect every star to progress through the game!",
         "Don't touch the bomb!",
         "Yikes! Two bombs!",
         "Hey look, a life potion! \nGrab it for an extra life!",
@@ -516,7 +525,12 @@ String.prototype.equals = Array.prototype.equals;
         
         bombs = this.physics.add.group();
         
-        this.physics.add.collider(player, platforms);
+        this.physics.add.collider(player, platforms, function(player, platforms) {
+            if (player.body.touching.down && !jumpEnded) {
+                jumpEnded = true;
+            }
+        }, null, this);
+        
         this.physics.add.collider(bombs, platforms);
         this.physics.add.collider(bombs, bombs);
         
@@ -573,6 +587,12 @@ String.prototype.equals = Array.prototype.equals;
         this.physics.add.collider(player, bombs, function(player, bomb) {
             if (canDestroy && !invincible) canDestroy = false;
             
+            let groundPounding = !daredevil && cursors.down.isDown && !jumpEnded && !invinciblePowerup;
+            if (groundPounding) {
+                invincible = true;
+                canDestroy = true;
+            }
+            
             if (!invincible) {
                 lives--;
                 if (lives >= 1) {
@@ -593,6 +613,11 @@ String.prototype.equals = Array.prototype.equals;
                 this.sound.play('starcollect', {
                     volume: 0.25
                 });
+            }
+            
+            if (groundPounding) {
+                invincible = false;
+                canDestroy = false;
             }
         }, null, this);
         
@@ -616,10 +641,6 @@ String.prototype.equals = Array.prototype.equals;
             if (stars.countActive(true) === 0) {
                 if (level >= 1) level++;
                 
-                /*
-                    Rewards the player with an extra life after a certain amount of levels, comment out this block
-                    if this feature is not desired.
-                */
                 /*
                 {
                     let levels = 10;
@@ -724,12 +745,14 @@ String.prototype.equals = Array.prototype.equals;
             if (!invincible && !canDestroy) {
                 invincible = true;
                 canDestroy = true;
+                invinciblePowerup = true;
                 this.sound.play('powerupcollect', {volume: POWER_UP_VOLUME});
                 infoText.setText("You obtained an invincibility potion! \nYou're invincible!");
                 invincibility.disableBody(true, true);
                 wait(assets["powerups"]["invincibility"]["duration"]).then(function() {
                     invincible = false;
                     canDestroy = false;
+                    invinciblePowerup = false;
                     resetInfoText();
                 });
             }
@@ -796,6 +819,7 @@ String.prototype.equals = Array.prototype.equals;
             ultimate.disableBody(true, true);
             invincible = true;
             canDestroy = true;
+            invinciblePowerup = true;
             lives++;
             
             bombs.children.iterate(function(child) {
@@ -826,6 +850,7 @@ String.prototype.equals = Array.prototype.equals;
             wait(assets["powerups"]["ultimate"]["duration"]).then(function() {
                 invincible = false;
                 canDestroy = false;
+                invinciblePowerup = false;
                 bombs.children.iterate(function(child) {
                     child.setBounce(1);
                     child.setVelocity(Phaser.Math.Between(-200, 200), 20);
@@ -963,30 +988,39 @@ String.prototype.equals = Array.prototype.equals;
             Allows the player to move.
             Speed increase when the shift key is held down.
         */
-        if (cursors.shift.isDown && !tired) {
-            player.setVelocityX(cursors.left.isDown ? -RUNNING_SPEED : cursors.right.isDown ? RUNNING_SPEED : 0);
-            wait(5000).then(function() {
-                if (cursors.shift.isDown) tired = true;
-            });
-        } else {
-            player.setVelocityX(cursors.left.isDown ? -WALKING_SPEED : cursors.right.isDown ? WALKING_SPEED : 0);
-            wait(5000).then(function() {
-                tired = false;
-            });
+        if (!cursors.down.isDown) {
+            if (cursors.shift.isDown && !isTired) {
+                player.setVelocityX(cursors.left.isDown ? -RUNNING_SPEED : cursors.right.isDown ? RUNNING_SPEED : 0);
+                wait(5000).then(function() {
+                    if (cursors.shift.isDown) isTired = true;
+                });
+            } else {
+                player.setVelocityX(cursors.left.isDown ? -WALKING_SPEED : cursors.right.isDown ? WALKING_SPEED : 0);
+                wait(5000).then(function() {
+                    isTired = false;
+                });
+            }
         }
         
         /*
             Allows the player to jump.
         */
-        if (player.body.touching.down) jumpEnded = true;
         if (cursors.up.isDown) {
             if (!upKeyDown && jumpEnded) {
-                player.setVelocityY(-330);
+                player.setVelocityY(-JUMP_STRENGTH);
                 jumpEnded = false;
             }
             upKeyDown = true;
         } else if (!cursors.up.isDown) {
             upKeyDown = false;
+        }
+        
+        /*
+            Allows the player to ground pound.
+        */
+        if (cursors.down.isDown) {
+            player.setVelocityX(0);
+            player.setVelocityY(!jumpEnded ? GROUND_POUND_STRENGTH : 0);
         }
         
         /*
