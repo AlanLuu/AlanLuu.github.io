@@ -627,19 +627,14 @@ String.prototype.equals = Array.prototype.equals;
             } else if (canDestroy) {
                 bomb.disableBody(true, true);
                 score += 20;
+                
                 this.sound.play('starcollect', {
                     volume: 0.25
                 });
                 
-                if (groundPounding) {
+                if (groundPounding && level === 2) {
                     infoText.setText("Bam!");
-                    wait(level === 2 ? 1500 : 1000).then(function() {
-                        if (level === 2) {
-                            specialInfoTextList.set();
-                        } else {
-                            resetInfoText();
-                        }
-                    });
+                    wait(1500).then(specialInfoTextList.set.bind(specialInfoTextList));
                 }
             }
             
@@ -647,6 +642,7 @@ String.prototype.equals = Array.prototype.equals;
                 invincible = false;
                 canDestroy = false;
             }
+            
         }, null, this);
         
         /*
@@ -710,7 +706,6 @@ String.prototype.equals = Array.prototype.equals;
                 
                 /*
                     Spawn random power-ups occasionally starting from level 4, if not in daredevil mode.
-                    If one does get spawned, do not attempt to spawn anymore.
                 */
                 if (daredevil) return;
                 
@@ -730,7 +725,7 @@ String.prototype.equals = Array.prototype.equals;
                                 powerUp.setVelocity(Phaser.Math.Between(-200, 200), 20);
                                 powerUp.allowGravity = false;
                                 powerUp.setCollideWorldBounds(true);
-                                break;
+                                break; //If one does get spawned, do not attempt to spawn anymore.
                             }
                         } 
                     }
@@ -760,13 +755,8 @@ String.prototype.equals = Array.prototype.equals;
             this.sound.play('powerupcollect', {volume: POWER_UP_VOLUME});
             oneUp.disableBody(true, true);
             infoText.setText(level === 4 ? "Nice!" : "You got an extra life!");
-            wait(assets["powerups"]["oneUp"]["duration"]).then(function() {
-                if (level === 4) {
-                    specialInfoTextList.set();
-                } else {
-                    resetInfoText();
-                }
-            });
+            wait(assets["powerups"]["oneUp"]["duration"])
+                .then(level === 4 ? specialInfoTextList.set.bind(specialInfoTextList) : resetInfoText);
         }, null, this);
         this.physics.add.overlap(player, powerups["invincibility"]["ref"], function(player, invincibility) {
             if (!invincible && !canDestroy) {
@@ -969,12 +959,8 @@ String.prototype.equals = Array.prototype.equals;
                 levelText.setTintFill(COLOR_WHITE);
             } else if (e.keyCodes.equals(reverseKonami)) {
                 lives += 30;
-                invincible = true;
                 infoText.setText("Lives increased by 30.");
-                wait(2000).then(function() {
-                    invincible = !invincible;
-                    resetInfoText();
-                });
+                wait(2000).then(resetInfoText);
             } else if (e.keyCodes.equals([80, 79, 87, 69, 82, 85, 80, 83]) && debug) { //Code "p o w e r u p s" (debug)
                 for (let key in powerups) {
                     if (powerups.hasOwnProperty(key)) {
@@ -1027,6 +1013,9 @@ String.prototype.equals = Array.prototype.equals;
                     isTired = false;
                 });
             }
+        } else { //Allows the player to ground pound.
+            player.setVelocityX(0);
+            player.setVelocityY(!jumpEnded || !player.body.touching.down ? GROUND_POUND_SPEED : 0);
         }
         
         /*
@@ -1040,14 +1029,6 @@ String.prototype.equals = Array.prototype.equals;
             upKeyDown = true;
         } else {
             upKeyDown = false;
-        }
-        
-        /*
-            Allows the player to ground pound.
-        */
-        if (cursors.down.isDown) {
-            player.setVelocityX(0);
-            player.setVelocityY(!jumpEnded ? GROUND_POUND_SPEED : 0);
         }
         
         /*
