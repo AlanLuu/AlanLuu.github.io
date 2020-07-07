@@ -223,6 +223,7 @@ String.prototype.equals = Array.prototype.equals;
     const COLOR_WHITE = 0xffffff;
     const GROUND_POUND_SPEED = 500;
     const JUMP_STRENGTH = 330;
+    const MERCY_INVINCIBILITY_TIME = 3000;
     const MUSIC_VOLUME = 1.0;
     const POWER_UP_VOLUME = 0.3;
     const RUNNING_SPEED = 250;
@@ -282,8 +283,6 @@ String.prototype.equals = Array.prototype.equals;
     const konami = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
     const reverseKonami = [40, 40, 38, 38, 39, 37, 39, 37, 65, 66];
     
-    const UNDEFINED = "undefined";
-    
     /*
         SweetAlert's CDN includes a polyfill for ES6 promises, which allows this game to run in IE.
     */
@@ -337,6 +336,14 @@ String.prototype.equals = Array.prototype.equals;
         if (!debug && score > highScore) {
             document.cookie = score;
         }
+    }
+    
+    function levelCheck() {
+        let isLevel = false;
+        for (let i = 0; i < arguments.length; i++) {
+            isLevel = isLevel || level === arguments[i];
+        }
+        return isLevel;
     }
     
     /*
@@ -395,7 +402,7 @@ String.prototype.equals = Array.prototype.equals;
                 sprite: 'assets/lifepotion.png',
                 key: '1up',
                 spawnRate: 0.6,
-                duration: 1500
+                duration: MERCY_INVINCIBILITY_TIME / 2
             },
             
             invincibility: {
@@ -413,6 +420,7 @@ String.prototype.equals = Array.prototype.equals;
             music: 'assets/audio/music.mp3'
         }
     };
+    
     const powerups = assets["powerups"];
     
     const infoTextList = [
@@ -433,10 +441,14 @@ String.prototype.equals = Array.prototype.equals;
     ];
     
     const specialInfoTextList = {
-        "2": "Nice, you destroyed the bomb!",
+        "2": "You can't ground pound bombs!",
         "4": "Be sure to take advantage of extra lives!",
         set: function() {
-            infoText.setText(this[level]);
+            if (this.hasOwnProperty(level)) {
+                infoText.setText(this[level]);
+            } else {
+                throw new Error("Invalid level value");
+            }
         }
     };
     
@@ -605,20 +617,27 @@ String.prototype.equals = Array.prototype.equals;
             if (canDestroy && !invincible) canDestroy = false;
             
             let groundPounding = !daredevil && cursors.down.isDown && !jumpEnded && !invinciblePowerup;
+            
+            /*
             if (groundPounding) {
                 invincible = true;
                 canDestroy = true;
             }
+            */
             
             if (!invincible) {
                 lives--;
                 if (lives >= 1) {
-                    infoText.setText(lives + (lives > 1 ? " lives left!" : " life left! Better be careful!"));
+                    if (groundPounding && levelCheck(2)) {
+                        infoText.setText("Ouch!");
+                    } else {
+                        infoText.setText(lives + (lives > 1 ? " lives left!" : " life left! Better be careful!"));
+                    }
                     player.setPosition(10, canvas.height - 80);
                     invincible = true;
                     canDestroy = false;
-                    wait(3000).then(function() {
-                        resetInfoText();
+                    wait(groundPounding ? MERCY_INVINCIBILITY_TIME / 2 : MERCY_INVINCIBILITY_TIME).then(function() {
+                        (groundPounding && levelCheck(2)) ? specialInfoTextList.set() : resetInfoText();
                         invincible = false;
                     });
                 } else {
@@ -631,17 +650,14 @@ String.prototype.equals = Array.prototype.equals;
                 this.sound.play('starcollect', {
                     volume: 0.25
                 });
-                
-                if (groundPounding && level === 2) {
-                    infoText.setText("Bam!");
-                    wait(1500).then(specialInfoTextList.set.bind(specialInfoTextList));
-                }
             }
             
+            /*
             if (groundPounding) {
                 invincible = false;
                 canDestroy = false;
             }
+            */
             
         }, null, this);
         
@@ -734,7 +750,7 @@ String.prototype.equals = Array.prototype.equals;
                     Spawns an extra life potion at level 4.
                     This introduces the player to the concept of power-ups.
                 */
-                } else if (level === 4) {
+                } else if (levelCheck(4)) {
                     let oneUp = powerups["oneUp"]["ref"];
                     let x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
                     let y = 10;
@@ -754,9 +770,10 @@ String.prototype.equals = Array.prototype.equals;
             lives++;
             this.sound.play('powerupcollect', {volume: POWER_UP_VOLUME});
             oneUp.disableBody(true, true);
-            infoText.setText(level === 4 ? "Nice!" : "You got an extra life!");
-            wait(assets["powerups"]["oneUp"]["duration"])
-                .then(level === 4 ? specialInfoTextList.set.bind(specialInfoTextList) : resetInfoText);
+            infoText.setText(levelCheck(4) ? "Nice!" : "You got an extra life!");
+            wait(assets["powerups"]["oneUp"]["duration"]).then(function() {
+                levelCheck(4) ? specialInfoTextList.set() : resetInfoText();
+            });
         }, null, this);
         this.physics.add.overlap(player, powerups["invincibility"]["ref"], function(player, invincibility) {
             if (!invincible && !canDestroy) {
