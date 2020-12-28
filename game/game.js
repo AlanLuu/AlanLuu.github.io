@@ -217,6 +217,7 @@ String.prototype.equals = Array.prototype.equals;
     /*
         CONSTANT NUMERICAL VALUES
     */
+    const BOUNCE_AMOUNT = 0;
     const COLOR_RED = 0xff0000;
     const COLOR_INVINCIBLE = 0xffff00;
     const COLOR_MERCY = 0xffab00;
@@ -248,7 +249,7 @@ String.prototype.equals = Array.prototype.equals;
     /*
         Represents whether the player has finished their jump.
     */
-    var jumpEnded = false;
+    var jumpEnabled = false;
     
     /*
         When this is true, the player is unaffected by bombs.
@@ -547,19 +548,13 @@ String.prototype.equals = Array.prototype.equals;
             Init player
         */
         player = this.physics.add.image(10, canvas.height - 220, 'player');
-        player.setBounce(0.2); //A small bounce upon landing
+        player.setBounce(BOUNCE_AMOUNT); //A small bounce upon landing
         player.setCollideWorldBounds(true); //Prevent the player from going out of bounds
         
         cursors = this.input.keyboard.createCursorKeys();
-        
         bombs = this.physics.add.group();
         
-        this.physics.add.collider(player, platforms, function(player, platforms) {
-            if (player.body.touching.down && !jumpEnded) {
-                jumpEnded = true;
-            }
-        }, null, this);
-        
+        this.physics.add.collider(player, platforms);
         this.physics.add.collider(bombs, platforms);
         this.physics.add.collider(bombs, bombs);
         
@@ -588,22 +583,22 @@ String.prototype.equals = Array.prototype.equals;
         this.physics.add.collider(stars, platforms);
         
         {
-            let powerUpArr = [];
+            let references = [];
             for (let key in powerups) {
                 if (powerups.hasOwnProperty(key)) {
                     let x = Phaser.Math.Between(10, canvas.width - 30), y = 10, theKey = powerups[key]["key"];
                     powerups[key]["ref"] = this.physics.add.image(x, y, theKey);
                     let powerUp = powerups[key]["ref"];
-                    powerUpArr.push(powerUp);
+                    references.push(powerUp);
                     powerUp.disableBody(true, true);
                     this.physics.add.collider(powerUp, platforms);
                     this.physics.add.collider(powerUp, bombs);
                 }
             }
             
-            for (let i = 0; i < powerUpArr.length; i++) {
-                for (let j = i + 1; j < powerUpArr.length; j++) {
-                    this.physics.add.collider(powerUpArr[i], powerUpArr[j]);
+            for (let i = 0; i < references.length; i++) {
+                for (let j = i + 1; j < references.length; j++) {
+                    this.physics.add.collider(references[i], references[j]);
                 }
             }
         }
@@ -616,7 +611,7 @@ String.prototype.equals = Array.prototype.equals;
         this.physics.add.collider(player, bombs, function(player, bomb) {
             if (canDestroy && !invincible) canDestroy = false;
             
-            let groundPounding = !daredevil && cursors.down.isDown && !jumpEnded && !invinciblePowerup;
+            let groundPounding = !daredevil && cursors.down.isDown && !jumpEnabled && !invinciblePowerup;
             
             /*
             if (groundPounding) {
@@ -994,9 +989,7 @@ String.prototype.equals = Array.prototype.equals;
                 daredevil = true;
                 lives = 1;
                 despawnPowerUps();
-                for (let i = 3; i <= 4; i++) {
-                    infoTextList[i] = "";
-                }
+                infoTextList[3] = infoTextList[4] = "";
                 infoText.setText("Daredevil mode activated!");
                 _this.add.text(620, 510, "Daredevil mode", {fontSize: '20px', fill: '#ff0000'});
                 wait(2000).then(resetInfoText);
@@ -1032,21 +1025,27 @@ String.prototype.equals = Array.prototype.equals;
             }
         } else { //Allows the player to ground pound.
             player.setVelocityX(0);
-            player.setVelocityY(!jumpEnded || !player.body.touching.down ? GROUND_POUND_SPEED : 0);
+            player.setVelocityY(!jumpEnabled || !player.body.touching.down ? GROUND_POUND_SPEED : 0);
         }
         
         /*
             Allows the player to jump.
         */
         if (cursors.up.isDown) {
-            if (!upKeyDown && jumpEnded) {
+            if (!upKeyDown && jumpEnabled) {
                 player.setVelocityY(-JUMP_STRENGTH);
-                jumpEnded = false;
+                jumpEnabled = false;
             }
             upKeyDown = true;
         } else {
             upKeyDown = false;
         }
+
+        /*
+            Only allow the player to jump when they're standing on a platform
+            and not in the air.
+        */
+        jumpEnabled = player.body.touching.down;
         
         /*
             If invincible, change the player's color to yellow.
