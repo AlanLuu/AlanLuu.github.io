@@ -58,9 +58,6 @@
     var highScoreText;
     var fpsDebugText;
     
-    /*
-        CONSTANT NUMERICAL VALUES
-    */
     const BOUNCE_AMOUNT = 0;
     const COLOR_RED = 0xff0000;
     const COLOR_INVINCIBLE = 0xffff00;
@@ -74,10 +71,13 @@
     const RUNNING_SPEED = 250;
     const STARTING_LIVES = 5;
     const WALKING_SPEED = 160;
-    
+
     /*
-        NUMERICAL VARIABLES
+        Rewards the player with an extra life after passing a certain number of levels
+        Set this value to 0 to disable this feature
     */
+    const BONUS_LIFE_LEVELS = 0;
+    
     var score = 0;
     var level = 1;
     var lives = debug ? Infinity : STARTING_LIVES;
@@ -117,14 +117,6 @@
         Can the player ground pound bombs without any negative consequences?
     */
     var invincibleGroundPound = false;
-
-    /*
-        Enables or disables the bonus life feature after passing a certain amount of levels
-    */
-    var bonusLife = {
-        enabled: true,
-        numLevels: 10
-    };
     
     /*
         Provides a time limit on holding down the shift key to speed up
@@ -146,6 +138,8 @@
         Flag for whether the game is over
     */
     var isGameOver = false;
+
+    var bombGroundPounded = false;
     
     /*
         UP UP DOWN DOWN LEFT RIGHT LEFT RIGHT B A
@@ -321,7 +315,6 @@
     ];
     
     const specialInfoTextList = {
-        "2": "You can't ground pound bombs!",
         "4": "Be sure to take advantage of extra lives!",
         set: function() {
             if (this.hasOwnProperty(level)) {
@@ -353,6 +346,9 @@
     */
     function preload() {
         loading.innerHTML = (debug ? "Debug mode loading" : "Loading") + "... Please wait.";
+        if (console.time) {
+            console.time("Game loading time");
+        }
         
         for (let key in assets) {
             let subObject = assets[key];
@@ -512,7 +508,7 @@
             if (!invincible) {
                 lives--;
                 if (lives >= 1) {
-                    if (groundPounding && levelCheck(2)) {
+                    if (groundPounding && !bombGroundPounded) {
                         infoText.setText("Ouch!");
                     } else {
                         infoText.setText(lives + (lives > 1 ? " lives left!" : " life left! Better be careful!"));
@@ -521,7 +517,12 @@
                     invincible = true;
                     canDestroy = false;
                     wait(groundPounding ? MERCY_INVINCIBILITY_TIME / 2 : MERCY_INVINCIBILITY_TIME).then(function() {
-                        (groundPounding && levelCheck(2)) ? specialInfoTextList.set() : resetInfoText();
+                        if (groundPounding && !bombGroundPounded) {
+                            infoText.setText("You can't ground pound bombs!");
+                            bombGroundPounded = true;
+                        } else {
+                            resetInfoText();
+                        }
                         invincible = false;
                     });
                 } else {
@@ -566,20 +567,17 @@
             if (stars.countActive(true) === 0) {
                 if (level >= 1) level++;
                 
-                if (bonusLife.enabled) {
-                    let levels = bonusLife.numLevels;
-                    if (!daredevil && !debug && level % levels === 0) {
-                        lives++;
-                        if (sfxEnabled) this.sound.play('powerupcollect', {volume: POWER_UP_VOLUME});
-                        wait(5).then(function() {
-                            infoText.setText("You got an extra life for passing " + levels + (levels === 1 ? " level!" : " levels!"));
-                            invincible = true;
-                        });
-                        wait(2000).then(function() {
-                            resetInfoText();
-                            invincible = false;
-                        });
-                    }
+                if (BONUS_LIFE_LEVELS > 0 && !daredevil && !debug && level % BONUS_LIFE_LEVELS === 0) {
+                    lives++;
+                    if (sfxEnabled) this.sound.play('powerupcollect', {volume: POWER_UP_VOLUME});
+                    wait(5).then(function() {
+                        infoText.setText("You got an extra life for passing " + BONUS_LIFE_LEVELS + (BONUS_LIFE_LEVELS === 1 ? " level!" : " levels!"));
+                        invincible = true;
+                    });
+                    wait(2000).then(function() {
+                        resetInfoText();
+                        invincible = false;
+                    });
                 }
                 
                 stars.children.iterate(function(child) {
@@ -858,8 +856,8 @@
                 livesText.setTintFill(COLOR_WHITE);
                 levelText.setTintFill(COLOR_WHITE);
             } else if (e.keyCodes.equals(reverseKonami)) {
-                lives += 30;
-                infoText.setText("Lives increased by 30.");
+                lives += STARTING_LIVES;
+                infoText.setText("Lives increased by " + STARTING_LIVES + ".");
                 wait(2000).then(resetInfoText);
             } else if (e.keyCodes.equals([80, 79, 87, 69, 82, 85, 80, 83]) && debug) { //Code "p o w e r u p s" (debug)
                 for (let key in powerups) {
@@ -885,6 +883,10 @@
         });
         
         if (lives === 0) gameOver(this);
+
+        if (console.timeEnd) {
+            console.timeEnd("Game loading time");
+        }
     }
     
     /*
@@ -957,7 +959,7 @@
         assert(score >= 0, "Score cannot be negative");
         assert(lives >= 0, "Lives cannot be negative");
 
-        //!(canDestroy && !invincible)
+        //(!canDestroy || invincible) is equivalent to (canDestroy -> invincible)
         assert(!canDestroy || invincible, "canDestroy is true, but invincible is false");
         
         if (debug) {
