@@ -1,162 +1,7 @@
-/*
-    BEGIN UTILITY FUNCTIONS
-*/
-
-/*
- * Functions to detect mobile devices.
-*/
-var isMobile = {
-    android: function() {
-        return navigator.userAgent.match(/(?=.*Android)(?=.*Mobile)/i) !== null;
-    },
-    blackberry: function() {
-        return navigator.userAgent.match(/BlackBerry/i) !== null;
-    },
-    ios: function() {
-        return navigator.userAgent.match(/iPhone|iPod/i) !== null;
-    },
-    opera: function() {
-        return navigator.userAgent.match(/Opera Mini/i) !== null;
-    },
-    windows: function() {
-        return navigator.userAgent.match(/IEMobile/i) !== null || navigator.userAgent.match(/WPDesktop/i) !== null;
-    },
-    any: function() {
-        return isMobile.android() || isMobile.blackberry() || isMobile.ios() || isMobile.opera() || isMobile.windows();
-    }
-};
-
-
-/**
- * Asserts that a passed in boolean value is true. If not, throws an error with the passed in error message.
- * 
- * @param bool - the boolean value to test
- * @param message - the error message to display if bool is false.
-*/
-function assert(bool, message) {
-    if (!bool) {
-        throw new Error(message || "");
-    }
-}
-
-
-/**
- * Returns a new string consisting of the specified substring at the specified index of this string.
- * 
- * @param index - the specified index
- * @param string - the substring to insert
- * @return a new string consisting of the specified substring at the specified index of this string
-*/
-String.prototype.insertAt = function(index, string) {
-    return this.substring(0, index) + string + this.substring(index);
-};
-
-
-/**
- * Removes the element at the specified position in this array and shifts any subsequent elements to the left.
- * 
- * @param index - the index of the element to be removed
- * @return the element that was removed from this array
-*/
-Array.prototype.removeIndex = function(index) {
-    return this.splice(index, 1)[0];
-};
-
-
-/**
- * Removes the first occurrence of the specified element from this array, if it exists.
- * 
- * @param element - the element to be removed from this array, if it exists.
- * @return true if this array contained the specified element
-*/
-Array.prototype.removeElement = function(element) {
-    let i = this.indexOf(element);
-    if (i >= 0) {
-        this.removeIndex(i);
-        return true;
-    }
-    return false;
-};
-
-
-/**
- * Inserts the specified element at the specified index in this array.
- * 
- * @param index - index at which the specified element is to be inserted
- * @param element - element to be inserted
-*/
-Array.prototype.addAt = function(index, element) {
-    this.splice(index, 0, element);
-};
-
-
-/**
- * Returns true if and only if this array contains the specified element.
- * 
- * @param element - element whose presence in this array is to be tested
- * @return true if and only if this array contains the specified element
-*/
-Array.prototype.contains = function(element) {
-    return this.indexOf(element) >= 0;
-};
-
-
-/**
- * Removes all the elements from this array.
-*/
-Array.prototype.clear = function() {
-    this.length = 0;
-};
-
-
-/**
- * Compares the specified array with this array for equality. Two arrays are said to be equal if and only if 
- * they both have the same length and all corresponding pairs of elements in the two arrays are equal.
- * 
- * @param other - the array to be compared for equality with this array
- * @return true if the specified object is equal to this array
-*/
-Array.prototype.equals = function(other) {
-    if (this.length !== other.length) return false;
-    
-    var i = this.length;
-    while (i--) {
-        if (this[i] !== other[i]) return false;
-    }
-    return true;
-};
-
-
-/**
- * A static version of Array::equals.
- * 
- * @param arr1 - the first array to compare
- * @param arr2 - the second array to compare
- * @return true if arr1 equals arr2
-*/
-Array.equals = function(arr1, arr2) {
-    if (arr1.length !== arr2.length) return false;
-    
-    var i = arr1.length;
-    while (i--) {
-        if (arr1[i] !== arr2[i]) return false;
-    }
-    return true;
-};
-
-String.prototype.equals = Array.prototype.equals;
-
-/*
-    END UTILITY FUNCTIONS
-*/
-
-/*
-    GAME CODE
-*/
 (function() {
     'use strict';
     
-    //Not going to add mobile device support for this game.
+    //Not going to add mobile device support for this game
     if (isMobile.any()) {
         try {
             swal({
@@ -182,7 +27,7 @@ String.prototype.equals = Array.prototype.equals;
     });
     
     /*
-        Saves the player's high score in document.cookie when they exit or reload the page.
+        Saves the player's high score in document.cookie when they exit or reload the page
     */
     window.addEventListener("beforeunload", function(e) {
         if (!debug && score > highScore) {
@@ -191,10 +36,9 @@ String.prototype.equals = Array.prototype.equals;
     });
     
     /*
-        Toggle this to enable debugging mode.
+        Toggle this to enable debugging mode
     */
     var debug = false;
-    assert(debug === true || debug === false, "Debug variable is not a boolean");
     
     /*
         GAME OBJECT VARIABLES
@@ -239,40 +83,51 @@ String.prototype.equals = Array.prototype.equals;
     var lives = debug ? Infinity : STARTING_LIVES;
     var highScore = !isNaN(Number(document.cookie)) ? Number(document.cookie) : 0;
     
-    assert(lives >= 1, "Lives must be greater than or equal to 1");
-    
     /*
-        Prevents the player from repeatedly jumping if the up arrow key is constantly held down.
+        Prevents the player from repeatedly jumping if the up arrow key is constantly held down
     */
     var upKeyDown = false;
     
     /*
-        Represents whether the player has finished their jump.
+        Represents whether the player has finished their jump
     */
     var jumpEnabled = false;
     
     /*
-        When this is true, the player is unaffected by bombs.
-        
-        This however, by itself, doesn't allow the player to destroy any bomb on contact.
+        When this is true, the player is unaffected by bombs
+        This however, by itself, doesn't allow the player to destroy any bomb on contact
     */
     var invincible = false;
-    
+
     /*
-        This is true when a power-up that causes invincibility is collected. It stays true for the duration
-        of the power-up.
-    */
-    var invinciblePowerup = false;
-    
-    /*
-        When this is true, the player will be able to destroy any bomb on contact.
+        When this is true, the player will be able to destroy any bomb on contact
+        This boolean should NEVER be true if the player is not invincible
         
-        This boolean should NEVER be true if the player is not invincible.
+        canDestroy -> invincible, but it's not always the case that invincible -> canDestroy
     */
     var canDestroy = false;
     
     /*
-        Provides a time limit on holding down the shift key to speed up.
+        This is true when a power-up that causes invincibility is collected
+        It stays true for the duration of the power-up
+    */
+    var invinciblePowerup = false;
+
+    /*
+        Can the player ground pound bombs without any negative consequences?
+    */
+    var invincibleGroundPound = false;
+
+    /*
+        Enables or disables the bonus life feature after passing a certain amount of levels
+    */
+    var bonusLife = {
+        enabled: true,
+        numLevels: 10
+    };
+    
+    /*
+        Provides a time limit on holding down the shift key to speed up
     */
     var isTired = false;
     
@@ -280,12 +135,30 @@ String.prototype.equals = Array.prototype.equals;
         Daredevil mode: how far can you get with only one life and no power-ups?
     */
     var daredevil = false;
+
+    /*
+        Toggle these to enable or disable the background music or the sfx
+    */
+    var musicEnabled = false;
+    var sfxEnabled = true;
+
+    /*
+        Flag for whether the game is over
+    */
+    var isGameOver = false;
     
+    /*
+        UP UP DOWN DOWN LEFT RIGHT LEFT RIGHT B A
+    */
     const konami = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
+
+    /*
+        DOWN DOWN UP UP RIGHT LEFT RIGHT LEFT A B
+    */
     const reverseKonami = [40, 40, 38, 38, 39, 37, 39, 37, 65, 66];
     
     /*
-        SweetAlert's CDN includes a polyfill for ES6 promises, which allows this game to run in IE.
+        SweetAlert's CDN includes a polyfill for ES6 promises, which allows this game to run in IE
     */
     const wait = function(milliseconds) {
         return new Promise(function(resolve) {
@@ -318,29 +191,30 @@ String.prototype.equals = Array.prototype.equals;
     }
     
     /*
-        Called when lives < 1.
-        You can also call this explicitly if you want to manually trigger a game over.
+        Called when lives < 1
+        You can also call this explicitly if you want to manually trigger a game over
     */
     function gameOver(_this) {
         invincible = false; //Ignore any invincibility the player has
         lives = 0;
         despawnEverything();
         infoText.setText("You died! Refresh the page to try again.");
-        _this.sound.play("explosion");
+        if (sfxEnabled) _this.sound.play("explosion");
         _this.physics.shutdown(); //Stops the game
         _this.input.keyboard.removeAllListeners();
         _this.cameras.main.shake(500);
-        _this.sound.removeByKey("music"); //Stops the music
+        if (musicEnabled) _this.sound.removeByKey("music"); //Stops the music
         player.disableBody(true, true); 
         pause.visible = false;
         resume.visible = false;
         if (!debug && score > highScore) {
             document.cookie = score;
         }
+        isGameOver = true;
     }
     
     function levelCheck() {
-        let isLevel = false;
+        var isLevel = false;
         for (let i = 0; i < arguments.length; i++) {
             isLevel = isLevel || level === arguments[i];
         }
@@ -351,7 +225,7 @@ String.prototype.equals = Array.prototype.equals;
         CONFIGURATION
     */
     const canvas = {
-        type: Phaser.AUTO, //Defaults to WebGL if supported, otherwise canvas.
+        type: Phaser.AUTO, //Defaults to WebGL if supported, otherwise canvas
         width: 800,
         height: 600,
         
@@ -413,12 +287,17 @@ String.prototype.equals = Array.prototype.equals;
                 duration: 10000
             },
         },
-        
+
         sounds: {
-            explosion: 'assets/audio/explosion.mp3',
-            starcollect: 'assets/audio/starcollect.mp3',
-            powerupcollect: 'assets/audio/powerup.mp3',
-            music: 'assets/audio/music.mp3'
+            music: {
+                music: 'assets/audio/music.mp3'
+            },
+
+            sfx: {
+                explosion: 'assets/audio/explosion.mp3',
+                starcollect: 'assets/audio/starcollect.mp3',
+                powerupcollect: 'assets/audio/powerup.mp3'
+            }
         }
     };
     
@@ -457,9 +336,9 @@ String.prototype.equals = Array.prototype.equals;
     
     document.addEventListener("DOMContentLoaded", function(e) {
         var p = [
-            "Made with <a href='https://phaser.io/' target='_blank'>Phaser.JS</a>.",
-            "Music: <a href='https://youtu.be/UNTBGiMqcGc' target='_blank'>https://youtu.be/UNTBGiMqcGc</a>"
+            "Made with <a href='https://phaser.io/' target='_blank'>Phaser.JS</a>."
         ];
+        if (musicEnabled) p.push("Music: <a href='https://youtu.be/UNTBGiMqcGc' target='_blank'>https://youtu.be/UNTBGiMqcGc</a>");
         
         for (let i = 0; i < p.length; i++) {
             let paragraph = document.createElement("p");
@@ -485,7 +364,19 @@ String.prototype.equals = Array.prototype.equals;
                             this.load.image(subObject[key2]["key"], subObject[key2]["sprite"]);
                             break;
                         case 'sounds':
-                            this.load.audio(key2, subObject[key2]);
+                            if (!musicEnabled && !sfxEnabled) {
+                                break out;
+                            }
+                            if (musicEnabled) {
+                                for (let musicKey in subObject["music"]) {
+                                    this.load.audio(musicKey, subObject["music"][musicKey]);
+                                }
+                            }
+                            if (sfxEnabled) {
+                                for (let sfxKey in subObject["sfx"]) {
+                                    this.load.audio(sfxKey, subObject["sfx"][sfxKey]);
+                                }
+                            }
                             break;
                         default:
                             this.load.image(key, subObject);
@@ -528,8 +419,7 @@ String.prototype.equals = Array.prototype.equals;
             Init game info text
         */
         scoreText = this.add.text(16, 16, "Score: 0", { fontSize: '25px', fill: '#000'});
-        infoText = this.add.text(200, 16, "", {fontSize: '20px', fill: '#000'});
-        resetInfoText();
+        infoText = this.add.text(200, 16, infoTextList[0], {fontSize: '20px', fill: '#000'});
         livesText = this.add.text(16, 84, "Lives: " + lives, {fontSize: '25px', fill: '#000'});
         levelText = this.add.text(16, 50, "Level: " + level, {fontSize: '25px', fill: '#000'});
         highScoreText = this.add.text(16, 120, "High Score: " + highScore, {fontSize: '25px', fill: '#000'});
@@ -548,7 +438,7 @@ String.prototype.equals = Array.prototype.equals;
             Init player
         */
         player = this.physics.add.image(10, canvas.height - 220, 'player');
-        player.setBounce(BOUNCE_AMOUNT); //A small bounce upon landing
+        player.setBounce(BOUNCE_AMOUNT);
         player.setCollideWorldBounds(true); //Prevent the player from going out of bounds
         
         cursors = this.input.keyboard.createCursorKeys();
@@ -565,14 +455,14 @@ String.prototype.equals = Array.prototype.equals;
             key: 'star',
             
             /*
-                Change this number to control how many stars spawn. 
-                The numbers of stars spawned is the number here plus one.
-                If you increase this number, make sure to decrease stepX as well.
+                Change this number to control how many stars spawn
+                The numbers of stars spawned is the number here plus one
+                If you increase this number, make sure to decrease stepX as well
             */
-            repeat: 11, 
-            setXY: { 
-                x: 12, 
-                y: 0, 
+            repeat: 11,
+            setXY: {
+                x: 12,
+                y: 0,
                 stepX: 70
             },
             collider: true
@@ -603,7 +493,9 @@ String.prototype.equals = Array.prototype.equals;
             }
         }
         
-        this.sound.play("music", {loop: true, volume: MUSIC_VOLUME});
+        if (musicEnabled) {
+            this.sound.play("music", {loop: true, volume: MUSIC_VOLUME});
+        }
         
         /*
             ON DEATH
@@ -612,13 +504,10 @@ String.prototype.equals = Array.prototype.equals;
             if (canDestroy && !invincible) canDestroy = false;
             
             let groundPounding = !daredevil && cursors.down.isDown && !jumpEnabled && !invinciblePowerup;
-            
-            /*
-            if (groundPounding) {
+            if (invincibleGroundPound && groundPounding) {
                 invincible = true;
                 canDestroy = true;
             }
-            */
             
             if (!invincible) {
                 lives--;
@@ -642,18 +531,17 @@ String.prototype.equals = Array.prototype.equals;
                 bomb.disableBody(true, true);
                 score += 20;
                 
-                this.sound.play('starcollect', {
-                    volume: 0.25
-                });
+                if (sfxEnabled) {
+                    this.sound.play('starcollect', {
+                        volume: 0.25
+                    });
+                }
             }
-            
-            /*
-            if (groundPounding) {
+
+            if (invincibleGroundPound && groundPounding) {
                 invincible = false;
                 canDestroy = false;
             }
-            */
-            
         }, null, this);
         
         /*
@@ -666,24 +554,25 @@ String.prototype.equals = Array.prototype.equals;
                 highScoreText.setText("High Score: " + score);
             }
             
-            this.sound.play('starcollect', {
-                volume: 0.25
-            });
+            if (sfxEnabled) {
+                this.sound.play('starcollect', {
+                    volume: 0.25
+                });
+            }
             
             /*
-                Once the user collects all the stars, spawn 12 new stars and add 1 bomb into the game.
+                Once the user collects all the stars, spawn 12 new stars and add 1 bomb into the game
             */
             if (stars.countActive(true) === 0) {
                 if (level >= 1) level++;
                 
-                /*
-                {
-                    let levels = 10;
+                if (bonusLife.enabled) {
+                    let levels = bonusLife.numLevels;
                     if (!daredevil && !debug && level % levels === 0) {
                         lives++;
-                        this.sound.play('powerupcollect', {volume: POWER_UP_VOLUME});
+                        if (sfxEnabled) this.sound.play('powerupcollect', {volume: POWER_UP_VOLUME});
                         wait(5).then(function() {
-                            infoText.setText("You got an extra life for passing " + levels + " levels!");
+                            infoText.setText("You got an extra life for passing " + levels + (levels === 1 ? " level!" : " levels!"));
                             invincible = true;
                         });
                         wait(2000).then(function() {
@@ -692,7 +581,6 @@ String.prototype.equals = Array.prototype.equals;
                         });
                     }
                 }
-                */
                 
                 stars.children.iterate(function(child) {
                     child.enableBody(true, child.x, 0, true, true);
@@ -716,7 +604,7 @@ String.prototype.equals = Array.prototype.equals;
                 bomb.allowGravity = false;
                 
                 /*
-                    Spawn random power-ups occasionally starting from level 4, if not in daredevil mode.
+                    Spawn random power-ups occasionally starting from level 4, if not in daredevil mode
                 */
                 if (daredevil) return;
                 
@@ -742,8 +630,8 @@ String.prototype.equals = Array.prototype.equals;
                     }
                     
                 /*
-                    Spawns an extra life potion at level 4.
-                    This introduces the player to the concept of power-ups.
+                    Spawns an extra life potion at level 4
+                    This introduces the player to the concept of power-ups
                 */
                 } else if (levelCheck(4)) {
                     let oneUp = powerups["oneUp"]["ref"];
@@ -763,7 +651,7 @@ String.prototype.equals = Array.prototype.equals;
         */
         this.physics.add.overlap(player, powerups["oneUp"]["ref"], function(player, oneUp) {
             lives++;
-            this.sound.play('powerupcollect', {volume: POWER_UP_VOLUME});
+            if (sfxEnabled) this.sound.play('powerupcollect', {volume: POWER_UP_VOLUME});
             oneUp.disableBody(true, true);
             infoText.setText(levelCheck(4) ? "Nice!" : "You got an extra life!");
             wait(assets["powerups"]["oneUp"]["duration"]).then(function() {
@@ -775,7 +663,7 @@ String.prototype.equals = Array.prototype.equals;
                 invincible = true;
                 canDestroy = true;
                 invinciblePowerup = true;
-                this.sound.play('powerupcollect', {volume: POWER_UP_VOLUME});
+                if (sfxEnabled) this.sound.play('powerupcollect', {volume: POWER_UP_VOLUME});
                 infoText.setText("You obtained an invincibility potion! \nYou're invincible!");
                 invincibility.disableBody(true, true);
                 wait(assets["powerups"]["invincibility"]["duration"]).then(function() {
@@ -812,7 +700,7 @@ String.prototype.equals = Array.prototype.equals;
                 }
             }
             
-            this.sound.play('powerupcollect', {volume: POWER_UP_VOLUME});
+            if (sfxEnabled) this.sound.play('powerupcollect', {volume: POWER_UP_VOLUME});
             
             infoText.setText("Game objects stopped!");
             wait(assets["powerups"]["stop"]["duration"]).then(function() {
@@ -872,7 +760,7 @@ String.prototype.equals = Array.prototype.equals;
                 }
             }
             
-            this.sound.play('powerupcollect', {volume: POWER_UP_VOLUME});
+            if (sfxEnabled) this.sound.play('powerupcollect', {volume: POWER_UP_VOLUME});
             
             infoText.setText("Lives increased by one, \nyou are now invincible, \nand all game objects have been stopped!");
             
@@ -941,7 +829,7 @@ String.prototype.equals = Array.prototype.equals;
         });
         this.input.keyboard.createCombo("daredevil");
         this.input.keyboard.on('keycombomatch', function(e) {
-            if (daredevil) return; //Cheat codes do not work in daredevil mode.
+            if (daredevil) return; //Cheat codes do not work in daredevil mode
             
             if (e.keyCodes.equals(konami)) {
                 (function loop(messages, milliseconds, counter) {
@@ -996,20 +884,22 @@ String.prototype.equals = Array.prototype.equals;
             }
         });
         
-        if (lives <= 0) gameOver(this);
+        if (lives === 0) gameOver(this);
     }
     
     /*
         UPDATE LOOP
     */
     function update() {
+        if (isGameOver) return;
+
         livesText.setText("Lives: " + (!isFinite(lives) ? "∞" : lives));
         levelText.setText("Level: " + level);
         scoreText.setText('Score: ' + score);
         
         /*
-            Allows the player to move.
-            Speed increase when the shift key is held down.
+            Allows the player to move
+            Speed increases when the shift key is held down
         */
         if (!cursors.down.isDown) {
             if (cursors.shift.isDown && !isTired) {
@@ -1023,13 +913,13 @@ String.prototype.equals = Array.prototype.equals;
                     isTired = false;
                 });
             }
-        } else { //Allows the player to ground pound.
+        } else { //Allows the player to ground pound
             player.setVelocityX(0);
             player.setVelocityY(!jumpEnabled || !player.body.touching.down ? GROUND_POUND_SPEED : 0);
         }
         
         /*
-            Allows the player to jump.
+            Allows the player to jump
         */
         if (cursors.up.isDown) {
             if (!upKeyDown && jumpEnabled) {
@@ -1043,12 +933,12 @@ String.prototype.equals = Array.prototype.equals;
 
         /*
             Only allow the player to jump when they're standing on a platform
-            and not in the air.
+            and not in the air
         */
         jumpEnabled = player.body.touching.down;
         
         /*
-            If invincible, change the player's color to yellow.
+            If invincible, change the player's color to yellow
         */
         if (invincible && canDestroy) {
             player.setTintFill(COLOR_INVINCIBLE);
@@ -1059,12 +949,16 @@ String.prototype.equals = Array.prototype.equals;
         }
         
         /*
-            Prevents the player from getting stuck if they somehow accidentally clip through the bottom platform.
+            Prevents the player from getting stuck if they somehow accidentally clip through the bottom platform
         */
         if (player.y >= 530) player.y = 510;
         
         assert(level >= 1, "Invalid level number");
-        assert(score >= 0, "Invalid score");
+        assert(score >= 0, "Score cannot be negative");
+        assert(lives >= 0, "Lives cannot be negative");
+
+        //!(canDestroy && !invincible)
+        assert(!canDestroy || invincible, "canDestroy is true, but invincible is false");
         
         if (debug) {
             let fps = (Math.round(game.loop.actualFps * 100.0) / 100.0) + "";
