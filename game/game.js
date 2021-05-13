@@ -183,6 +183,15 @@
             }
         }
     }
+
+    function createBomb() {
+        let x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
+        let bomb = bombs.create(x, 16, 'bomb');
+        bomb.setBounce(1);
+        bomb.setCollideWorldBounds(true);
+        bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
+        bomb.allowGravity = false;
+    }
     
     /*
         Called when lives < 1
@@ -593,13 +602,7 @@
                 });
                 
                 resetInfoText();
-                
-                let x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
-                let bomb = bombs.create(x, 16, 'bomb');
-                bomb.setBounce(1);
-                bomb.setCollideWorldBounds(true);
-                bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
-                bomb.allowGravity = false;
+                createBomb();
                 
                 /*
                     Spawn random power-ups occasionally starting from level 4, if not in daredevil mode
@@ -818,18 +821,20 @@
         /*
             CHEAT CODES
         */
-        this.input.keyboard.createCombo(konami);
-        this.input.keyboard.createCombo(reverseKonami, {
-            resetOnMatch: true
-        });
-        this.input.keyboard.createCombo("powerups", {
-            resetOnMatch: true
-        });
-        this.input.keyboard.createCombo("daredevil");
-        this.input.keyboard.on('keycombomatch', function(e) {
-            if (daredevil) return; //Cheat codes do not work in daredevil mode
-            
-            if (e.keyCodes.equals(konami)) {
+        {
+            function keyCodes(input) {
+                var str = "";
+                var len = input.length;
+                for (let i = 0; i < len; i++) {
+                    str += input.toUpperCase().charCodeAt(i) + (i !== len - 1 ? "," : "");
+                }
+                return str;
+            }
+
+            var codesMap = new Map();
+            var repeatingCodesMap = new Map();
+
+            codesMap.set(konami + "", function() {
                 (function loop(messages, milliseconds, counter) {
                     infoText.setText(messages[counter]);
                     wait(milliseconds).then(counter < messages.length - 1 ? function() {
@@ -843,7 +848,7 @@
                     "Why did you enter this code?",
                     "Did you think it would help you out?",
                     "Nope, it actually kills you.",
-                    "LOL"
+                    "LOL",
                 ], 2000, 0);
                 
                 invincible = false;
@@ -855,23 +860,35 @@
                 infoText.setTintFill(COLOR_WHITE);
                 livesText.setTintFill(COLOR_WHITE);
                 levelText.setTintFill(COLOR_WHITE);
-            } else if (e.keyCodes.equals(reverseKonami)) {
+            });
+
+            repeatingCodesMap.set(reverseKonami + "", function() {
                 lives += STARTING_LIVES;
                 infoText.setText("Lives increased by " + STARTING_LIVES + ".");
                 wait(2000).then(resetInfoText);
-            } else if (e.keyCodes.equals([80, 79, 87, 69, 82, 85, 80, 83]) && debug) { //Code "p o w e r u p s" (debug)
-                for (let key in powerups) {
-                    if (powerups.hasOwnProperty(key)) {
-                        let powerUp = powerups[key]["ref"];
-                        let x = Phaser.Math.Between(10, canvas.width - 30), y = 10;
-                        powerUp.enableBody(true, x, y, true, true);
-                        powerUp.setBounce(1);
-                        powerUp.setVelocity(Phaser.Math.Between(-200, 200), 20);
-                        powerUp.allowGravity = false;
-                        powerUp.setCollideWorldBounds(true);
+            });
+
+            repeatingCodesMap.set(keyCodes("powerups"), function() {
+                if (debug) {
+                    for (let key in powerups) {
+                        if (powerups.hasOwnProperty(key)) {
+                            let powerUp = powerups[key]["ref"];
+                            let x = Phaser.Math.Between(10, canvas.width - 30), y = 10;
+                            powerUp.enableBody(true, x, y, true, true);
+                            powerUp.setBounce(1);
+                            powerUp.setVelocity(Phaser.Math.Between(-200, 200), 20);
+                            powerUp.allowGravity = false;
+                            powerUp.setCollideWorldBounds(true);
+                        }
                     }
                 }
-            } else if (e.keyCodes.equals([68, 65, 82, 69, 68, 69, 86, 73, 76])) { //Code "d a r e d e v i l"
+            });
+
+            repeatingCodesMap.set(keyCodes("bomb"), function() {
+                if (debug) createBomb();
+            });
+
+            codesMap.set(keyCodes("daredevil"), function() {
                 daredevil = true;
                 lives = 1;
                 despawnPowerUps();
@@ -879,11 +896,37 @@
                 infoText.setText("Daredevil mode activated!");
                 _this.add.text(620, 510, "Daredevil mode", {fontSize: '20px', fill: '#ff0000'});
                 wait(2000).then(resetInfoText);
-            }
-        });
+            });
+
+            codesMap.forEach(function(value, key) {
+                var codeArr = key.split(",").map(function(v) {
+                    return parseInt(v, 10);
+                });
+                _this.input.keyboard.createCombo(codeArr);
+            });
+
+            repeatingCodesMap.forEach(function(value, key) {
+                var codeArr = key.split(",").map(function(v) {
+                    return parseInt(v, 10);
+                });
+                _this.input.keyboard.createCombo(codeArr, {
+                    resetOnMatch: true
+                });
+            });
+
+            this.input.keyboard.on('keycombomatch', function(e) {
+                if (daredevil) return; //Cheat codes do not work in daredevil mode
+
+                var code = e.keyCodes + "";
+                if (codesMap.has(code)) {
+                    codesMap.get(code)();
+                } else {
+                    repeatingCodesMap.get(code)();
+                }
+            });
+        }
         
         if (lives === 0) gameOver(this);
-
         if (console.timeEnd) {
             console.timeEnd("Game loading time");
         }
