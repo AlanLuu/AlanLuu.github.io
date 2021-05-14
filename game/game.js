@@ -265,14 +265,14 @@
             ultimate: {
                 sprite: 'assets/ultimatepotion.png',
                 key: 'ultimate',
-                spawnRate: 0.05,
+                spawnRate: 0.0,
                 duration: 10000
             },
             
             stop: {
                 sprite: 'assets/stoppotion.png',
                 key: 'stop',
-                spawnRate: 0.6,
+                spawnRate: 0.0,
                 duration: 10000
             },
             
@@ -286,7 +286,7 @@
             invincibility: {
                 sprite: 'assets/invinciblepotion.png',
                 key: 'invincibility',
-                spawnRate: 0.2,
+                spawnRate: 0.0,
                 duration: 10000
             },
         },
@@ -311,7 +311,7 @@
         "Don't touch the bomb!",
         "Yikes! Another bomb!",
         "Hey look, a life potion! \nGrab it for an extra life!",
-        "Other powerups may occasionally spawn as \nwell. There are " + Object.keys(powerups).length + " of them. Be sure to take \nadvantage of those too!",
+        "Other powerups may or may not spawn \nas well. Be sure to take advantage of them \nif they spawn!",
         "Hey look, the stars move now!",
         "Does that make this game harder?",
         "Hey, this game wasn't meant to be easy.",
@@ -320,7 +320,8 @@
         "Ok, I'll stop.",
         "So, how was your day so far?",
         "Good? That's good.",
-        "Ok, I'm stopping for real this time!"
+        "Ok ok, I'm stopping for real this time!",
+        "Sheesh..."
     ];
     
     const specialInfoTextList = {
@@ -526,13 +527,18 @@
                     invincible = true;
                     canDestroy = false;
                     wait(groundPounding ? MERCY_INVINCIBILITY_TIME / 2 : MERCY_INVINCIBILITY_TIME).then(function() {
+                        invincible = false;
                         if (groundPounding && !bombGroundPounded) {
                             infoText.setText("You can't ground pound bombs!");
+                            invincible = true;
                             bombGroundPounded = true;
+                            wait(MERCY_INVINCIBILITY_TIME / 2).then(function() {
+                                resetInfoText();
+                                invincible = false;
+                            });
                         } else {
                             resetInfoText();
                         }
-                        invincible = false;
                     });
                 } else {
                     gameOver(_this);
@@ -860,6 +866,7 @@
                 infoText.setTintFill(COLOR_WHITE);
                 livesText.setTintFill(COLOR_WHITE);
                 levelText.setTintFill(COLOR_WHITE);
+                highScoreText.setTintFill(COLOR_WHITE);
             });
 
             repeatingCodesMap.set(reverseKonami + "", function() {
@@ -900,14 +907,14 @@
 
             codesMap.forEach(function(value, key) {
                 var codeArr = key.split(",").map(function(v) {
-                    return parseInt(v, 10);
+                    return window.parseInt(v, 10);
                 });
                 _this.input.keyboard.createCombo(codeArr);
             });
 
             repeatingCodesMap.forEach(function(value, key) {
                 var codeArr = key.split(",").map(function(v) {
-                    return parseInt(v, 10);
+                    return window.parseInt(v, 10);
                 });
                 _this.input.keyboard.createCombo(codeArr, {
                     resetOnMatch: true
@@ -938,7 +945,7 @@
     function update() {
         if (isGameOver) return;
 
-        livesText.setText("Lives: " + (!isFinite(lives) ? "∞" : lives));
+        livesText.setText("Lives: " + (!window.isFinite(lives) ? "∞" : lives));
         levelText.setText("Level: " + level);
         scoreText.setText('Score: ' + score);
         
