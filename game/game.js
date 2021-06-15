@@ -134,11 +134,6 @@
     var musicEnabled = false;
     var sfxEnabled = true;
 
-    /*
-        Flag for whether the game is over
-    */
-    var isGameOver = false;
-
     var bombGroundPounded = false;
     
     /*
@@ -213,7 +208,6 @@
         if (!debug && score > highScore) {
             document.cookie = score;
         }
-        isGameOver = true;
     }
     
     function levelCheck() {
@@ -828,23 +822,25 @@
             CHEAT CODES
         */
         {
-            function keyCodes(input) {
-                var str = "";
-                var len = input.length;
+            const ENTER = ",13";
+
+            function keyCodes(str) {
+                var result = "";
+                var len = str.length;
                 for (let i = 0; i < len; i++) {
-                    str += input.toUpperCase().charCodeAt(i) + (i !== len - 1 ? "," : "");
+                    result += str.toUpperCase().charCodeAt(i) + (i !== len - 1 ? "," : "");
                 }
-                return str;
+                return result;
             }
 
-            var codesMap = new Map();
-            var repeatingCodesMap = new Map();
+            let codesMap = new Map();
+            let repeatingCodesMap = new Map();
 
             codesMap.set(konami + "", function() {
-                (function loop(messages, milliseconds, counter) {
+                (function loop(messages, counter) {
                     infoText.setText(messages[counter]);
-                    wait(milliseconds).then(counter < messages.length - 1 ? function() {
-                        loop(messages, milliseconds, ++counter);
+                    wait(2000).then(counter < messages.length - 1 ? function() {
+                        loop(messages, ++counter);
                     } : function() {
                         gameOver(_this);
                     });
@@ -854,8 +850,8 @@
                     "Why did you enter this code?",
                     "Did you think it would help you out?",
                     "Nope, it actually kills you.",
-                    "LOL",
-                ], 2000, 0);
+                    "LOL"
+                ], 0);
                 
                 invincible = false;
                 pause.visible = false;
@@ -905,20 +901,23 @@
                 wait(2000).then(resetInfoText);
             });
 
+            codesMap.set(keyCodes("kill") + ENTER, function() {
+                gameOver(_this);
+            });
+            codesMap.set(keyCodes("die") + ENTER, codesMap.get(keyCodes("kill") + ENTER));
+
             codesMap.forEach(function(value, key) {
-                var codeArr = key.split(",").map(function(v) {
-                    return window.parseInt(v, 10);
+                var codeArr = key.split(",").map(function(element) {
+                    return window.parseInt(element, 10);
                 });
                 _this.input.keyboard.createCombo(codeArr);
             });
 
             repeatingCodesMap.forEach(function(value, key) {
-                var codeArr = key.split(",").map(function(v) {
-                    return window.parseInt(v, 10);
+                var codeArr = key.split(",").map(function(element) {
+                    return window.parseInt(element, 10);
                 });
-                _this.input.keyboard.createCombo(codeArr, {
-                    resetOnMatch: true
-                });
+                _this.input.keyboard.createCombo(codeArr, {resetOnMatch: true});
             });
 
             this.input.keyboard.on('keycombomatch', function(e) {
@@ -943,8 +942,6 @@
         UPDATE LOOP
     */
     function update() {
-        if (isGameOver) return;
-
         livesText.setText("Lives: " + (!window.isFinite(lives) ? "∞" : lives));
         levelText.setText("Level: " + level);
         scoreText.setText('Score: ' + score);
