@@ -58,19 +58,37 @@
     var highScoreText;
     var fpsDebugText;
     
-    const BOUNCE_AMOUNT = 0;
-    const COLOR_RED = 0xff0000;
-    const COLOR_INVINCIBLE = 0xffff00;
-    const COLOR_MERCY = 0xffab00;
-    const COLOR_WHITE = 0xffffff;
-    const GROUND_POUND_SPEED = 500;
-    const JUMP_STRENGTH = 330;
-    const MERCY_INVINCIBILITY_TIME = 3000;
-    const MUSIC_VOLUME = 1.0;
-    const POWER_UP_VOLUME = 0.3;
-    const RUNNING_SPEED = 250;
+    /*
+        CONSTANTS
+    */
+    const COLOR = Object.freeze({
+        RED: 0xff0000,
+        WHITE: 0xffffff,
+        ARMOR: 0x64eb34,
+        INVINCIBLE: 0xffff00,
+        MERCY: 0xffab00
+    });
+    const TIME = Object.freeze({
+        MERCY: 3000,
+        MESSAGE: 2000,
+        RUNNING: 5000
+    });
+    const SPEED = Object.freeze({
+        WALK: 160,
+        RUN: 250,
+        JUMP: 330,
+        BOUNCE: 0,
+        GROUND_POUND: 500
+    });
+    const VOLUME = Object.freeze({
+        MUSIC: 1.0,
+        POWER_UP: 0.3
+    });
+
+    /*
+        Number of lives the player starts with
+    */
     const STARTING_LIVES = 5;
-    const WALKING_SPEED = 160;
 
     /*
         Rewards the player with an extra life after passing a certain number of levels
@@ -134,17 +152,21 @@
     var musicEnabled = false;
     var sfxEnabled = true;
 
-    var bombGroundPounded = false;
-    
     /*
-        UP UP DOWN DOWN LEFT RIGHT LEFT RIGHT B A
+        Flag that represents whether the user attempted to ground-pound a bomb
+        If true, show a special message to the user regarding ground-pounding bombs
     */
-    const konami = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
+    var bombGroundPounded = false;
 
     /*
-        DOWN DOWN UP UP RIGHT LEFT RIGHT LEFT A B
+        Flag that represents if the game is over
     */
-    const reverseKonami = [40, 40, 38, 38, 39, 37, 39, 37, 65, 66];
+    var gameIsOver = false;
+
+    /*
+        When this is true, the player can absorb one hit from a bomb
+    */
+    var hasArmor = false;
     
     /*
         SweetAlert's CDN includes a polyfill for ES6 promises, which allows this game to run in IE
@@ -193,6 +215,7 @@
         You can also call this explicitly if you want to manually trigger a game over
     */
     function gameOver(_this) {
+        gameIsOver = true;
         invincible = false; //Ignore any invincibility the player has
         lives = 0;
         despawnEverything();
@@ -259,14 +282,21 @@
             ultimate: {
                 sprite: 'assets/ultimatepotion.png',
                 key: 'ultimate',
-                spawnRate: 0.0,
+                spawnRate: 0.05,
                 duration: 10000
             },
-            
-            stop: {
-                sprite: 'assets/stoppotion.png',
-                key: 'stop',
-                spawnRate: 0.0,
+
+            armor: {
+                sprite: 'assets/armorpotion.png',
+                key: 'armor',
+                spawnRate: 0.4,
+                duration: TIME.MERCY / 2
+            },
+
+            invincibility: {
+                sprite: 'assets/invinciblepotion.png',
+                key: 'invincibility',
+                spawnRate: 0.3,
                 duration: 10000
             },
             
@@ -274,12 +304,12 @@
                 sprite: 'assets/lifepotion.png',
                 key: '1up',
                 spawnRate: 0.6,
-                duration: MERCY_INVINCIBILITY_TIME / 2
+                duration: TIME.MERCY / 2
             },
-            
-            invincibility: {
-                sprite: 'assets/invinciblepotion.png',
-                key: 'invincibility',
+
+            stop: {
+                sprite: 'assets/stopobject.png',
+                key: 'stop',
                 spawnRate: 0.0,
                 duration: 10000
             },
@@ -314,20 +344,8 @@
         "Ok, I'll stop.",
         "So, how was your day so far?",
         "Good? That's good.",
-        "Ok ok, I'm stopping for real this time!",
-        "Sheesh..."
+        "Ok ok, I'm stopping for real this time! \n\nSheesh...",
     ];
-    
-    const specialInfoTextList = {
-        "4": "Be sure to take advantage of extra lives!",
-        set: function() {
-            if (this.hasOwnProperty(level)) {
-                infoText.setText(this[level]);
-            } else {
-                throw new Error("Invalid level value");
-            }
-        }
-    };
     
     const game = new Phaser.Game(canvas); //Actually load the canvas
     
@@ -350,7 +368,7 @@
     */
     function preload() {
         loading.innerHTML = (debug ? "Debug mode loading" : "Loading") + "... Please wait.";
-        if (console.time) {
+        if (debug && console.time) {
             console.time("Game loading time");
         }
         
@@ -385,10 +403,12 @@
                 }
             }
         }
-        
-        if (debug) console.log("Debug mode enabled");
-        console.log("Documentation: https://photonstorm.github.io/phaser3-docs/index.html");
-        console.log("Uncompressed engine code: https://cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js");
+
+        if (debug) {
+            console.log("Debug mode enabled");
+            console.log("Documentation: https://photonstorm.github.io/phaser3-docs/index.html");
+            console.log("Uncompressed engine code: https://cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js");
+        }
     }
     
     function create() {
@@ -438,7 +458,7 @@
             Init player
         */
         player = this.physics.add.image(10, canvas.height - 220, 'player');
-        player.setBounce(BOUNCE_AMOUNT);
+        player.setBounce(SPEED.BOUNCE);
         player.setCollideWorldBounds(true); //Prevent the player from going out of bounds
         
         cursors = this.input.keyboard.createCursorKeys();
@@ -494,7 +514,7 @@
         }
         
         if (musicEnabled) {
-            this.sound.play("music", {loop: true, volume: MUSIC_VOLUME});
+            this.sound.play("music", {loop: true, volume: VOLUME.MUSIC});
         }
         
         /*
@@ -510,32 +530,43 @@
             }
             
             if (!invincible) {
-                lives--;
-                if (lives >= 1) {
-                    if (groundPounding && !bombGroundPounded) {
-                        infoText.setText("Ouch!");
-                    } else {
-                        infoText.setText(lives + (lives > 1 ? " lives left!" : " life left! Better be careful!"));
-                    }
-                    player.setPosition(10, canvas.height - 80);
+                if (hasArmor) {
+                    infoText.setText("The armor absorbed damage!");
+                    hasArmor = false;
                     invincible = true;
                     canDestroy = false;
-                    wait(groundPounding ? MERCY_INVINCIBILITY_TIME / 2 : MERCY_INVINCIBILITY_TIME).then(function() {
+                    wait(TIME.MERCY).then(function() {
                         invincible = false;
-                        if (groundPounding && !bombGroundPounded) {
-                            infoText.setText("You can't ground pound bombs!");
-                            invincible = true;
-                            bombGroundPounded = true;
-                            wait(MERCY_INVINCIBILITY_TIME / 2).then(function() {
-                                resetInfoText();
-                                invincible = false;
-                            });
-                        } else {
-                            resetInfoText();
-                        }
+                        resetInfoText();
                     });
                 } else {
-                    gameOver(_this);
+                    lives--;
+                    if (lives >= 1) {
+                        if (groundPounding && !bombGroundPounded) {
+                            infoText.setText("Ouch!");
+                        } else {
+                            infoText.setText(lives + (lives > 1 ? " lives left!" : " life left! Better be careful!"));
+                        }
+                        player.setPosition(10, canvas.height - 80);
+                        invincible = true;
+                        canDestroy = false;
+                        wait(groundPounding ? TIME.MERCY / 2 : TIME.MERCY).then(function() {
+                            invincible = false;
+                            if (groundPounding && !bombGroundPounded) {
+                                infoText.setText("You can't ground pound bombs!");
+                                invincible = true;
+                                bombGroundPounded = true;
+                                wait(TIME.MERCY / 2).then(function() {
+                                    resetInfoText();
+                                    invincible = false;
+                                });
+                            } else {
+                                resetInfoText();
+                            }
+                        });
+                    } else {
+                        gameOver(_this);
+                    }
                 }
             } else if (canDestroy) {
                 bomb.disableBody(true, true);
@@ -576,14 +607,17 @@
             if (stars.countActive(true) === 0) {
                 if (level >= 1) level++;
                 
+                /*
+                    Bonus life implementation
+                */
                 if (BONUS_LIFE_LEVELS > 0 && !daredevil && !debug && level % BONUS_LIFE_LEVELS === 0) {
                     lives++;
-                    if (sfxEnabled) this.sound.play('powerupcollect', {volume: POWER_UP_VOLUME});
+                    if (sfxEnabled) this.sound.play('powerupcollect', {volume: VOLUME.POWER_UP});
                     wait(5).then(function() {
                         infoText.setText("You got an extra life for passing " + BONUS_LIFE_LEVELS + (BONUS_LIFE_LEVELS === 1 ? " level!" : " levels!"));
                         invincible = true;
                     });
-                    wait(2000).then(function() {
+                    wait(TIME.MESSAGE).then(function() {
                         resetInfoText();
                         invincible = false;
                     });
@@ -603,13 +637,9 @@
                 
                 resetInfoText();
                 createBomb();
-                
-                /*
-                    Spawn random power-ups occasionally starting from level 4, if not in daredevil mode
-                */
+
                 if (daredevil) return;
-                
-                if (level > 4) {
+                if (level > 5) {
                     for (let key in powerups) {
                         if (powerups.hasOwnProperty(key)) {
                             let powerUp = powerups[key]["ref"];
@@ -643,28 +673,51 @@
                     oneUp.setVelocity(Phaser.Math.Between(-200, 200), 20);
                     oneUp.allowGravity = false;
                     oneUp.setCollideWorldBounds(true);
+                
+                /*
+                    50% chance to spawn an armor potion on level 5
+                */
+                } else if (levelCheck(5)) {
+                    let randomNumber = Math.floor(Math.random() * 100) / 100;
+                    if (randomNumber < 0.5) {
+                        let armor = powerups["armor"]["ref"];
+                        let x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
+                        let y = 10;
+                        armor.enableBody(true, x, y, true, true);
+                        armor.setBounce(1);
+                        armor.setVelocity(Phaser.Math.Between(-200, 200), 20);
+                        armor.allowGravity = false;
+                        armor.setCollideWorldBounds(true);
+                    }
                 }
             } 
         }, null, this);
         
         /*
-            POWER-UPS 
+            POWER-UPS
         */
         this.physics.add.overlap(player, powerups["oneUp"]["ref"], function(player, oneUp) {
             lives++;
-            if (sfxEnabled) this.sound.play('powerupcollect', {volume: POWER_UP_VOLUME});
+            if (sfxEnabled) this.sound.play('powerupcollect', {volume: VOLUME.POWER_UP});
             oneUp.disableBody(true, true);
             infoText.setText(levelCheck(4) ? "Nice!" : "You got an extra life!");
             wait(assets["powerups"]["oneUp"]["duration"]).then(function() {
-                levelCheck(4) ? specialInfoTextList.set() : resetInfoText();
+                levelCheck(4) ? infoText.setText("Be sure to take advantage of extra lives!") : resetInfoText();
             });
+        }, null, this);
+        this.physics.add.overlap(player, powerups["armor"]["ref"], function(player, armor) {
+            hasArmor = true;
+            if (sfxEnabled) this.sound.play('powerupcollect', {volume: VOLUME.POWER_UP});
+            infoText.setText("You gained some armor!");
+            armor.disableBody(true, true);
+            wait(assets["powerups"]["armor"]["duration"]).then(resetInfoText);
         }, null, this);
         this.physics.add.overlap(player, powerups["invincibility"]["ref"], function(player, invincibility) {
             if (!invincible && !canDestroy) {
                 invincible = true;
                 canDestroy = true;
                 invinciblePowerup = true;
-                if (sfxEnabled) this.sound.play('powerupcollect', {volume: POWER_UP_VOLUME});
+                if (sfxEnabled) this.sound.play('powerupcollect', {volume: VOLUME.POWER_UP});
                 infoText.setText("You obtained an invincibility potion! \nYou're invincible!");
                 invincibility.disableBody(true, true);
                 wait(assets["powerups"]["invincibility"]["duration"]).then(function() {
@@ -701,7 +754,7 @@
                 }
             }
             
-            if (sfxEnabled) this.sound.play('powerupcollect', {volume: POWER_UP_VOLUME});
+            if (sfxEnabled) this.sound.play('powerupcollect', {volume: VOLUME.POWER_UP});
             
             infoText.setText("Game objects stopped!");
             wait(assets["powerups"]["stop"]["duration"]).then(function() {
@@ -761,7 +814,7 @@
                 }
             }
             
-            if (sfxEnabled) this.sound.play('powerupcollect', {volume: POWER_UP_VOLUME});
+            if (sfxEnabled) this.sound.play('powerupcollect', {volume: VOLUME.POWER_UP});
             
             infoText.setText("Lives increased by one, \nyou are now invincible, \nand all game objects have been stopped!");
             
@@ -832,14 +885,20 @@
                 }
                 return result;
             }
+            function keyCodesPlusEnter(str) {
+                return keyCodes(str) + ENTER;
+            }
 
             let codesMap = new Map();
             let repeatingCodesMap = new Map();
 
-            codesMap.set(konami + "", function() {
+            /*
+                Implementation for each cheat code
+            */
+            codesMap.set("38,38,40,40,37,39,37,39,66,65", function() { //Konami code
                 (function loop(messages, counter) {
                     infoText.setText(messages[counter]);
-                    wait(2000).then(counter < messages.length - 1 ? function() {
+                    wait(TIME.MESSAGE).then(counter < messages.length - 1 ? function() {
                         loop(messages, ++counter);
                     } : function() {
                         gameOver(_this);
@@ -855,22 +914,21 @@
                 
                 invincible = false;
                 pause.visible = false;
+                gameIsOver = true;
                 despawnEverything();
-                background.setTint(COLOR_RED);
-                player.setTintFill(COLOR_RED);
-                scoreText.setTintFill(COLOR_WHITE);
-                infoText.setTintFill(COLOR_WHITE);
-                livesText.setTintFill(COLOR_WHITE);
-                levelText.setTintFill(COLOR_WHITE);
-                highScoreText.setTintFill(COLOR_WHITE);
+                background.setTint(COLOR.RED);
+                player.setTintFill(COLOR.RED);
+                scoreText.setTintFill(COLOR.WHITE);
+                infoText.setTintFill(COLOR.WHITE);
+                livesText.setTintFill(COLOR.WHITE);
+                levelText.setTintFill(COLOR.WHITE);
+                highScoreText.setTintFill(COLOR.WHITE);
             });
-
-            repeatingCodesMap.set(reverseKonami + "", function() {
+            repeatingCodesMap.set("40,40,38,38,39,37,39,37,65,66", function() { //Reverse konami code
                 lives += STARTING_LIVES;
                 infoText.setText("Lives increased by " + STARTING_LIVES + ".");
-                wait(2000).then(resetInfoText);
+                wait(TIME.MESSAGE).then(resetInfoText);
             });
-
             repeatingCodesMap.set(keyCodes("powerups"), function() {
                 if (debug) {
                     for (let key in powerups) {
@@ -886,40 +944,37 @@
                     }
                 }
             });
-
             repeatingCodesMap.set(keyCodes("bomb"), function() {
                 if (debug) createBomb();
             });
-
-            codesMap.set(keyCodes("daredevil"), function() {
+            codesMap.set(keyCodesPlusEnter("daredevil"), function() {
                 daredevil = true;
                 lives = 1;
                 despawnPowerUps();
                 infoTextList[3] = infoTextList[4] = "";
                 infoText.setText("Daredevil mode activated!");
                 _this.add.text(620, 510, "Daredevil mode", {fontSize: '20px', fill: '#ff0000'});
-                wait(2000).then(resetInfoText);
+                wait(TIME.MESSAGE).then(resetInfoText);
             });
-
-            codesMap.set(keyCodes("kill") + ENTER, function() {
+            codesMap.set(keyCodesPlusEnter("kill"), function() {
                 gameOver(_this);
             });
-            codesMap.set(keyCodes("die") + ENTER, codesMap.get(keyCodes("kill") + ENTER));
 
+            /*
+                Make the game recognize each cheat code
+            */
             codesMap.forEach(function(value, key) {
                 var codeArr = key.split(",").map(function(element) {
                     return window.parseInt(element, 10);
                 });
                 _this.input.keyboard.createCombo(codeArr);
             });
-
             repeatingCodesMap.forEach(function(value, key) {
                 var codeArr = key.split(",").map(function(element) {
                     return window.parseInt(element, 10);
                 });
                 _this.input.keyboard.createCombo(codeArr, {resetOnMatch: true});
             });
-
             this.input.keyboard.on('keycombomatch', function(e) {
                 if (daredevil) return; //Cheat codes do not work in daredevil mode
 
@@ -933,7 +988,7 @@
         }
         
         if (lives === 0) gameOver(this);
-        if (console.timeEnd) {
+        if (debug && console.timeEnd) {
             console.timeEnd("Game loading time");
         }
     }
@@ -945,73 +1000,77 @@
         livesText.setText("Lives: " + (!window.isFinite(lives) ? "∞" : lives));
         levelText.setText("Level: " + level);
         scoreText.setText('Score: ' + score);
-        
-        /*
-            Allows the player to move
-            Speed increases when the shift key is held down
-        */
-        if (!cursors.down.isDown) {
-            if (cursors.shift.isDown && !isTired) {
-                player.setVelocityX(cursors.left.isDown ? -RUNNING_SPEED : cursors.right.isDown ? RUNNING_SPEED : 0);
-                wait(5000).then(function() {
-                    if (cursors.shift.isDown) isTired = true;
-                });
+
+        if (!gameIsOver) {
+            /*
+                Allows the player to move
+                Speed increases when the shift key is held down
+            */
+            if (!cursors.down.isDown) {
+                if (cursors.shift.isDown && !isTired) {
+                    player.setVelocityX(cursors.left.isDown ? -SPEED.RUN : cursors.right.isDown ? SPEED.RUN : 0);
+                    wait(TIME.RUNNING).then(function() {
+                        if (cursors.shift.isDown) isTired = true;
+                    });
+                } else {
+                    player.setVelocityX(cursors.left.isDown ? -SPEED.WALK : cursors.right.isDown ? SPEED.WALK : 0);
+                    wait(TIME.RUNNING).then(function() {
+                        isTired = false;
+                    });
+                }
+            } else { //Allows the player to ground pound
+                player.setVelocityX(0);
+                player.setVelocityY(!jumpEnabled || !player.body.touching.down ? SPEED.GROUND_POUND : 0);
+            }
+            
+            /*
+                Allows the player to jump
+            */
+            if (cursors.up.isDown) {
+                if (!upKeyDown && jumpEnabled) {
+                    player.setVelocityY(-SPEED.JUMP);
+                    jumpEnabled = false;
+                }
+                upKeyDown = true;
             } else {
-                player.setVelocityX(cursors.left.isDown ? -WALKING_SPEED : cursors.right.isDown ? WALKING_SPEED : 0);
-                wait(5000).then(function() {
-                    isTired = false;
-                });
+                upKeyDown = false;
             }
-        } else { //Allows the player to ground pound
-            player.setVelocityX(0);
-            player.setVelocityY(!jumpEnabled || !player.body.touching.down ? GROUND_POUND_SPEED : 0);
-        }
-        
-        /*
-            Allows the player to jump
-        */
-        if (cursors.up.isDown) {
-            if (!upKeyDown && jumpEnabled) {
-                player.setVelocityY(-JUMP_STRENGTH);
-                jumpEnabled = false;
+
+            /*
+                Only allow the player to jump when they're standing on a platform
+                and not in the air
+            */
+            jumpEnabled = player.body.touching.down;
+            
+            /*
+                If invincible, change the player's color to yellow
+            */
+            if (hasArmor) {
+                player.setTintFill(COLOR.ARMOR);
+            } else if (invincible && canDestroy) {
+                player.setTintFill(COLOR.INVINCIBLE);
+            } else if (invincible) {
+                player.setTintFill(COLOR.MERCY);
+            } else {
+                player.clearTint();
             }
-            upKeyDown = true;
-        } else {
-            upKeyDown = false;
-        }
+            
+            /*
+                Prevents the player from getting stuck if they somehow accidentally clip through the bottom platform
+            */
+            if (player.y >= 530) player.y = 510;
+            
+            assert(level >= 1, "Invalid level number");
+            assert(score >= 0, "Score cannot be negative");
+            assert(lives >= 0, "Lives cannot be negative");
 
-        /*
-            Only allow the player to jump when they're standing on a platform
-            and not in the air
-        */
-        jumpEnabled = player.body.touching.down;
-        
-        /*
-            If invincible, change the player's color to yellow
-        */
-        if (invincible && canDestroy) {
-            player.setTintFill(COLOR_INVINCIBLE);
-        } else if (invincible) {
-            player.setTintFill(COLOR_MERCY);
-        } else {
-            player.clearTint();
-        }
-        
-        /*
-            Prevents the player from getting stuck if they somehow accidentally clip through the bottom platform
-        */
-        if (player.y >= 530) player.y = 510;
-        
-        assert(level >= 1, "Invalid level number");
-        assert(score >= 0, "Score cannot be negative");
-        assert(lives >= 0, "Lives cannot be negative");
-
-        //(!canDestroy || invincible) is equivalent to (canDestroy -> invincible)
-        assert(!canDestroy || invincible, "canDestroy is true, but invincible is false");
-        
-        if (debug) {
-            let fps = (Math.round(game.loop.actualFps * 100.0) / 100.0) + "";
-            fpsDebugText.setText("FPS: " + (fps.length === 4 ? fps + "0" : fps));
+            //(!canDestroy || invincible) is equivalent to (canDestroy -> invincible)
+            assert(!canDestroy || invincible, "canDestroy is true, but invincible is false");
+            
+            if (debug) {
+                let fps = (Math.round(game.loop.actualFps * 100.0) / 100.0) + "";
+                fpsDebugText.setText("FPS: " + (fps.length === 4 ? fps + "0" : fps));
+            }
         }
     }
 })();
