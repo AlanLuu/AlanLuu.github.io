@@ -132,7 +132,8 @@
     var invinciblePowerup = false;
 
     /*
-        Can the player ground pound bombs without any negative consequences?
+        If this variable is true, the player can ground pound bombs without any consequences
+        This variable is always false in daredevil mode
     */
     var invincibleGroundPound = false;
     
@@ -523,50 +524,45 @@
         this.physics.add.collider(player, bombs, function(player, bomb) {
             if (canDestroy && !invincible) canDestroy = false;
             
-            let groundPounding = !daredevil && cursors.down.isDown && !jumpEnabled && !invinciblePowerup;
+            let groundPounding = cursors.down.isDown && !jumpEnabled && !invinciblePowerup;
             if (invincibleGroundPound && groundPounding) {
                 invincible = true;
                 canDestroy = true;
             }
-            
-            if (!invincible) {
-                if (hasArmor) {
-                    infoText.setText("The armor absorbed damage!");
-                    hasArmor = false;
+
+            if (!invincible && hasArmor) {
+                infoText.setText("The armor absorbed damage!");
+                hasArmor = false;
+                invincible = true;
+                canDestroy = false;
+                wait(TIME.MERCY).then(function() {
+                    invincible = false;
+                    resetInfoText();
+                });
+            } else if (!invincible) {
+                lives--;
+                if (lives >= 1) {
+                    let ouch = groundPounding && !bombGroundPounded;
+                    infoText.setText(ouch ? "Ouch!" : lives + (lives > 1 ? " lives left!" : " life left! Better be careful!"));
+                    player.setPosition(10, canvas.height - 80);
                     invincible = true;
                     canDestroy = false;
-                    wait(TIME.MERCY).then(function() {
+                    wait(TIME.MERCY / (ouch ? 2 : 1)).then(function() {
                         invincible = false;
-                        resetInfoText();
+                        if (ouch) {
+                            infoText.setText("You can't ground pound bombs!");
+                            invincible = true;
+                            bombGroundPounded = true;
+                            wait(TIME.MERCY).then(function() {
+                                resetInfoText();
+                                invincible = false;
+                            });
+                        } else {
+                            resetInfoText();
+                        }
                     });
                 } else {
-                    lives--;
-                    if (lives >= 1) {
-                        if (groundPounding && !bombGroundPounded) {
-                            infoText.setText("Ouch!");
-                        } else {
-                            infoText.setText(lives + (lives > 1 ? " lives left!" : " life left! Better be careful!"));
-                        }
-                        player.setPosition(10, canvas.height - 80);
-                        invincible = true;
-                        canDestroy = false;
-                        wait(groundPounding ? TIME.MERCY / 2 : TIME.MERCY).then(function() {
-                            invincible = false;
-                            if (groundPounding && !bombGroundPounded) {
-                                infoText.setText("You can't ground pound bombs!");
-                                invincible = true;
-                                bombGroundPounded = true;
-                                wait(TIME.MERCY / 2).then(function() {
-                                    resetInfoText();
-                                    invincible = false;
-                                });
-                            } else {
-                                resetInfoText();
-                            }
-                        });
-                    } else {
-                        gameOver(_this);
-                    }
+                    gameOver(_this);
                 }
             } else if (canDestroy) {
                 bomb.disableBody(true, true);
@@ -875,8 +871,6 @@
             CHEAT CODES
         */
         {
-            const ENTER = ",13";
-
             function keyCodes(str) {
                 var result = "";
                 var len = str.length;
@@ -886,7 +880,7 @@
                 return result;
             }
             function keyCodesPlusEnter(str) {
-                return keyCodes(str) + ENTER;
+                return keyCodes(str) + ",13";
             }
 
             let codesMap = new Map();
@@ -952,6 +946,7 @@
                 lives = 1;
                 despawnPowerUps();
                 infoTextList[3] = infoTextList[4] = "";
+                invincibleGroundPound = false;
                 infoText.setText("Daredevil mode activated!");
                 _this.add.text(620, 510, "Daredevil mode", {fontSize: '20px', fill: '#ff0000'});
                 wait(TIME.MESSAGE).then(resetInfoText);
@@ -1000,77 +995,76 @@
         livesText.setText("Lives: " + (!window.isFinite(lives) ? "∞" : lives));
         levelText.setText("Level: " + level);
         scoreText.setText('Score: ' + score);
+        if (gameIsOver) return;
 
-        if (!gameIsOver) {
-            /*
-                Allows the player to move
-                Speed increases when the shift key is held down
-            */
-            if (!cursors.down.isDown) {
-                if (cursors.shift.isDown && !isTired) {
-                    player.setVelocityX(cursors.left.isDown ? -SPEED.RUN : cursors.right.isDown ? SPEED.RUN : 0);
-                    wait(TIME.RUNNING).then(function() {
-                        if (cursors.shift.isDown) isTired = true;
-                    });
-                } else {
-                    player.setVelocityX(cursors.left.isDown ? -SPEED.WALK : cursors.right.isDown ? SPEED.WALK : 0);
-                    wait(TIME.RUNNING).then(function() {
-                        isTired = false;
-                    });
-                }
-            } else { //Allows the player to ground pound
-                player.setVelocityX(0);
-                player.setVelocityY(!jumpEnabled || !player.body.touching.down ? SPEED.GROUND_POUND : 0);
-            }
-            
-            /*
-                Allows the player to jump
-            */
-            if (cursors.up.isDown) {
-                if (!upKeyDown && jumpEnabled) {
-                    player.setVelocityY(-SPEED.JUMP);
-                    jumpEnabled = false;
-                }
-                upKeyDown = true;
+        /*
+            Allows the player to move
+            Speed increases when the shift key is held down
+        */
+        if (!cursors.down.isDown) {
+            if (cursors.shift.isDown && !isTired) {
+                player.setVelocityX(cursors.left.isDown ? -SPEED.RUN : cursors.right.isDown ? SPEED.RUN : 0);
+                wait(TIME.RUNNING).then(function() {
+                    if (cursors.shift.isDown) isTired = true;
+                });
             } else {
-                upKeyDown = false;
+                player.setVelocityX(cursors.left.isDown ? -SPEED.WALK : cursors.right.isDown ? SPEED.WALK : 0);
+                wait(TIME.RUNNING).then(function() {
+                    isTired = false;
+                });
             }
+        } else { //Allows the player to ground pound
+            player.setVelocityX(0);
+            player.setVelocityY(!jumpEnabled || !player.body.touching.down ? SPEED.GROUND_POUND : 0);
+        }
+        
+        /*
+            Allows the player to jump
+        */
+        if (cursors.up.isDown) {
+            if (!upKeyDown && jumpEnabled) {
+                player.setVelocityY(-SPEED.JUMP);
+                jumpEnabled = false;
+            }
+            upKeyDown = true;
+        } else {
+            upKeyDown = false;
+        }
 
-            /*
-                Only allow the player to jump when they're standing on a platform
-                and not in the air
-            */
-            jumpEnabled = player.body.touching.down;
-            
-            /*
-                If invincible, change the player's color to yellow
-            */
-            if (hasArmor) {
-                player.setTintFill(COLOR.ARMOR);
-            } else if (invincible && canDestroy) {
-                player.setTintFill(COLOR.INVINCIBLE);
-            } else if (invincible) {
-                player.setTintFill(COLOR.MERCY);
-            } else {
-                player.clearTint();
-            }
-            
-            /*
-                Prevents the player from getting stuck if they somehow accidentally clip through the bottom platform
-            */
-            if (player.y >= 530) player.y = 510;
-            
-            assert(level >= 1, "Invalid level number");
-            assert(score >= 0, "Score cannot be negative");
-            assert(lives >= 0, "Lives cannot be negative");
+        /*
+            Only allow the player to jump when they're standing on a platform
+            and not in the air
+        */
+        jumpEnabled = player.body.touching.down;
+        
+        /*
+            If invincible, change the player's color to yellow
+        */
+        if (hasArmor) {
+            player.setTintFill(COLOR.ARMOR);
+        } else if (invincible && canDestroy) {
+            player.setTintFill(COLOR.INVINCIBLE);
+        } else if (invincible) {
+            player.setTintFill(COLOR.MERCY);
+        } else {
+            player.clearTint();
+        }
+        
+        /*
+            Prevents the player from getting stuck if they somehow accidentally clip through the bottom platform
+        */
+        if (player.y >= 530) player.y = 510;
+        
+        assert(level >= 1, "Invalid level number");
+        assert(score >= 0, "Score cannot be negative");
+        assert(lives >= 0, "Lives cannot be negative");
 
-            //(!canDestroy || invincible) is equivalent to (canDestroy -> invincible)
-            assert(!canDestroy || invincible, "canDestroy is true, but invincible is false");
-            
-            if (debug) {
-                let fps = (Math.round(game.loop.actualFps * 100.0) / 100.0) + "";
-                fpsDebugText.setText("FPS: " + (fps.length === 4 ? fps + "0" : fps));
-            }
+        //(!canDestroy || invincible) is equivalent to (canDestroy -> invincible)
+        assert(!canDestroy || invincible, "canDestroy is true, but invincible is false");
+        
+        if (debug) {
+            let fps = (Math.round(game.loop.actualFps * 100.0) / 100.0) + "";
+            fpsDebugText.setText("FPS: " + (fps.length === 4 ? fps + "0" : fps));
         }
     }
 })();
