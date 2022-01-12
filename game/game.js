@@ -15,29 +15,26 @@
             return;
         }
     }
-    
+
     const loading = document.getElementById("loading");
-    
+
     /*
         ERROR HANDLER
     */
     window.addEventListener("error", function(e) {
         var file = e.filename;
-        loading.innerHTML = "An error has been detected and the game has been stopped to prevent a crash. <br> " + e.message + " (at " + file.substring(file.lastIndexOf("/") + 1) + " [Line " + e.lineno + "])";
+        loading.innerHTML = "An error has been detected and the game has been stopped to prevent a crash. Please refresh the page. <br> Technical details: " + e.message + " (at " + file.substring(file.lastIndexOf("/") + 1) + " [Line " + e.lineno + "])";
     });
     
     /*
         Saves the player's high score in document.cookie when they exit or reload the page
     */
-    window.addEventListener("beforeunload", function(e) {
+    window.addEventListener("beforeunload", function() {
         if (!debug && score > highScore) {
             document.cookie = score;
         }
     });
-    
-    /*
-        Toggle this to enable debugging mode
-    */
+
     var debug = false;
     
     /*
@@ -195,10 +192,8 @@
     }
     
     function despawnPowerUps() {
-        for (let key in powerups) {
-            if (powerups.hasOwnProperty(key)) {
-                powerups[key]["ref"].disableBody(true, true);
-            }
+        for (let key in powerups) if (powerups.hasOwnProperty(key)) {
+            powerups[key]["ref"].disableBody(true, true);
         }
     }
 
@@ -253,8 +248,8 @@
         physics: {
             default: 'arcade',
             arcade: {
-                gravity: { 
-                    y: 300 
+                gravity: {
+                    y: 300
                 },
                 debug: debug
             }
@@ -284,35 +279,178 @@
                 sprite: 'assets/ultimatepotion.png',
                 key: 'ultimate',
                 spawnRate: 0.05,
-                duration: 10000
+                duration: 10000,
+
+                onCollect: function() {
+                    invincible = true;
+                    canDestroy = true;
+                    invinciblePowerup = true;
+                    lives++;
+                    
+                    bombs.children.iterate(function(child) {
+                        child.setVelocity(0, 5);
+                        child.setBounce(0.1);
+                        child.allowGravity = false;
+                    });
+                    stars.children.iterate(function(child) {
+                        if (child.body.velocity.x !== 0) {
+                            child.setVelocity(0, 5);
+                            child.setBounce(0.1);
+                            child.allowGravity = false;
+                        }
+                    });
+                    for (let key in powerups) if (powerups.hasOwnProperty(key)) {
+                        let powerUp = powerups[key]["ref"];
+                        if (powerUp.visible) {
+                            powerUp.setVelocity(0, 5);
+                            powerUp.setBounce(0.1);
+                            powerUp.allowGravity = false;
+                        }
+                    }
+                    
+                    infoText.setText("Lives increased by one, \nyou are now invincible, \nand all game objects have been stopped!");
+                    
+                    wait(this.duration).then(function() {
+                        invincible = false;
+                        canDestroy = false;
+                        invinciblePowerup = false;
+                        bombs.children.iterate(function(child) {
+                            child.setBounce(1);
+                            child.setVelocity(Phaser.Math.Between(-200, 200), 20);
+                            child.setY(child.y - 60);
+                            child.allowGravity = false;
+                        });
+                        stars.children.iterate(function(child) {
+                            if (child.body.velocity.x === 0 && level >= 6) {
+                                child.setBounce(1);
+                                child.setVelocity(Phaser.Math.Between(-200, 200), 20);
+                                child.allowGravity = false;
+                            }
+                        });
+                        for (let key in powerups) if (powerups.hasOwnProperty(key)) {
+                            let powerUp = powerups[key]["ref"];
+                            if (powerUp.visible) {
+                                powerUp.setBounce(1);
+                                powerUp.setVelocity(Phaser.Math.Between(-200, 200), 20);
+                                powerUp.setY(powerUp.y - 60);
+                                powerUp.allowGravity = false;
+                            }
+                        }
+                        resetInfoText();
+                    });
+                }
             },
 
             armor: {
                 sprite: 'assets/armorpotion.png',
                 key: 'armor',
                 spawnRate: 0.4,
-                duration: TIME.MERCY / 2
+                duration: TIME.MERCY / 2,
+
+                onCollect: function() {
+                    hasArmor = true;
+                    infoText.setText("You gained some armor!");
+                    wait(this.duration).then(resetInfoText);
+                }
             },
 
             invincibility: {
                 sprite: 'assets/invinciblepotion.png',
                 key: 'invincibility',
                 spawnRate: 0.3,
-                duration: 10000
+                duration: 10000,
+
+                onCollect: function() {
+                    if (!invincible && !canDestroy) {
+                        invincible = true;
+                        canDestroy = true;
+                        invinciblePowerup = true;
+                        infoText.setText("You obtained an invincibility potion! \nYou're invincible!");
+                        wait(this.duration).then(function() {
+                            invincible = false;
+                            canDestroy = false;
+                            invinciblePowerup = false;
+                            resetInfoText();
+                        });
+                    }
+                }
             },
             
             oneUp: {
                 sprite: 'assets/lifepotion.png',
                 key: '1up',
                 spawnRate: 0.6,
-                duration: TIME.MERCY / 2
+                duration: TIME.MERCY / 2,
+
+                onCollect: function() {
+                    lives++;
+                    infoText.setText(levelCheck(4) ? "Nice!" : "You got an extra life!");
+                    wait(this.duration).then(function() {
+                        levelCheck(4) ? infoText.setText("Be sure to take advantage of extra lives!") : resetInfoText();
+                    });
+                }
             },
 
             stop: {
                 sprite: 'assets/stopobject.png',
                 key: 'stop',
                 spawnRate: 0.0,
-                duration: 10000
+                duration: 10000,
+
+                onCollect: function() {
+                    bombs.children.iterate(function(child) {
+                        child.setVelocity(0, 5);
+                        child.setBounce(0.1);
+                        child.allowGravity = false;
+                    });
+                    
+                    stars.children.iterate(function(child) {
+                        if (child.body.velocity.x !== 0) {
+                            child.setVelocity(0, 5);
+                            child.setBounce(0.1);
+                            child.allowGravity = false;
+                        }
+                    });
+                    
+                    for (let key in powerups) if (powerups.hasOwnProperty(key)) {
+                        let powerUp = powerups[key]["ref"];
+                        if (powerUp.visible) {
+                            powerUp.setVelocity(0, 5);
+                            powerUp.setBounce(0.1);
+                            powerUp.allowGravity = false;
+                        }
+                    }
+                    
+                    infoText.setText("Game objects stopped!");
+                    wait(this.duration).then(function() {
+                        bombs.children.iterate(function(child) {
+                            child.setBounce(1);
+                            child.setVelocity(Phaser.Math.Between(-200, 200), 20);
+                            child.setY(child.y - 60);
+                            child.allowGravity = false;
+                        });
+                        
+                        stars.children.iterate(function(child) {
+                            if (child.body.velocity.x === 0 && level >= 6) {
+                                child.setBounce(1);
+                                child.setVelocity(Phaser.Math.Between(-200, 200), 20);
+                                child.allowGravity = false;
+                            }
+                        });
+                        
+                        for (let key in powerups) if (powerups.hasOwnProperty(key)) {
+                            let powerUp = powerups[key]["ref"];
+                            if (powerUp.visible) {
+                                powerUp.setBounce(1);
+                                powerUp.setVelocity(Phaser.Math.Between(-200, 200), 20);
+                                powerUp.setY(powerUp.y - 60);
+                                powerUp.allowGravity = false;
+                            }
+                        }
+                        
+                        resetInfoText();
+                    });
+                }
             },
         },
 
@@ -350,9 +488,9 @@
     
     const game = new Phaser.Game(canvas); //Actually load the canvas
     
-    document.addEventListener("DOMContentLoaded", function(e) {
+    document.addEventListener("DOMContentLoaded", function() {
         var p = [
-            "Made with <a href='https://phaser.io/' target='_blank'>Phaser.JS</a>."
+            "Made with <a href='https://phaser.io/' target='_blank'>Phaser.JS</a>"
         ];
         if (musicEnabled) p.push("Music: <a href='https://youtu.be/UNTBGiMqcGc' target='_blank'>https://youtu.be/UNTBGiMqcGc</a>");
         
@@ -373,11 +511,11 @@
             console.time("Game loading time");
         }
         
-        for (let key in assets) {
+        for (let key in assets) if (assets.hasOwnProperty(key)) {
             let subObject = assets[key];
             
             out: {
-                for (let key2 in subObject) {
+                for (let key2 in subObject) if (subObject.hasOwnProperty(key2)) {
                     switch (key) {
                         case 'powerups':
                             this.load.image(subObject[key2]["key"], subObject[key2]["sprite"]);
@@ -492,25 +630,32 @@
             child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
         });
         this.physics.add.collider(stars, platforms);
-        
+
+        //Power ups
         {
             let references = [];
-            for (let key in powerups) {
-                if (powerups.hasOwnProperty(key)) {
-                    let x = Phaser.Math.Between(10, canvas.width - 30), y = 10, theKey = powerups[key]["key"];
-                    powerups[key]["ref"] = this.physics.add.image(x, y, theKey);
-                    let powerUp = powerups[key]["ref"];
-                    references.push(powerUp);
-                    powerUp.disableBody(true, true);
-                    this.physics.add.collider(powerUp, platforms);
-                    this.physics.add.collider(powerUp, bombs);
-                }
+            for (let key in powerups) if (powerups.hasOwnProperty(key)) {
+                let x = Phaser.Math.Between(10, canvas.width - 30), y = 10, theKey = powerups[key]["key"];
+                powerups[key]["ref"] = this.physics.add.image(x, y, theKey);
+                let powerUp = powerups[key]["ref"];
+                references.push(powerUp);
+                powerUp.disableBody(true, true);
+                this.physics.add.collider(powerUp, platforms);
+                this.physics.add.collider(powerUp, bombs);
             }
             
             for (let i = 0; i < references.length; i++) {
                 for (let j = i + 1; j < references.length; j++) {
                     this.physics.add.collider(references[i], references[j]);
                 }
+            }
+
+            for (let powerup in powerups) if (powerups.hasOwnProperty(powerup)) {
+                this.physics.add.overlap(player, powerups[powerup]["ref"], function(player, power) {
+                    if (sfxEnabled) _this.sound.play('powerupcollect', {volume: VOLUME.POWER_UP});
+                    power.disableBody(true, true);
+                    powerups[powerup].onCollect(player, power, _this);
+                }, null, this);
             }
         }
         
@@ -636,24 +781,22 @@
 
                 if (daredevil) return;
                 if (level > 5) {
-                    for (let key in powerups) {
-                        if (powerups.hasOwnProperty(key)) {
-                            let powerUp = powerups[key]["ref"];
-                            let spawnRate = powerups[key]["spawnRate"];
-                            let randomNumber = Math.floor(Math.random() * 100) / 100;
-                            let willSpawn = !powerUp.visible && randomNumber < spawnRate;
-                            if (debug) console.log(key, spawnRate, randomNumber, willSpawn);
-                            
-                            if (willSpawn) {
-                                let x = Phaser.Math.Between(10, canvas.width - 30), y = 10;
-                                powerUp.enableBody(true, x, y, true, true);
-                                powerUp.setBounce(1);
-                                powerUp.setVelocity(Phaser.Math.Between(-200, 200), 20);
-                                powerUp.allowGravity = false;
-                                powerUp.setCollideWorldBounds(true);
-                                break; //If one does get spawned, do not attempt to spawn anymore.
-                            }
-                        } 
+                    for (let key in powerups) if (powerups.hasOwnProperty(key)) {
+                        let powerUp = powerups[key]["ref"];
+                        let spawnRate = powerups[key]["spawnRate"];
+                        let randomNumber = Math.floor(Math.random() * 100) / 100;
+                        let willSpawn = !powerUp.visible && randomNumber < spawnRate;
+                        if (debug) console.log(key, spawnRate, randomNumber, willSpawn);
+                        
+                        if (willSpawn) {
+                            let x = Phaser.Math.Between(10, canvas.width - 30), y = 10;
+                            powerUp.enableBody(true, x, y, true, true);
+                            powerUp.setBounce(1);
+                            powerUp.setVelocity(Phaser.Math.Between(-200, 200), 20);
+                            powerUp.allowGravity = false;
+                            powerUp.setCollideWorldBounds(true);
+                            break; //If one does get spawned, do not attempt to spawn anymore.
+                        }
                     }
                     
                 /*
@@ -687,162 +830,6 @@
                     }
                 }
             } 
-        }, null, this);
-        
-        /*
-            POWER-UPS
-        */
-        this.physics.add.overlap(player, powerups["oneUp"]["ref"], function(player, oneUp) {
-            lives++;
-            if (sfxEnabled) this.sound.play('powerupcollect', {volume: VOLUME.POWER_UP});
-            oneUp.disableBody(true, true);
-            infoText.setText(levelCheck(4) ? "Nice!" : "You got an extra life!");
-            wait(assets["powerups"]["oneUp"]["duration"]).then(function() {
-                levelCheck(4) ? infoText.setText("Be sure to take advantage of extra lives!") : resetInfoText();
-            });
-        }, null, this);
-        this.physics.add.overlap(player, powerups["armor"]["ref"], function(player, armor) {
-            hasArmor = true;
-            if (sfxEnabled) this.sound.play('powerupcollect', {volume: VOLUME.POWER_UP});
-            infoText.setText("You gained some armor!");
-            armor.disableBody(true, true);
-            wait(assets["powerups"]["armor"]["duration"]).then(resetInfoText);
-        }, null, this);
-        this.physics.add.overlap(player, powerups["invincibility"]["ref"], function(player, invincibility) {
-            if (!invincible && !canDestroy) {
-                invincible = true;
-                canDestroy = true;
-                invinciblePowerup = true;
-                if (sfxEnabled) this.sound.play('powerupcollect', {volume: VOLUME.POWER_UP});
-                infoText.setText("You obtained an invincibility potion! \nYou're invincible!");
-                invincibility.disableBody(true, true);
-                wait(assets["powerups"]["invincibility"]["duration"]).then(function() {
-                    invincible = false;
-                    canDestroy = false;
-                    invinciblePowerup = false;
-                    resetInfoText();
-                });
-            }
-        }, null, this);
-        this.physics.add.overlap(player, powerups["stop"]["ref"], function(player, stop) {
-            stop.disableBody(true, true);
-            
-            bombs.children.iterate(function(child) {
-                child.setVelocity(0, 5);
-                child.setBounce(0.1);
-                child.allowGravity = false;
-            });
-            
-            stars.children.iterate(function(child) {
-                if (child.body.velocity.x !== 0) {
-                    child.setVelocity(0, 5);
-                    child.setBounce(0.1);
-                    child.allowGravity = false;
-                }
-            });
-            
-            for (let key in powerups) {
-                let powerUp = powerups[key]["ref"];
-                if (powerups.hasOwnProperty(key) && powerUp.visible) {
-                    powerUp.setVelocity(0, 5);
-                    powerUp.setBounce(0.1);
-                    powerUp.allowGravity = false;
-                }
-            }
-            
-            if (sfxEnabled) this.sound.play('powerupcollect', {volume: VOLUME.POWER_UP});
-            
-            infoText.setText("Game objects stopped!");
-            wait(assets["powerups"]["stop"]["duration"]).then(function() {
-                bombs.children.iterate(function(child) {
-                    child.setBounce(1);
-                    child.setVelocity(Phaser.Math.Between(-200, 200), 20);
-                    child.setY(child.y - 60);
-                    child.allowGravity = false;
-                });
-                
-                stars.children.iterate(function(child) {
-                    if (child.body.velocity.x === 0 && level >= 6) {
-                        child.setBounce(1);
-                        child.setVelocity(Phaser.Math.Between(-200, 200), 20);
-                        child.allowGravity = false;
-                    }
-                });
-                
-                for (let key in powerups) {
-                    let powerUp = powerups[key]["ref"];
-                    if (powerups.hasOwnProperty(key) && powerUp.visible) {
-                        powerUp.setBounce(1);
-                        powerUp.setVelocity(Phaser.Math.Between(-200, 200), 20);
-                        powerUp.setY(powerUp.y - 60);
-                        powerUp.allowGravity = false;
-                    }
-                }
-                
-                resetInfoText();
-            });
-        }, null, this);
-        this.physics.add.overlap(player, powerups["ultimate"]["ref"], function(player, ultimate) {
-            ultimate.disableBody(true, true);
-            invincible = true;
-            canDestroy = true;
-            invinciblePowerup = true;
-            lives++;
-            
-            bombs.children.iterate(function(child) {
-                child.setVelocity(0, 5);
-                child.setBounce(0.1);
-                child.allowGravity = false;
-            });
-            stars.children.iterate(function(child) {
-                if (child.body.velocity.x !== 0) {
-                    child.setVelocity(0, 5);
-                    child.setBounce(0.1);
-                    child.allowGravity = false;
-                }
-            });
-            for (let key in powerups) {
-                let powerUp = powerups[key]["ref"];
-                if (powerups.hasOwnProperty(key) && powerUp.visible) {
-                    powerUp.setVelocity(0, 5);
-                    powerUp.setBounce(0.1);
-                    powerUp.allowGravity = false;
-                }
-            }
-            
-            if (sfxEnabled) this.sound.play('powerupcollect', {volume: VOLUME.POWER_UP});
-            
-            infoText.setText("Lives increased by one, \nyou are now invincible, \nand all game objects have been stopped!");
-            
-            wait(assets["powerups"]["ultimate"]["duration"]).then(function() {
-                invincible = false;
-                canDestroy = false;
-                invinciblePowerup = false;
-                bombs.children.iterate(function(child) {
-                    child.setBounce(1);
-                    child.setVelocity(Phaser.Math.Between(-200, 200), 20);
-                    child.setY(child.y - 60);
-                    child.allowGravity = false;
-                });
-                stars.children.iterate(function(child) {
-                    if (child.body.velocity.x === 0 && level >= 6) {
-                        child.setBounce(1);
-                        child.setVelocity(Phaser.Math.Between(-200, 200), 20);
-                        child.allowGravity = false;
-                    }
-                });
-                for (let key in powerups) {
-                    let powerUp = powerups[key]["ref"];
-                    if (powerups.hasOwnProperty(key) && powerUp.visible) {
-                        powerUp.setBounce(1);
-                        powerUp.setVelocity(Phaser.Math.Between(-200, 200), 20);
-                        powerUp.setY(powerUp.y - 60);
-                        powerUp.allowGravity = false;
-                    }
-                }
-                resetInfoText();
-            });
-            
         }, null, this);
         
         /*
@@ -925,16 +912,14 @@
             });
             repeatingCodesMap.set(keyCodes("powerups"), function() {
                 if (debug) {
-                    for (let key in powerups) {
-                        if (powerups.hasOwnProperty(key)) {
-                            let powerUp = powerups[key]["ref"];
-                            let x = Phaser.Math.Between(10, canvas.width - 30), y = 10;
-                            powerUp.enableBody(true, x, y, true, true);
-                            powerUp.setBounce(1);
-                            powerUp.setVelocity(Phaser.Math.Between(-200, 200), 20);
-                            powerUp.allowGravity = false;
-                            powerUp.setCollideWorldBounds(true);
-                        }
+                    for (let key in powerups) if (powerups.hasOwnProperty(key)) {
+                        let powerUp = powerups[key]["ref"];
+                        let x = Phaser.Math.Between(10, canvas.width - 30), y = 10;
+                        powerUp.enableBody(true, x, y, true, true);
+                        powerUp.setBounce(1);
+                        powerUp.setVelocity(Phaser.Math.Between(-200, 200), 20);
+                        powerUp.allowGravity = false;
+                        powerUp.setCollideWorldBounds(true);
                     }
                 }
             });
