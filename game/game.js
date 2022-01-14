@@ -300,11 +300,11 @@
                         }
                     });
                     for (let key in powerups) if (powerups.hasOwnProperty(key)) {
-                        let powerUp = powerups[key]["ref"];
-                        if (powerUp.visible) {
-                            powerUp.setVelocity(0, 5);
-                            powerUp.setBounce(0.1);
-                            powerUp.allowGravity = false;
+                        let powerup = powerups[key]["ref"];
+                        if (powerup.visible) {
+                            powerup.setVelocity(0, 5);
+                            powerup.setBounce(0.1);
+                            powerup.allowGravity = false;
                         }
                     }
                     
@@ -328,12 +328,12 @@
                             }
                         });
                         for (let key in powerups) if (powerups.hasOwnProperty(key)) {
-                            let powerUp = powerups[key]["ref"];
-                            if (powerUp.visible) {
-                                powerUp.setBounce(1);
-                                powerUp.setVelocity(Phaser.Math.Between(-200, 200), 20);
-                                powerUp.setY(powerUp.y - 60);
-                                powerUp.allowGravity = false;
+                            let powerup = powerups[key]["ref"];
+                            if (powerup.visible) {
+                                powerup.setBounce(1);
+                                powerup.setVelocity(Phaser.Math.Between(-200, 200), 20);
+                                powerup.setY(powerup.y - 60);
+                                powerup.allowGravity = false;
                             }
                         }
                         resetInfoText();
@@ -413,11 +413,11 @@
                     });
                     
                     for (let key in powerups) if (powerups.hasOwnProperty(key)) {
-                        let powerUp = powerups[key]["ref"];
-                        if (powerUp.visible) {
-                            powerUp.setVelocity(0, 5);
-                            powerUp.setBounce(0.1);
-                            powerUp.allowGravity = false;
+                        let powerup = powerups[key]["ref"];
+                        if (powerup.visible) {
+                            powerup.setVelocity(0, 5);
+                            powerup.setBounce(0.1);
+                            powerup.allowGravity = false;
                         }
                     }
                     
@@ -439,12 +439,12 @@
                         });
                         
                         for (let key in powerups) if (powerups.hasOwnProperty(key)) {
-                            let powerUp = powerups[key]["ref"];
-                            if (powerUp.visible) {
-                                powerUp.setBounce(1);
-                                powerUp.setVelocity(Phaser.Math.Between(-200, 200), 20);
-                                powerUp.setY(powerUp.y - 60);
-                                powerUp.allowGravity = false;
+                            let powerup = powerups[key]["ref"];
+                            if (powerup.visible) {
+                                powerup.setBounce(1);
+                                powerup.setVelocity(Phaser.Math.Between(-200, 200), 20);
+                                powerup.setY(powerup.y - 60);
+                                powerup.allowGravity = false;
                             }
                         }
                         
@@ -474,7 +474,7 @@
         "Don't touch the bomb!",
         "Yikes! Another bomb!",
         "Hey look, a life potion! \nGrab it for an extra life!",
-        "Other powerups may or may not spawn \nas well. Be sure to take advantage of them \nif they spawn!",
+        "Other powerups have a chance of spawning \nas well. Be sure to take advantage of them \nif they spawn!",
         "Hey look, the stars move now!",
         "Does that make this game harder?",
         "Hey, this game wasn't meant to be easy.",
@@ -635,27 +635,24 @@
         {
             let references = [];
             for (let key in powerups) if (powerups.hasOwnProperty(key)) {
-                let x = Phaser.Math.Between(10, canvas.width - 30), y = 10, theKey = powerups[key]["key"];
-                powerups[key]["ref"] = this.physics.add.image(x, y, theKey);
-                let powerUp = powerups[key]["ref"];
-                references.push(powerUp);
-                powerUp.disableBody(true, true);
-                this.physics.add.collider(powerUp, platforms);
-                this.physics.add.collider(powerUp, bombs);
+                let x = Phaser.Math.Between(10, canvas.width - 30), y = 10;
+                powerups[key]["ref"] = this.physics.add.image(x, y, powerups[key]["key"]);
+                let powerup = powerups[key]["ref"];
+                references.push(powerup);
+                powerup.disableBody(true, true);
+                this.physics.add.collider(powerup, platforms);
+                this.physics.add.collider(powerup, bombs);
+                this.physics.add.overlap(player, powerup, function() {
+                    if (sfxEnabled) _this.sound.play('powerupcollect', {volume: VOLUME.POWER_UP});
+                    powerup.disableBody(true, true);
+                    powerups[key].onCollect(player, powerup, _this);
+                }, null, this);
             }
             
             for (let i = 0; i < references.length; i++) {
                 for (let j = i + 1; j < references.length; j++) {
                     this.physics.add.collider(references[i], references[j]);
                 }
-            }
-
-            for (let powerup in powerups) if (powerups.hasOwnProperty(powerup)) {
-                this.physics.add.overlap(player, powerups[powerup]["ref"], function(player, power) {
-                    if (sfxEnabled) _this.sound.play('powerupcollect', {volume: VOLUME.POWER_UP});
-                    power.disableBody(true, true);
-                    powerups[powerup].onCollect(player, power, _this);
-                }, null, this);
             }
         }
         
@@ -782,19 +779,19 @@
                 if (daredevil) return;
                 if (level > 5) {
                     for (let key in powerups) if (powerups.hasOwnProperty(key)) {
-                        let powerUp = powerups[key]["ref"];
+                        let powerup = powerups[key]["ref"];
                         let spawnRate = powerups[key]["spawnRate"];
                         let randomNumber = Math.floor(Math.random() * 100) / 100;
-                        let willSpawn = !powerUp.visible && randomNumber < spawnRate;
+                        let willSpawn = !powerup.visible && randomNumber < spawnRate;
                         if (debug) console.log(key, spawnRate, randomNumber, willSpawn);
                         
                         if (willSpawn) {
                             let x = Phaser.Math.Between(10, canvas.width - 30), y = 10;
-                            powerUp.enableBody(true, x, y, true, true);
-                            powerUp.setBounce(1);
-                            powerUp.setVelocity(Phaser.Math.Between(-200, 200), 20);
-                            powerUp.allowGravity = false;
-                            powerUp.setCollideWorldBounds(true);
+                            powerup.enableBody(true, x, y, true, true);
+                            powerup.setBounce(1);
+                            powerup.setVelocity(Phaser.Math.Between(-200, 200), 20);
+                            powerup.allowGravity = false;
+                            powerup.setCollideWorldBounds(true);
                             break; //If one does get spawned, do not attempt to spawn anymore.
                         }
                     }
@@ -913,13 +910,13 @@
             repeatingCodesMap.set(keyCodes("powerups"), function() {
                 if (debug) {
                     for (let key in powerups) if (powerups.hasOwnProperty(key)) {
-                        let powerUp = powerups[key]["ref"];
+                        let powerup = powerups[key]["ref"];
                         let x = Phaser.Math.Between(10, canvas.width - 30), y = 10;
-                        powerUp.enableBody(true, x, y, true, true);
-                        powerUp.setBounce(1);
-                        powerUp.setVelocity(Phaser.Math.Between(-200, 200), 20);
-                        powerUp.allowGravity = false;
-                        powerUp.setCollideWorldBounds(true);
+                        powerup.enableBody(true, x, y, true, true);
+                        powerup.setBounce(1);
+                        powerup.setVelocity(Phaser.Math.Between(-200, 200), 20);
+                        powerup.allowGravity = false;
+                        powerup.setCollideWorldBounds(true);
                     }
                 }
             });
