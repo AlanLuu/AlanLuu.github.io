@@ -31,7 +31,7 @@
     */
     window.addEventListener("beforeunload", function() {
         if (!debug && score > highScore) {
-            document.cookie = score;
+            localStorage.setItem('highScore', score);
         }
     });
 
@@ -96,7 +96,7 @@
     var score = 0;
     var level = 1;
     var lives = debug ? Infinity : STARTING_LIVES;
-    var highScore = !isNaN(Number(document.cookie)) ? Number(document.cookie) : 0;
+    var highScore = localStorage.getItem('highScore') !== null ? Number(localStorage.getItem('highScore')) : 0;
     
     /*
         Prevents the player from repeatedly jumping if the up arrow key is constantly held down
