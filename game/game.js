@@ -27,11 +27,11 @@
     });
     
     /*
-        Saves the player's high score in document.cookie when they exit or reload the page
+        Saves the player's high score in localStorage when they exit or reload the page
     */
     window.addEventListener("beforeunload", function() {
         if (!debug && score > highScore) {
-            localStorage.setItem('highScore', score);
+            window.localStorage.setItem("highScore", score);
         }
     });
 
@@ -96,7 +96,7 @@
     var score = 0;
     var level = 1;
     var lives = debug ? Infinity : STARTING_LIVES;
-    var highScore = localStorage.getItem('highScore') !== null ? Number(localStorage.getItem('highScore')) : 0;
+    var highScore = window.localStorage.getItem("highScore") !== null ? Number(window.localStorage.getItem("highScore")) : 0;
     
     /*
         Prevents the player from repeatedly jumping if the up arrow key is constantly held down
@@ -225,7 +225,7 @@
         pause.visible = false;
         resume.visible = false;
         if (!debug && score > highScore) {
-            document.cookie = score;
+            window.localStorage.setItem("highScore", score);
         }
     }
     
@@ -976,7 +976,7 @@
     function update() {
         livesText.setText("Lives: " + (!window.isFinite(lives) ? "∞" : lives));
         levelText.setText("Level: " + level);
-        scoreText.setText('Score: ' + score);
+        scoreText.setText("Score: " + score);
         if (gameIsOver) return;
 
         /*
