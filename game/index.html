@@ -11,7 +11,6 @@
         <link href="https://fonts.googleapis.com/css?family=PT+Serif" rel="stylesheet">
         <noscript>
             <link href="../noscript.css" rel="stylesheet" type="text/css">
-            <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
         </noscript>
         <script src="phaser.min.js"></script>
         <script src="sweetalert.min.js"></script>
@@ -30,31 +29,22 @@
         <noscript>
             <div class="links" id="noscriptlinks">
                 <nav>
-                    <a href="../">Home</a> |
-                    <a href="../projects/">Projects</a> |
-                    <a href="../circleparticles/">Circle particles</a> |
+                    <a href="../" class="noscriptnotactive">Home</a> |
+                    <a href="../projects/" class="noscriptnotactive">Projects</a> |
+                    <a href="../circleparticles/" class="noscriptnotactive">Circle particles</a> |
                     <a href="../game/">Star Collector</a> 
                 </nav>
             </div>
-            <h1>Star Collector</h1>
-            <p>Please <a href="https://www.enable-javascript.com/" target="_blank">enable JavaScript</a> in order to view the content on this page.</p>
+            <p class="enablejs">Please <a href="https://www.enable-javascript.com/" target="_blank">enable JavaScript</a> in order to view the contents of this page.</p>
         </noscript>
         
         <div id="loadingdiv">
             <p id="loading"></p>
         </div>
         
-        <noscript>
-            <div id="socialmedia" class="centerText">
-                <a href="mailto:alanluu4@gmail.com" class="fa fa-envelope"></a>
-                <a href="https://github.com/alanluu" target="_blank" class="fa fa-github"></a>
-                <!--<a href="#" class="fa fa-linkedin"></a>-->
-            </div>
-        </noscript>
-        
         <script src="../util.js"></script>
-        <script src="game.js"></script>
-        
+        <script>!function(){var e=document.createElement("script");e.src="noModule"in e?"game.js":"game.legacy.js",document.body.appendChild(e)}();</script>
+
         <!-- For mobile devices -->
         <script src="../responsive.js"></script>
     </body>

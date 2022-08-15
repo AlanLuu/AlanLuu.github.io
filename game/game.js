@@ -1,5 +1,6 @@
-(function() {
+(() => {
     'use strict';
+    console.log("game.js");
     
     //Not going to add mobile device support for this game
     if (isMobile.any()) {
@@ -8,32 +9,23 @@
                 text: "Sorry, but this game can only be played on a computer or a tablet with an external keyboard.",
                 icon: "error",
                 closeOnClickOutside: false
-            }).then(function() {
-                window.history.back();
-            });
+            }).then(_ => window.history.back());
         } finally {
             return;
         }
     }
-
+    
     const loading = document.getElementById("loading");
 
     /*
         ERROR HANDLER
     */
-    window.addEventListener("error", function(e) {
-        var file = e.filename;
-        loading.innerHTML = "An error has been detected and the game has been stopped to prevent a crash. Please refresh the page. <br> Technical details: " + e.message + " (at " + file.substring(file.lastIndexOf("/") + 1) + " [Line " + e.lineno + "])";
-    });
+    window.addEventListener("error", e => loading.innerHTML = `An error has been detected and the game has been stopped to prevent a crash. Please refresh the page. <br> Technical details: ${e.message} (at ${e.filename.substring(e.filename.lastIndexOf("/") + 1)} [Line ${e.lineno}])`);
     
     /*
         Saves the player's high score in localStorage when they exit or reload the page
     */
-    window.addEventListener("beforeunload", function() {
-        if (!debug && score > highScore) {
-            window.localStorage.setItem("highScore", score);
-        }
-    });
+    window.addEventListener("beforeunload", _ => !debug && score > highScore ? window.localStorage.setItem("highScore", score) : {});
 
     var debug = false;
     
@@ -82,9 +74,6 @@
         POWER_UP: 0.3
     });
 
-    /*
-        Number of lives the player starts with
-    */
     const STARTING_LIVES = 5;
 
     /*
@@ -117,7 +106,6 @@
     /*
         When this is true, the player will be able to destroy any bomb on contact
         This boolean should NEVER be true if the player is not invincible
-        
         canDestroy -> invincible, but it's not always the case that invincible -> canDestroy
     */
     var canDestroy = false;
@@ -147,7 +135,7 @@
     /*
         Toggle these to enable or disable the background music or the sfx
     */
-    var musicEnabled = false;
+    var musicEnabled = true;
     var sfxEnabled = true;
 
     /*
@@ -157,7 +145,7 @@
     var bombGroundPounded = false;
 
     /*
-        Flag that represents if the game is over
+        Flag for update function
     */
     var gameIsOver = false;
 
@@ -167,32 +155,22 @@
     var hasArmor = false;
     
     /*
-        SweetAlert's CDN includes a polyfill for ES6 promises, which allows this game to run in IE
+        Function to pause script execution for a period of time
     */
-    const wait = function(milliseconds) {
-        return new Promise(function(resolve) {
-            setTimeout(resolve, milliseconds);
-        });
-    };
+    const wait = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
     
     function resetInfoText() {
         infoText.setText(level < infoTextList.length + 1 ? infoTextList[level - 1] : "");
     }
     
     function despawnEverything() {
-        bombs.children.iterate(function(child) { 
-            child.disableBody(true, true);
-        });
-        
-        stars.children.iterate(function(child) {
-            child.disableBody(true, true);
-        });
-        
+        bombs.children.iterate(child => child.disableBody(true, true));
+        stars.children.iterate(child => child.disableBody(true, true));
         despawnPowerUps();
     }
     
     function despawnPowerUps() {
-        for (let key in powerups) if (powerups.hasOwnProperty(key)) {
+        for (let [key] of Object.entries(powerups)) {
             powerups[key]["ref"].disableBody(true, true);
         }
     }
@@ -229,10 +207,10 @@
         }
     }
     
-    function levelCheck() {
+    function levelCheck(...levels) {
         var isLevel = false;
-        for (let i = 0; i < arguments.length; i++) {
-            isLevel = isLevel || level === arguments[i];
+        for (let lev of levels) {
+            isLevel = isLevel || level === lev;
         }
         return isLevel;
     }
@@ -287,19 +265,19 @@
                     invinciblePowerup = true;
                     lives++;
                     
-                    bombs.children.iterate(function(child) {
+                    bombs.children.iterate(child => {
                         child.setVelocity(0, 5);
                         child.setBounce(0.1);
                         child.allowGravity = false;
                     });
-                    stars.children.iterate(function(child) {
+                    stars.children.iterate(child => {
                         if (child.body.velocity.x !== 0) {
                             child.setVelocity(0, 5);
                             child.setBounce(0.1);
                             child.allowGravity = false;
                         }
                     });
-                    for (let key in powerups) if (powerups.hasOwnProperty(key)) {
+                    for (let [key] of Object.entries(powerups)) {
                         let powerup = powerups[key]["ref"];
                         if (powerup.visible) {
                             powerup.setVelocity(0, 5);
@@ -309,25 +287,24 @@
                     }
                     
                     infoText.setText("Lives increased by one, \nyou are now invincible, \nand all game objects have been stopped!");
-                    
-                    wait(this.duration).then(function() {
+                    wait(this.duration).then(_ => {
                         invincible = false;
                         canDestroy = false;
                         invinciblePowerup = false;
-                        bombs.children.iterate(function(child) {
+                        bombs.children.iterate(child => {
                             child.setBounce(1);
                             child.setVelocity(Phaser.Math.Between(-200, 200), 20);
                             child.setY(child.y - 60);
                             child.allowGravity = false;
                         });
-                        stars.children.iterate(function(child) {
+                        stars.children.iterate(child => {
                             if (child.body.velocity.x === 0 && level >= 6) {
                                 child.setBounce(1);
                                 child.setVelocity(Phaser.Math.Between(-200, 200), 20);
                                 child.allowGravity = false;
                             }
                         });
-                        for (let key in powerups) if (powerups.hasOwnProperty(key)) {
+                        for (let [key] of Object.entries(powerups)) {
                             let powerup = powerups[key]["ref"];
                             if (powerup.visible) {
                                 powerup.setBounce(1);
@@ -366,7 +343,7 @@
                         canDestroy = true;
                         invinciblePowerup = true;
                         infoText.setText("You obtained an invincibility potion! \nYou're invincible!");
-                        wait(this.duration).then(function() {
+                        wait(this.duration).then(_ => {
                             invincible = false;
                             canDestroy = false;
                             invinciblePowerup = false;
@@ -385,9 +362,7 @@
                 onCollect: function() {
                     lives++;
                     infoText.setText(levelCheck(4) ? "Nice!" : "You got an extra life!");
-                    wait(this.duration).then(function() {
-                        levelCheck(4) ? infoText.setText("Be sure to take advantage of extra lives!") : resetInfoText();
-                    });
+                    wait(this.duration).then(_ => levelCheck(4) ? infoText.setText("Be sure to take advantage of extra lives!") : resetInfoText());
                 }
             },
 
@@ -398,13 +373,13 @@
                 duration: 10000,
 
                 onCollect: function() {
-                    bombs.children.iterate(function(child) {
+                    bombs.children.iterate(child => {
                         child.setVelocity(0, 5);
                         child.setBounce(0.1);
                         child.allowGravity = false;
                     });
                     
-                    stars.children.iterate(function(child) {
+                    stars.children.iterate(child => {
                         if (child.body.velocity.x !== 0) {
                             child.setVelocity(0, 5);
                             child.setBounce(0.1);
@@ -412,7 +387,7 @@
                         }
                     });
                     
-                    for (let key in powerups) if (powerups.hasOwnProperty(key)) {
+                    for (let [key] of Object.entries(powerups)) {
                         let powerup = powerups[key]["ref"];
                         if (powerup.visible) {
                             powerup.setVelocity(0, 5);
@@ -422,15 +397,15 @@
                     }
                     
                     infoText.setText("Game objects stopped!");
-                    wait(this.duration).then(function() {
-                        bombs.children.iterate(function(child) {
+                    wait(this.duration).then(_ => {
+                        bombs.children.iterate(child => {
                             child.setBounce(1);
                             child.setVelocity(Phaser.Math.Between(-200, 200), 20);
                             child.setY(child.y - 60);
                             child.allowGravity = false;
                         });
                         
-                        stars.children.iterate(function(child) {
+                        stars.children.iterate(child => {
                             if (child.body.velocity.x === 0 && level >= 6) {
                                 child.setBounce(1);
                                 child.setVelocity(Phaser.Math.Between(-200, 200), 20);
@@ -438,7 +413,7 @@
                             }
                         });
                         
-                        for (let key in powerups) if (powerups.hasOwnProperty(key)) {
+                        for (let [key] of Object.entries(powerups)) {
                             let powerup = powerups[key]["ref"];
                             if (powerup.visible) {
                                 powerup.setBounce(1);
@@ -447,7 +422,7 @@
                                 powerup.allowGravity = false;
                             }
                         }
-                        
+
                         resetInfoText();
                     });
                 }
@@ -488,34 +463,29 @@
     
     const game = new Phaser.Game(canvas); //Actually load the canvas
     
-    document.addEventListener("DOMContentLoaded", function() {
-        var p = [
-            "Made with <a href='https://phaser.io/' target='_blank'>Phaser.JS</a>"
-        ];
-        if (musicEnabled) p.push("Music: <a href='https://youtu.be/UNTBGiMqcGc' target='_blank'>https://youtu.be/UNTBGiMqcGc</a>");
-        
-        for (let i = 0; i < p.length; i++) {
-            let paragraph = document.createElement("p");
-            paragraph.innerHTML = p[i];
-            paragraph.className = "bottom";
-            document.body.appendChild(paragraph);
-        }
-    });
-    
     /*
         PRELOAD ASSETS HERE
     */
     function preload() {
-        loading.innerHTML = (debug ? "Debug mode loading" : "Loading") + "... Please wait.";
-        if (debug && console.time) {
-            console.time("Game loading time");
+        var p = [
+            "Made with <a href='https://phaser.io/' target='_blank'>Phaser.JS</a>"
+        ];
+        if (musicEnabled) p.push("Music: <a href='https://youtu.be/JV41UkBQDhE' target='_blank'>https://youtu.be/JV41UkBQDhE</a>");
+        for (let e of p) {
+            let paragraph = document.createElement("p");
+            paragraph.innerHTML = e;
+            paragraph.className = "bottom";
+            document.body.appendChild(paragraph);
         }
-        
-        for (let key in assets) if (assets.hasOwnProperty(key)) {
+
+        loading.innerHTML = `${debug ? "Debug mode loading" : "Loading"}... Please wait.`;
+        if (debug && console.time) console.time("Game loading time");
+
+        for (let [key] of Object.entries(assets)) {
             let subObject = assets[key];
             
             out: {
-                for (let key2 in subObject) if (subObject.hasOwnProperty(key2)) {
+                for (let [key2] of Object.entries(subObject)) {
                     switch (key) {
                         case 'powerups':
                             this.load.image(subObject[key2]["key"], subObject[key2]["sprite"]);
@@ -525,12 +495,12 @@
                                 break out;
                             }
                             if (musicEnabled) {
-                                for (let musicKey in subObject["music"]) {
+                                for (let [musicKey] of Object.entries(subObject["music"])) {
                                     this.load.audio(musicKey, subObject["music"][musicKey]);
                                 }
                             }
                             if (sfxEnabled) {
-                                for (let sfxKey in subObject["sfx"]) {
+                                for (let [sfxKey] of Object.entries(subObject["sfx"])) {
                                     this.load.audio(sfxKey, subObject["sfx"][sfxKey]);
                                 }
                             }
@@ -579,17 +549,17 @@
         */
         scoreText = this.add.text(16, 16, "Score: 0", { fontSize: '25px', fill: '#000'});
         infoText = this.add.text(200, 16, infoTextList[0], {fontSize: '20px', fill: '#000'});
-        livesText = this.add.text(16, 84, "Lives: " + lives, {fontSize: '25px', fill: '#000'});
-        levelText = this.add.text(16, 50, "Level: " + level, {fontSize: '25px', fill: '#000'});
-        highScoreText = this.add.text(16, 120, "High Score: " + highScore, {fontSize: '25px', fill: '#000'});
+        livesText = this.add.text(16, 84, `Lives: ${lives}`, {fontSize: '25px', fill: '#000'});
+        levelText = this.add.text(16, 50, `Level: ${level}`, {fontSize: '25px', fill: '#000'});
+        highScoreText = this.add.text(16, 120, `High Score: ${highScore}`, {fontSize: '25px', fill: '#000'});
         if (debug) {
             let fps = (Math.round(game.loop.actualFps * 100.0) / 100.0) + "";
-            fpsDebugText = this.add.text(16, 500, "FPS: " + (fps.length === 4 ? fps + "0" : fps), {fontSize: '25px', fill: '#000'});
+            fpsDebugText = this.add.text(16, 500, `FPS: ${fps.length === 4 ? `${fps}0` : fps}`, {fontSize: '25px', fill: '#000'});
             this.add.text(510, 500, "Debug mode enabled", {fontSize: '25px', fill: '#000'});
         }
         if (daredevil) {
             lives = 1;
-            for (let i = 3; i <= 4; i++) infoTextList[i] = "";
+            infoTextList[3] = infoTextList[4] = "";
             this.add.text(620, 510, "Daredevil mode", {fontSize: '20px', fill: '#ff0000'});
         }
         
@@ -626,15 +596,13 @@
             },
             collider: true
         });
-        stars.children.iterate(function(child) {
-            child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
-        });
+        stars.children.iterate(child => child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8)));
         this.physics.add.collider(stars, platforms);
 
         //Power ups
         {
             let references = [];
-            for (let key in powerups) if (powerups.hasOwnProperty(key)) {
+            for (let [key] of Object.entries(powerups)) {
                 let x = Phaser.Math.Between(10, canvas.width - 30), y = 10;
                 powerups[key]["ref"] = this.physics.add.image(x, y, powerups[key]["key"]);
                 let powerup = powerups[key]["ref"];
@@ -642,7 +610,7 @@
                 powerup.disableBody(true, true);
                 this.physics.add.collider(powerup, platforms);
                 this.physics.add.collider(powerup, bombs);
-                this.physics.add.overlap(player, powerup, function() {
+                this.physics.add.overlap(player, powerup, () => {
                     if (sfxEnabled) _this.sound.play('powerupcollect', {volume: VOLUME.POWER_UP});
                     powerup.disableBody(true, true);
                     powerups[key].onCollect(player, powerup, _this);
@@ -663,7 +631,7 @@
         /*
             ON DEATH
         */
-        this.physics.add.collider(player, bombs, function(player, bomb) {
+        this.physics.add.collider(player, bombs, (player, bomb) => {
             if (canDestroy && !invincible) canDestroy = false;
             
             let groundPounding = cursors.down.isDown && !jumpEnabled && !invinciblePowerup;
@@ -677,7 +645,7 @@
                 hasArmor = false;
                 invincible = true;
                 canDestroy = false;
-                wait(TIME.MERCY).then(function() {
+                wait(TIME.MERCY).then(_ => {
                     invincible = false;
                     resetInfoText();
                 });
@@ -685,24 +653,24 @@
                 lives--;
                 if (lives >= 1) {
                     let ouch = groundPounding && !bombGroundPounded;
-                    infoText.setText(ouch ? "Ouch!" : lives + (lives > 1 ? " lives left!" : " life left! Better be careful!"));
+                    infoText.setText(ouch ? "Ouch!" : `${lives} ${lives > 1 ? "lives left" : "life left! Better be careful"}!`);
                     player.setPosition(10, canvas.height - 80);
                     invincible = true;
                     canDestroy = false;
-                    wait(TIME.MERCY / (ouch ? 2 : 1)).then(function() {
+                    wait(TIME.MERCY / (ouch ? 2 : 1)).then(_ => {
                         invincible = false;
                         if (ouch) {
                             infoText.setText("You can't ground pound bombs!");
                             invincible = true;
                             bombGroundPounded = true;
-                            wait(TIME.MERCY).then(function() {
-                                resetInfoText();
-                                invincible = false;
-                            });
+                            return wait(TIME.MERCY);
                         } else {
                             resetInfoText();
                         }
-                    });
+                    }).then(_ => {
+                        resetInfoText();
+                        invincible = false;
+                    })
                 } else {
                     gameOver(_this);
                 }
@@ -726,11 +694,11 @@
         /*
             ON STAR COLLECT
         */
-        this.physics.add.overlap(player, stars, function(player, star) {
+        this.physics.add.overlap(player, stars, (player, star) => {
             star.disableBody(true, true);
             score += 10;
             if (!debug && score > highScore) {
-                highScoreText.setText("High Score: " + score);
+                highScoreText.setText(`High Score: ${score}`);
             }
             
             if (sfxEnabled) {
@@ -745,23 +713,7 @@
             if (stars.countActive(true) === 0) {
                 if (level >= 1) level++;
                 
-                /*
-                    Bonus life implementation
-                */
-                if (BONUS_LIFE_LEVELS > 0 && !daredevil && !debug && level % BONUS_LIFE_LEVELS === 0) {
-                    lives++;
-                    if (sfxEnabled) this.sound.play('powerupcollect', {volume: VOLUME.POWER_UP});
-                    wait(5).then(function() {
-                        infoText.setText("You got an extra life for passing " + BONUS_LIFE_LEVELS + (BONUS_LIFE_LEVELS === 1 ? " level!" : " levels!"));
-                        invincible = true;
-                    });
-                    wait(TIME.MESSAGE).then(function() {
-                        resetInfoText();
-                        invincible = false;
-                    });
-                }
-                
-                stars.children.iterate(function(child) {
+                stars.children.iterate(child => {
                     child.enableBody(true, child.x, 0, true, true);
                     
                     //Stars move at level 6 and above, which makes the game harder :)
@@ -778,7 +730,7 @@
 
                 if (daredevil) return;
                 if (level > 5) {
-                    for (let key in powerups) if (powerups.hasOwnProperty(key)) {
+                    for (let [key] of Object.entries(powerups)) {
                         let powerup = powerups[key]["ref"];
                         let spawnRate = powerups[key]["spawnRate"];
                         let randomNumber = Math.floor(Math.random() * 100) / 100;
@@ -826,13 +778,27 @@
                         armor.setCollideWorldBounds(true);
                     }
                 }
+
+                /*
+                    Bonus life implementation
+                */
+                if (BONUS_LIFE_LEVELS > 0 && !daredevil && !debug && level % BONUS_LIFE_LEVELS === 0) {
+                    lives++;
+                    if (sfxEnabled) this.sound.play('powerupcollect', {volume: VOLUME.POWER_UP});
+                    infoText.setText(`You got an extra life for passing ${BONUS_LIFE_LEVELS} ${BONUS_LIFE_LEVELS === 1 ? "level" : "levels"}!`)
+                    invincible = true;
+                    wait(TIME.MESSAGE).then(_ => {
+                        resetInfoText();
+                        invincible = false;
+                    });
+                }
             } 
         }, null, this);
         
         /*
             CALL THIS WHEN PAUSE BUTTON IS CLICKED
         */
-        pause.on('pointerdown', function() {
+        pause.on('pointerdown', () => {
             this.physics.pause();
             this.sound.pauseAll();
             infoText.setText("Game paused.");
@@ -843,7 +809,7 @@
         /*
             CALL THIS WHEN RESUME BUTTON IS CLICKED
         */
-        resume.on('pointerdown', function() {
+        resume.on('pointerdown', () => {
             this.physics.resume();
             this.sound.resumeAll();
             resetInfoText();
@@ -864,7 +830,7 @@
                 return result;
             }
             function keyCodesPlusEnter(str) {
-                return keyCodes(str) + ",13";
+                return `${keyCodes(str)},13`;
             }
 
             let codesMap = new Map();
@@ -873,23 +839,7 @@
             /*
                 Implementation for each cheat code
             */
-            codesMap.set("38,38,40,40,37,39,37,39,66,65", function() { //Konami code
-                (function loop(messages, counter) {
-                    infoText.setText(messages[counter]);
-                    wait(TIME.MESSAGE).then(counter < messages.length - 1 ? function() {
-                        loop(messages, ++counter);
-                    } : function() {
-                        gameOver(_this);
-                    });
-                })([
-                    "Konami code?",
-                    "Ah, you're so clever.",
-                    "Why did you enter this code?",
-                    "Did you think it would help you out?",
-                    "Nope, it actually kills you.",
-                    "LOL"
-                ], 0);
-                
+            codesMap.set("38,38,40,40,37,39,37,39,66,65", () => { //Konami code
                 invincible = false;
                 pause.visible = false;
                 gameIsOver = true;
@@ -901,15 +851,27 @@
                 livesText.setTintFill(COLOR.WHITE);
                 levelText.setTintFill(COLOR.WHITE);
                 highScoreText.setTintFill(COLOR.WHITE);
+
+                (async function loop(messages, counter) {
+                    infoText.setText(messages[counter]);
+                    await wait(TIME.MESSAGE).then(_ => counter < messages.length - 1 ? loop(messages, ++counter) : gameOver(_this));
+                })([
+                    "Konami code?",
+                    "Ah, you're so clever.",
+                    "Why did you enter this code?",
+                    "Did you think it would help you out?",
+                    "Nope, it actually kills you.",
+                    "LOL"
+                ], 0);
             });
-            repeatingCodesMap.set("40,40,38,38,39,37,39,37,65,66", function() { //Reverse konami code
+            repeatingCodesMap.set("40,40,38,38,39,37,39,37,65,66", () => { //Reverse konami code
                 lives += STARTING_LIVES;
-                infoText.setText("Lives increased by " + STARTING_LIVES + ".");
+                infoText.setText(`Lives increased by ${STARTING_LIVES}.`);
                 wait(TIME.MESSAGE).then(resetInfoText);
             });
-            repeatingCodesMap.set(keyCodes("powerups"), function() {
+            repeatingCodesMap.set(keyCodes("powerups"), () => {
                 if (debug) {
-                    for (let key in powerups) if (powerups.hasOwnProperty(key)) {
+                    for (let [key] of Object.entries(powerups)) {
                         let powerup = powerups[key]["ref"];
                         let x = Phaser.Math.Between(10, canvas.width - 30), y = 10;
                         powerup.enableBody(true, x, y, true, true);
@@ -920,10 +882,8 @@
                     }
                 }
             });
-            repeatingCodesMap.set(keyCodes("bomb"), function() {
-                if (debug) createBomb();
-            });
-            codesMap.set(keyCodesPlusEnter("daredevil"), function() {
+            repeatingCodesMap.set(keyCodes("bomb"), () => debug ? createBomb() : {});
+            codesMap.set(keyCodesPlusEnter("daredevil"), () => {
                 daredevil = true;
                 lives = 1;
                 despawnPowerUps();
@@ -933,26 +893,20 @@
                 _this.add.text(620, 510, "Daredevil mode", {fontSize: '20px', fill: '#ff0000'});
                 wait(TIME.MESSAGE).then(resetInfoText);
             });
-            codesMap.set(keyCodesPlusEnter("kill"), function() {
-                gameOver(_this);
-            });
+            codesMap.set(keyCodesPlusEnter("kill"), () => gameOver(_this));
 
             /*
                 Make the game recognize each cheat code
             */
-            codesMap.forEach(function(value, key) {
-                var codeArr = key.split(",").map(function(element) {
-                    return window.parseInt(element, 10);
-                });
+            for (let [key] of codesMap) {
+                var codeArr = key.split(",").map(element => window.parseInt(element, 10));
                 _this.input.keyboard.createCombo(codeArr);
-            });
-            repeatingCodesMap.forEach(function(value, key) {
-                var codeArr = key.split(",").map(function(element) {
-                    return window.parseInt(element, 10);
-                });
+            }
+            for (let [key] of repeatingCodesMap) {
+                var codeArr = key.split(",").map(element => window.parseInt(element, 10));
                 _this.input.keyboard.createCombo(codeArr, {resetOnMatch: true});
-            });
-            this.input.keyboard.on('keycombomatch', function(e) {
+            }
+            this.input.keyboard.on('keycombomatch', e => {
                 if (daredevil) return; //Cheat codes do not work in daredevil mode
 
                 var code = e.keyCodes + "";
@@ -965,18 +919,16 @@
         }
         
         if (lives === 0) gameOver(this);
-        if (debug && console.timeEnd) {
-            console.timeEnd("Game loading time");
-        }
+        if (debug && console.timeEnd) console.timeEnd("Game loading time");
     }
     
     /*
         UPDATE LOOP
     */
     function update() {
-        livesText.setText("Lives: " + (!window.isFinite(lives) ? "∞" : lives));
-        levelText.setText("Level: " + level);
-        scoreText.setText("Score: " + score);
+        livesText.setText(`Lives: ${!window.isFinite(lives) ? "∞" : lives}`);
+        levelText.setText(`Level: ${level}`);
+        scoreText.setText(`Score: ${score}`);
         if (gameIsOver) return;
 
         /*
@@ -986,14 +938,10 @@
         if (!cursors.down.isDown) {
             if (cursors.shift.isDown && !isTired) {
                 player.setVelocityX(cursors.left.isDown ? -SPEED.RUN : cursors.right.isDown ? SPEED.RUN : 0);
-                wait(TIME.RUNNING).then(function() {
-                    if (cursors.shift.isDown) isTired = true;
-                });
+                wait(TIME.RUNNING).then(_ => cursors.shift.isDown ? isTired = true : {});
             } else {
                 player.setVelocityX(cursors.left.isDown ? -SPEED.WALK : cursors.right.isDown ? SPEED.WALK : 0);
-                wait(TIME.RUNNING).then(function() {
-                    isTired = false;
-                });
+                wait(TIME.RUNNING).then(_ => isTired = false);
             }
         } else { //Allows the player to ground pound
             player.setVelocityX(0);
@@ -1046,7 +994,7 @@
         
         if (debug) {
             let fps = (Math.round(game.loop.actualFps * 100.0) / 100.0) + "";
-            fpsDebugText.setText("FPS: " + (fps.length === 4 ? fps + "0" : fps));
+            fpsDebugText.setText(`FPS: ${fps.length === 4 ? `${fps}0` : fps}`);
         }
     }
 })();

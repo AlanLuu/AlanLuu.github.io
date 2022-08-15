@@ -27,14 +27,13 @@
         <noscript>
             <div class="links" id="noscriptlinks">
                 <nav>
-                    <a href="../">Home</a> |
-                    <a href="../projects/">Projects</a> |
+                    <a href="../" class="noscriptnotactive">Home</a> |
+                    <a href="../projects/" class="noscriptnotactive">Projects</a> |
                     <a href="../circleparticles/">Circle particles</a> |
-                    <a href="../game/">Star Collector</a> 
+                    <a href="../game/" class="noscriptnotactive">Star Collector</a> 
                 </nav>
             </div>
-            <h1>Circle particles</h1>
-            <p>Please <a href="https://www.enable-javascript.com/" target="_blank">enable JavaScript</a> in order to view the content on this page.</p>
+            <p class="enablejs">Please <a href="https://www.enable-javascript.com/" target="_blank">enable JavaScript</a> in order to view the contents of this page.</p>
         </noscript>
         
         <canvas id="canvas"></canvas>
@@ -43,13 +42,8 @@
             <p id="rgbpicker"></p>
         </div>
         
-        <div id="socialmedia" class="centerText">
-            <a href="mailto:alanluu4@gmail.com" class="fa fa-envelope"></a>
-            <a href="https://github.com/alanluu" target="_blank" class="fa fa-github"></a>
-            <!--<a href="#" class="fa fa-linkedin"></a>-->
-        </div>
-        
-        <script src="canvas.js"></script>
+        <script src="../util.js"></script>
+        <script>!function(){var e=document.createElement("script");e.src="noModule"in e?"canvas.js":"canvas.legacy.js",document.body.appendChild(e)}();</script>
         
         <!-- For mobile devices -->
         <script src="../responsive.js"></script>

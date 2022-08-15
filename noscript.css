@@ -6,6 +6,10 @@
     margin-bottom: 14px;
 }
 
-noscript p {
+.enablejs {
     text-align: center;
+}
+
+.noscriptnotactive {
+    color: #0000EE !important;
 }
